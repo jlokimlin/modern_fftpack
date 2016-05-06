@@ -7792,7 +7792,7 @@ contains
         !--------------------------------------------------------------
         ! Dictionary: local variables
         !--------------------------------------------------------------
-        integer (ip)            :: i, ib, ido, ii, iip, iipm, is
+        integer (ip)            :: i, ib, ido, ii, iip, ipm, is
         integer (ip)            :: j, k1, l1, l2, ld
         integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
         integer (ip), parameter :: ntryh(*) = [ 4, 2, 3, 5 ]
@@ -7800,67 +7800,54 @@ contains
         real (wp)               :: arg, argh, argld, fi
         !--------------------------------------------------------------
 
+
+        ntry = 0
         nl = n
         nf = 0
         j = 0
 
-101     j = j+1
-        if(j < 4) then
-            goto 102
-        else if(j == 4) then
-            goto 102
-        else
-            goto 103
-        end if
-102     ntry = ntryh(j)
-        go to 104
-103     ntry = ntryh(4)+2*(j-4) !ntry = ntry + 2
-104     nq = nl/ntry
-        nr = nl-ntry*nq
-        if(nr < 0) then
-            goto 101
-        else if(nr == 0) then
-            goto 105
-        else
-            goto 101
-        end if
-105     nf = nf+1
-        fac(nf+2) = real(ntry, kind=wp)
-        nl = nq
-        if (ntry /= 2) go to 107
-        do i=2,nf
-            ib = nf-i+2
-            fac(ib+2) = fac(ib+1)
-        end do
-        fac(3) = 2
-107     if (nl /= 1) go to 104
+        factorize_loop: do
+            ! Increment j
+            j = j+1
 
-        !        factorize_loop: do
-        !            j = j + 1
-        !            if (j <= 4) then
-        !                ntry = ntryh(j)
-        !            else
-        !                ntry = ntryh(4)+2*(j-4) ! ntry = ntry + 2
-        !                inner_loop: do while (nl /= 1 )
-        !                    nq = nl/ntry
-        !                    nr = nl-ntry*nq
-        !                    if (nr /= 0) then
-        !                        cycle factorize_loop
-        !                    end if
-        !                    nf = nf+1
-        !                    fac(nf+2) = ntry
-        !                    nl = nq
-        !                    if (ntry == 2 .and. nf /= 1 ) then
-        !                        do i=2,nf
-        !                            ib = nf-i+2
-        !                            fac(ib+2) = fac(ib+1)
-        !                        end do
-        !                        fac(3) = 2
-        !                    end if
-        !                end do inner_loop
-        !            end if
-        !            exit factorize_loop
-        !        end do factorize_loop
+            ! Choose ntry
+            if (j <= 4) then
+                ntry = ntryh(j)
+            else
+                ntry = ntry+2
+            end if
+
+            inner_loop: do
+                nq = nl/ntry
+                nr = nl-ntry*nq
+                if (nr < 0) then
+                    cycle factorize_loop
+                else if (nr == 0) then
+                    nf = nf+1
+                    fac(nf+2) = ntry
+                    nl = nq
+
+                    if (ntry == 2 .and. nf /= 1) then
+
+                        do i=2,nf
+                            ib = nf-i+2
+                            fac(ib+2) = fac(ib+1)
+                        end do
+
+                        fac(3) = 2
+
+                    end if
+
+                    if (nl /= 1) then
+                        cycle inner_loop
+                    end if
+                else
+                    cycle factorize_loop
+                end if
+                exit inner_loop
+            end do inner_loop
+            exit factorize_loop
+        end do factorize_loop
 
         fac(1) = n
         fac(2) = nf
@@ -7874,9 +7861,9 @@ contains
             ld = 0
             l2 = l1*iip
             ido = n/l2
-            iipm = iip-1
+            ipm = iip-1
 
-            do j=1,iipm
+            do j=1,ipm
 
                 ld = ld+l1
                 i = is
@@ -10390,7 +10377,6 @@ contains
         real (wp)               :: arg,  argh, argld, fi
         !--------------------------------------------------------------
 
-
         ntry = 0
         nl = n
         nf = 0
@@ -10418,18 +10404,16 @@ contains
                     nl = nq
 
                     if (ntry == 2 .and. nf /= 1) then
-
                         do i=2,nf
                             ib = nf-i+2
                             fac(ib+2) = fac(ib+1)
                         end do
-
                         fac(3) = 2
-
                     end if
 
-                    if (nl /= 1) cycle inner_loop
-
+                    if (nl /= 1) then
+                        cycle inner_loop
+                    end if
                 else
                     cycle factorize_loop
                 end if
