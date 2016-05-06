@@ -1809,8 +1809,7 @@ contains
         if (lenc < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfft1f ', 4)
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) + 4) then
+        else if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cfft1f ', 6)
         else if (lenwrk < 2*n) then
@@ -1907,8 +1906,8 @@ contains
             ier = 5
             call xerfft('cfft2b', -2)
             return
-        else if (lensav < 2*l + int(log( real ( l, kind=wp))/log(2.0_wp)) + &
-            2*m + int(log( real ( m, kind=wp))/log(2.0_wp)) +8) then
+        else if (lensav < 2*l + int(log(real(l, kind=wp))/log(2.0_wp)) + &
+            2*m + int(log(real(m, kind=wp))/log(2.0_wp)) +8) then
             ier = 2
             call xerfft('cfft2b', 6)
             return
@@ -1920,10 +1919,10 @@ contains
         !
         !  transform x lines of c array
         !
-        iw = 2*l+int(log( real ( l, kind=wp) )/log(2.0_wp)) + 3
+        iw = 2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3
 
         call cfftmb(l, 1, m, ldim, c, (l-1) + ldim*(m-1) +1, &
-            wsave(iw), 2*m + int(log( real ( m, kind=wp))/log(2.0_wp)) + 4, &
+            wsave(iw), 2*m + int(log(real(m, kind=wp))/log(2.0_wp)) + 4, &
             work, 2*l*m, ier1)
 
         if (ier1 /= 0) then
@@ -1937,7 +1936,7 @@ contains
         iw = 1
 
         call cfftmb (m, ldim, l, 1, c, (m-1)*ldim + l, &
-            wsave(iw), 2*l + int(log( real ( l, kind=wp) )/log(2.0_wp)) + 4, &
+            wsave(iw), 2*l + int(log(real(l, kind=wp) )/log(2.0_wp)) + 4, &
             work, 2*m*l, ier1)
 
         if (ier1 /= 0) then
@@ -2036,8 +2035,8 @@ contains
             call xerfft('cfft2f', -2)
             return
         else if (lensav < &
-            2*l + int(log( real ( l, kind=wp))/log(2.0_wp)) + &
-            2*m + int(log( real ( m, kind=wp))/log(2.0_wp)) +8) then
+            2*l + int(log(real(l, kind=wp))/log(2.0_wp)) + &
+            2*m + int(log(real(m, kind=wp))/log(2.0_wp)) +8) then
             ier = 2
             call xerfft('cfft2f', 6)
             return
@@ -2049,11 +2048,11 @@ contains
         !
         !  transform x lines of c array
         !
-        iw = 2*l+int(log( real ( l, kind=wp) )/log(2.0_wp)) + 3
+        iw = 2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3
 
         call cfftmf ( l, 1, m, ldim, c, (l-1) + ldim*(m-1) +1, &
             wsave(iw), &
-            2*m + int(log( real ( m, kind=wp) )/log(2.0_wp)) + 4, &
+            2*m + int(log(real(m, kind=wp) )/log(2.0_wp)) + 4, &
             work, 2*l*m, ier1)
 
         if (ier1 /= 0) then
@@ -2066,7 +2065,7 @@ contains
         !
         iw = 1
         call cfftmf (m, ldim, l, 1, c, (m-1)*ldim + l, &
-            wsave(iw), 2*l + int(log( real ( l, kind=wp) )/log(2.0_wp)) + 4, &
+            wsave(iw), 2*l + int(log(real(l, kind=wp) )/log(2.0_wp)) + 4, &
             work, 2*m*l, ier1)
 
         if (ier1 /= 0) then
@@ -2150,8 +2149,8 @@ contains
         end if
 
         call cfftmi ( m, &
-            wsave(2*l+int(log( real ( l, kind=wp) )/log(2.0_wp)) + 3), &
-            2*m + int(log( real ( m, kind=wp) )/log(2.0_wp)) + 4, ier1)
+            wsave(2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3), &
+            2*m + int(log(real(m, kind=wp) )/log(2.0_wp)) + 4, ier1)
 
         if (ier1 /= 0) then
             ier = 20
@@ -2249,7 +2248,7 @@ contains
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfftmb ', 6)
-        else if (lensav < 2*n + int(log( real(n, kind=wp)) &
+        else if (lensav < 2*n + int(log(real(n, kind=wp)) &
             /log(2.0_wp)) + 4) then
             ier = 2
             call xerfft('cfftmb ', 8)
@@ -2357,8 +2356,7 @@ contains
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfftmf ', 6)
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) + 4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cfftmf ', 8)
         else if (lenwrk < 2*lot*n) then
@@ -2419,7 +2417,7 @@ contains
 
         ier = 0
 
-        if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) + 4) then
+        if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cfftmi ', 3)
         end if
@@ -4254,7 +4252,7 @@ contains
             wsave(k) = cos(fk*dt)
         end do
 
-        lnsv = n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4
+        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4
         call rfft1i(n, wsave(n+1), lnsv, ier1)
 
         if (ier1 /= 0) then
@@ -4304,7 +4302,7 @@ contains
         end if
 
         lenx = inc*(n-1)  + 1
-        lnsv = n + int(log( real(n, kind=wp) )/log(2.0_wp)) + 4
+        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
         lnwk = n
 
         call rfft1b(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
@@ -4384,7 +4382,7 @@ contains
         end if
 
         lenx = inc*(n-1)  + 1
-        lnsv = n + int(log( real(n, kind=wp) )/log(2.0_wp)) + 4
+        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
         lnwk = n
 
         call rfft1f(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
@@ -4487,8 +4485,7 @@ contains
             ier = 1
             call xerfft('cosqmb', 6)
             return
-        else if (lensav < &
-            2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cosqmb', 8)
             return
@@ -4619,8 +4616,7 @@ contains
             ier = 1
             call xerfft('cosqmf', 6)
             return
-        else if (lensav < &
-            2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cosqmf', 8)
             return
@@ -4708,7 +4704,7 @@ contains
         real (wp), parameter ::  HALF_PI = acos(-1.0_wp)/2
         real (wp) wsave(lensav)
 
-        if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cosqmi', 3)
             return
@@ -4724,7 +4720,7 @@ contains
             wsave(k) = cos(fk*dt)
         end do
 
-        lnsv = n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4
+        lnsv = get_1d_saved_workspace_size(n) - n
 
         call rfftmi(n, wsave(n+1), lnsv, ier1)
 
@@ -4809,8 +4805,7 @@ contains
             ier = 1
             call xerfft('cost1b', 6)
             return
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cost1b', 8)
             return
@@ -4905,8 +4900,7 @@ contains
             ier = 1
             call xerfft('cost1f', 6)
             return
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cost1f', 8)
             return
@@ -4976,45 +4970,49 @@ contains
         integer (ip) nm1
         integer (ip) np1
         integer (ip) ns2
-        real (wp) pi
+        real (wp), parameter :: PI = acos(-1.0_wp)
         real (wp) wsave(lensav)
 
-        ier = 0
 
-        if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        !
+        !==> Check validity of input arguments
+        !
+        if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cost1i', 3)
             return
+        else
+            ier = 0
         end if
 
-        if ( n <= 3 ) then
-            return
+        !
+        !==> Perform transform
+        !
+        if (n > 3) then
+
+            nm1 = n-1
+            np1 = n+1
+            ns2 = n/2
+            dt = pi/ nm1
+            fk = 0.0_wp
+
+            do k=2,ns2
+                kc = np1-k
+                fk = fk + 1.0_wp
+                wsave(k) = 2.0_wp * sin(fk*dt)
+                wsave(kc) = 2.0_wp * cos(fk*dt)
+            end do
+
+            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) +4
+
+            call rfft1i (nm1, wsave(n+1), lnsv, ier1)
+
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cost1i',-5)
+            end if
         end if
 
-        nm1 = n-1
-        np1 = n+1
-        ns2 = n/2
-        pi = acos(-1.0_wp)
-        dt = pi/ real ( nm1, kind=wp)
-        fk = 0.0_wp
-
-        do k=2,ns2
-            kc = np1-k
-            fk = fk + 1.0_wp
-            wsave(k) = 2.0_wp * sin(fk*dt)
-            wsave(kc) = 2.0_wp * cos(fk*dt)
-        end do
-
-        lnsv = nm1 + int(log( real ( nm1, kind=wp) )/log(2.0_wp)) +4
-
-        call rfft1i (nm1, wsave(n+1), lnsv, ier1)
-
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cost1i',-5)
-        end if
-
-        return
     end subroutine cost1i
 
     subroutine costb1(n, inc, x, wsave, work, ier)
@@ -5193,7 +5191,7 @@ contains
                 end if
 
                 lenx = inc*(nm1-1)  + 1
-                lnsv = nm1 + int(log( real ( nm1, kind=wp) )/log(2.0_wp)) + 4
+                lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
                 lnwk = nm1
 
                 call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
@@ -5316,8 +5314,7 @@ contains
             ier = 1
             call xerfft('costmb', 6)
             return
-        else if (lensav < &
-            2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('costmb', 8)
             return
@@ -5420,16 +5417,15 @@ contains
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
-        !!logical xercon
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('costmf', 6)
             return
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('costmf', 8)
             return
@@ -5441,19 +5437,26 @@ contains
             ier = 4
             call xerfft('costmf', -1)
             return
+        else
+            ier = 0
         end if
 
-        iw1 = lot+lot+1
-
+        !
+        !==> Perform transform
+        !
+        iw1 = 2*lot+1
         call mcstf1(lot,jump,n,inc,x,wsave,work,work(iw1),ier1)
 
+        ! Check error flag
         if (ier1 /= 0) then
             ier = 20
             call xerfft('costmf',-5)
         end if
 
-        return
     end subroutine costmf
+
+
+
     subroutine costmi(n, wsave, lensav, ier)
 
 
@@ -5501,42 +5504,46 @@ contains
         integer (ip) nm1
         integer (ip) np1
         integer (ip) ns2
-        real (wp) pi
+        real (wp), parameter :: PI = acos(-1.0_wp)
         real (wp) wsave(lensav)
 
-        ier = 0
-
-        if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        !
+        !==> Check validity of input arguments
+        !
+        if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('costmi', 3)
             return
+        else
+            ier = 0
         end if
 
-        if (n <= 3) then
-            return
-        end if
+        !
+        !==> Perform transform
+        !
+        if (n > 3) then
 
-        nm1 = n-1
-        np1 = n+1
-        ns2 = n/2
-        pi = acos(-1.0_wp)
-        dt = pi/ real ( nm1, kind=wp)
-        fk = 0.0_wp
+            nm1 = n-1
+            np1 = n+1
+            ns2 = n/2
+            dt = PI/nm1
+            fk = 0.0_wp
 
-        do k=2,ns2
-            kc = np1-k
-            fk = fk + 1.0_wp
-            wsave(k) = 2.0_wp * sin(fk*dt)
-            wsave(kc) = 2.0_wp * cos(fk*dt)
-        end do
+            do k=2,ns2
+                kc = np1-k
+                fk = fk + 1.0_wp
+                wsave(k) = 2.0_wp * sin(fk*dt)
+                wsave(kc) = 2.0_wp * cos(fk*dt)
+            end do
 
-        lnsv = nm1 + int(log( real ( nm1, kind=wp) )/log(2.0_wp)) +4
+            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) +4
 
-        call rfftmi (nm1, wsave(n+1), lnsv, ier1)
+            call rfftmi (nm1, wsave(n+1), lnsv, ier1)
 
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('costmi',-5)
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('costmi',-5)
+            end if
         end if
 
     end subroutine costmi
@@ -5593,7 +5600,7 @@ contains
         end if
 
         lenx = (lot-1)*jump + inc*(n-1)  + 1
-        lnsv = n + int(log( real(n, kind=wp) )/log(2.0_wp)) + 4
+        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
         lnwk = lot*n
 
         call rfftmb(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
@@ -7961,7 +7968,7 @@ contains
             end do
 
             lnxh = lot-1 + lot*(np1-1) + 1
-            lnsv = np1 + int(log( real ( np1, kind=wp))/log(2.0_wp)) + 4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
             lnwk = lot*np1
 
             call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,ier1)
@@ -9247,7 +9254,7 @@ contains
     end subroutine r1fgkf
 
 
-    subroutine copy_r_into_w(ldr, ldw, l, m, r, w)
+    subroutine r2w(ldr, ldw, l, m, r, w)
         !
         ! Purpose:
         !
@@ -9262,7 +9269,7 @@ contains
 
         w(1:l,:) = r(1:l,:)
 
-    end subroutine copy_r_into_w
+    end subroutine r2w
 
 
 
@@ -9559,7 +9566,7 @@ contains
         if (lenr < inc*(n-1) + 1) then
             ier = 1
             call xerfft('rfft1f ', 6)
-        else if (lensav < n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('rfft1f ', 8)
         else if (lenwrk < n) then
@@ -9613,7 +9620,7 @@ contains
 
         ier = 0
 
-        if (lensav < n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('rfft1i ', 3)
         end if
@@ -9706,7 +9713,7 @@ contains
         !==> verify lensav
         !
         lwsav = l+int(log(real(l, kind=wp))/log(2.0_wp))+4
-        mwsav = 2*m+int(log(real(m, kind=wp))/log(2.0_wp))+4
+        mwsav = get_1d_saved_workspace_size(m)
         mmsav = m+int(log(real(m, kind=wp))/log(2.0_wp))+4
         modl = mod(l,2)
         modm = mod(m,2)
@@ -9753,7 +9760,7 @@ contains
             !  r and work are switched because the the first dimension
             !  of the input to complex cfftmf must be even.
             !
-            call copy_r_into_w(ldim,ldw,l,m,r,work)
+            call r2w(ldim,ldw,l,m,r,work)
 
             call cfftmb(ldh-1,1,m,ldh,work(2),ldh*m, &
                 wsave(lwsav+1),mwsav,r,l*m, ier1)
@@ -9764,7 +9771,7 @@ contains
                 return
             end if
 
-            call copy_w_into_r(ldim,ldw,l,m,r,work)
+            call w2r(ldim,ldw,l,m,r,work)
         end if
 
         if(modl == 0) then
@@ -9798,7 +9805,7 @@ contains
 
         associate( &
             arg_1 => m*ldim, &
-            arg_2 => l+int(log( real ( l, kind=wp) )/log(2.0_wp))+4 &
+            arg_2 => l+int(log(real(l, kind=wp) )/log(2.0_wp))+4 &
             )
 
             call rfftmb(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,ier1)
@@ -9895,7 +9902,7 @@ contains
         !==> verify lensav
         !
         lwsav = l+int(log(real (l, kind=wp))/log(2.0_wp))+4
-        mwsav = 2*m+int(log(real(m, kind=wp))/log(2.0_wp))+4
+        mwsav = get_1d_saved_workspace_size(m)
         mmsav = m+int(log(real(m, kind=wp))/log(2.0_wp))+4
 
         if (lensav < lwsav+mwsav+mmsav) then
@@ -9924,7 +9931,7 @@ contains
         !
         associate( &
             arg_1 => m*ldim, &
-            arg_2 =>  l+int(log( real ( l, kind=wp) )/log(2.0_wp))+4 &
+            arg_2 =>  l+int(log(real(l, kind=wp) )/log(2.0_wp))+4 &
             )
 
             call rfftmf(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,ier1)
@@ -9977,7 +9984,7 @@ contains
             !==> r and work are switched because the the first dimension
             !    of the input to complex cfftmf must be even.
             !
-            call copy_r_into_w(ldim,ldw,l,m,r,work)
+            call r2w(ldim,ldw,l,m,r,work)
             call cfftmf(ldh-1,1,m,ldh,work(2),ldh*m, &
                 wsave(lwsav+1),mwsav,r,l*m, ier1)
 
@@ -9987,7 +9994,7 @@ contains
                 return
             end if
 
-            call copy_w_into_r(ldim,ldw,l,m,r,work)
+            call w2r(ldim,ldw,l,m,r,work)
         end if
 
         if(modl == 0) then
@@ -10065,9 +10072,9 @@ contains
         !
         ! verify lensav
         !
-        lwsav = l+int(log( real ( l, kind=wp) )/log(2.0_wp))+4
-        mwsav = 2*m+int(log( real ( m, kind=wp) )/log(2.0_wp))+4
-        mmsav = m+int(log( real ( m, kind=wp) )/log(2.0_wp))+4
+        lwsav = l+int(log(real(l, kind=wp) )/log(2.0_wp))+4
+        mwsav = 2*m+int(log(real(m, kind=wp) )/log(2.0_wp))+4
+        mmsav = m+int(log(real(m, kind=wp) )/log(2.0_wp))+4
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
@@ -10643,7 +10650,7 @@ contains
             ier = 1
             call xerfft('rfftmf ', 6)
             return
-        else if (lensav < n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('rfftmf ', 8)
             return
@@ -10706,7 +10713,7 @@ contains
 
         ier = 0
 
-        if (lensav < n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('rfftmi ', 3)
             return
@@ -10792,8 +10799,7 @@ contains
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('sinq1b', 6)
-        else if (lensav < 2*n + int(log(real(n, kind=wp)) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinq1b', 8)
         else if (lenwrk < n) then
@@ -10904,8 +10910,7 @@ contains
             ier = 1
             call xerfft('sinq1f', 6)
             return
-        else if (lensav < 2*n + int(log( real(n, kind=wp) )&
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinq1f', 8)
             return
@@ -10976,8 +10981,7 @@ contains
         integer (ip) n
         real (wp) wsave(lensav)
 
-        if (lensav < 2*n + int(log(real(n, kind=wp)) &
-            /log(2.0_wp))+4) then
+        if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinq1i', 3)
             return
@@ -11080,8 +11084,7 @@ contains
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('sinqmb', 6)
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinqmb', 8)
         else if (lenwrk < lot*n) then
@@ -11217,8 +11220,7 @@ contains
             ier = 1
             call xerfft('sinqmf', 6)
             return
-        else if (lensav < 2*n + int(log( real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinqmf', 8)
             return
@@ -11310,7 +11312,7 @@ contains
 
         ier = 0
 
-        if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('sinqmi', 3)
             return
@@ -11392,13 +11394,14 @@ contains
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('sint1b', 6)
             return
-        else if ( lensav < n / 2 + n + int ( log(real(n, kind=wp) ) &
+        else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
             call xerfft('sint1b', 8)
@@ -11407,17 +11410,24 @@ contains
             ier = 3
             call xerfft('sint1b', 10)
             return
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         call sintb1(n,inc,x,wsave,work,work(n+2),ier1)
 
+        ! Check error flag
         if (ier1 /= 0) then
             ier = 20
             call xerfft('sint1b',-5)
         end if
 
-        return
     end subroutine sint1b
+
+
     subroutine sint1f(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
         !
         !! SINT1F: 64-bit float precision forward sine transform, 1D.
@@ -11482,13 +11492,14 @@ contains
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('sint1f', 6)
             return
-        else if (lensav < n/2 + n + int(log( real(n, kind=wp) ) &
+        else if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
             call xerfft('sint1f', 8)
@@ -11497,8 +11508,13 @@ contains
             ier = 3
             call xerfft('sint1f', 10)
             return
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         call sintf1(n,inc,x,wsave,work,work(n+2),ier1)
 
         if (ier1 /= 0) then
@@ -11552,43 +11568,48 @@ contains
         integer (ip) n
         integer (ip) np1
         integer (ip) ns2
-        real (wp) pi
+        real (wp), parameter :: pi = acos(-1.0_wp)
         real (wp) wsave(lensav)
 
-        ier = 0
-
-        if (lensav < n/2 + n + int(log( real(n, kind=wp) ) &
+        !
+        !==> Check validity of input arguments
+        !
+        if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
             call xerfft('sint1i', 3)
             return
+        else
+            ier = 0
         end if
 
-        pi =  acos(-1.0_wp)
+        !
+        !==> Perform transform
+        !
+        if (n > 1) then
 
-        if (n <= 1) then
-            return
+            ns2 = n/2
+            np1 = n+1
+            dt = pi/np1
+
+            do k=1,ns2
+                wsave(k) = 2.0_wp *sin(k*dt)
+            end do
+
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) +4
+
+            call rfft1i(np1, wsave(ns2+1), lnsv, ier1)
+
+            ! Check error flag
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('sint1i',-5)
+            end if
         end if
 
-        ns2 = n/2
-        np1 = n+1
-        dt = pi / real ( np1, kind=wp)
-
-        do k=1,ns2
-            wsave(k) =  2.0_wp *sin(k*dt)
-        end do
-
-        lnsv = np1 + int(log( real ( np1, kind=wp))/log(2.0_wp)) +4
-
-        call rfft1i (np1, wsave(ns2+1), lnsv, ier1)
-
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('sint1i',-5)
-        end if
-
-        return
     end subroutine sint1i
+
+
 
     subroutine sintb1(n, inc, x, wsave, xh, work, ier)
 
@@ -11674,6 +11695,9 @@ contains
         end if
 
     end subroutine sintb1
+
+
+
 
     subroutine sintf1(n, inc, x, wsave, xh, work, ier)
 
@@ -11842,7 +11866,7 @@ contains
             ier = 1
             call xerfft('sintmb', 6)
             return
-        else if ( lensav < n / 2 + n + int ( log(real(n, kind=wp) ) &
+        else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
             call xerfft('sintmb', 8)
@@ -11955,7 +11979,7 @@ contains
             ier = 1
             call xerfft( 'sintmf', 6 )
             return
-        else if ( lensav < n / 2 + n + int ( log(real(n, kind=wp) ) &
+        else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
             call xerfft( 'sintmf', 8 )
@@ -11972,10 +11996,15 @@ contains
             ier = 0
         end if
 
-        iw1 = lot + lot + 1
+        !
+        !==> Perform transform
+        !
+        iw1 = 2 * lot + 1
         iw2 = iw1 + lot * ( n + 1 )
+
         call msntf1(lot, jump, n, inc, x, wsave, work, work(iw1), work(iw2), ier1 )
 
+        ! Check error flag
         if ( ier1 /= 0 ) then
             ier = 20
             call xerfft( 'sintmf', -5 )
@@ -12029,16 +12058,22 @@ contains
         real (wp), parameter :: PI = acos(-1.0_wp)
         real (wp) wsave(lensav)
 
-        ier = 0
-
-        if ( lensav < n / 2 + n + int ( log(real(n, kind=wp) ) &
+        !
+        !==> Check validity of input arguments
+        !
+        if (lensav < n / 2 + n + int(log(real(n, kind=wp)) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
             call xerfft( 'sintmi', 3 )
             return
+        else
+            ier = 0
         end if
 
-        if ( n > 1 ) then
+        !
+        !==> Perform transform
+        !
+        if (n > 1) then
 
             ns2 = n / 2
             np1 = n + 1
@@ -12061,7 +12096,7 @@ contains
     end subroutine sintmi
 
 
-    subroutine copy_w_into_r(ldr, ldw, l, m, r, w)
+    subroutine w2r(ldr, ldw, l, m, r, w)
         !
         !
         ! Purpose:
@@ -12077,7 +12112,7 @@ contains
 
         r(1:l,:) = w(1:l,:)
 
-    end subroutine copy_w_into_r
+    end subroutine w2r
 
 
     function xercon(inc, jump, n, lot) result (return_value)
