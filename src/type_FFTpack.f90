@@ -7605,7 +7605,6 @@ contains
                             end do
                         end do
                     end do
-                    go to 121
                 else
                     do j=2,iipph
                         jc = iipp2-j
@@ -7622,19 +7621,17 @@ contains
                             end do
                         end do
                     end do
-                    go to 121
                 end if
-            end if
-
-            do ik=1,idl1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    c2(m1,ik,1) = ch2(m2,ik,1)
+            else
+                do ik=1,idl1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        c2(m1,ik,1) = ch2(m2,ik,1)
+                    end do
                 end do
-            end do
-
-            121 do j=2,iipph
+            end if
+            do j=2,iipph
                 jc = iipp2-j
                 do k=1,l1
                     m2 = m2s
