@@ -16,7 +16,7 @@ ifeq ($(UNAMES),Linux)
 
   else
 
-    FC := gfortran -O3 -Wall \
+    FC := gfortran -Wall \
     -J../lib -I../lib
     CPP := gfortran -E
    

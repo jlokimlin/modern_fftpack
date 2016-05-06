@@ -311,7 +311,7 @@ contains
         integer (ip), intent (out) :: ier
         !--------------------------------------------------------------
 
-        if (lensav < get_1d_saved_workspace_size(n) ) then
+        if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cfftmi ', 3)
         else
@@ -395,10 +395,10 @@ contains
         if (lenc < inc * ( n - 1 ) + 1) then
             ier = 1
             call xerfft( 'cfft1b ', 4)
-        else if (lensav < get_1d_saved_workspace_size(n) ) then
+        else if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cfft1b ', 6)
-        else if (lenwrk < 2 * n) then
+        else if ( size(work) < 2 * n) then
             ier = 3
             call xerfft('cfft1b ', 8)
         else
@@ -573,23 +573,23 @@ contains
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
-            integer (ip), intent (in)   :: ido
-            integer (ip), intent (in)   :: l1
-            integer (ip), intent (in)   :: na
-            real (wp),  intent (in out) :: cc(in1,l1,ido,3)
-            integer (ip), intent (in)   :: in1
-            real (wp),  intent (in out) :: ch(in2,l1,3,ido)
-            integer (ip), intent (in)   :: in2
-            real (wp),  intent (in)   :: wa(ido,2,2)
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,ido,3)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,3,ido)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,2,2)
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
-            integer (ip) :: i !! Counter
+            integer (ip)           :: i !! Counter
             real (wp), allocatable :: ci2(:), ci3(:)
             real (wp), allocatable :: cr2(:), cr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
-            real (wp), parameter :: TAUI = sqrt(3.0_wp)/2!0.866025403784439_wp
-            real (wp), parameter :: TAUR = -0.5_wp
+            real (wp), parameter   :: TAUI = sqrt(3.0_wp)/2!0.866025403784439_wp
+            real (wp), parameter   :: TAUR = -0.5_wp
             !----------------------------------------------------------------------
 
             !
@@ -7766,10 +7766,11 @@ contains
 
         end subroutine mradfg
 
-
     end subroutine mrftf1
 
-    subroutine mrfti1 (n,wa,fac)
+
+
+    subroutine mrfti1(n,wa,fac)
         !
         !  input
         !  n, the number for which factorization and
@@ -7791,26 +7792,11 @@ contains
         !--------------------------------------------------------------
         ! Dictionary: local variables
         !--------------------------------------------------------------
-        integer (ip) i
-        integer (ip) ib
-        integer (ip) ido
-        integer (ip) ii
-        integer (ip) iip
-        integer (ip) iipm
-        integer (ip) is
-        integer (ip) j
-        integer (ip) k1
-        integer (ip) l1
-        integer (ip) l2
-        integer (ip) ld
-        integer (ip) nf
-        integer (ip) nfm1
-        integer (ip) nl
-        integer (ip) nq
-        integer (ip) nr
-        integer (ip) ntry
+        integer (ip)            :: i, ib, ido, ii, iip, iipm, is
+        integer (ip)            :: j, k1, l1, l2, ld
+        integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
         integer (ip), parameter :: ntryh(*) = [ 4, 2, 3, 5 ]
-        real (wp),    parameter :: tpi = 2.0_wp * acos(-1.0_wp)
+        real (wp),    parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
         real (wp)               :: arg, argh, argld, fi
         !--------------------------------------------------------------
 
@@ -7828,7 +7814,7 @@ contains
         end if
 102     ntry = ntryh(j)
         go to 104
-103     ntry = ntryh(4)+2*(j-4) !ntry+2
+103     ntry = ntryh(4)+2*(j-4) !ntry = ntry + 2
 104     nq = nl/ntry
         nr = nl-ntry*nq
         if(nr < 0) then
@@ -7848,10 +7834,37 @@ contains
         end do
         fac(3) = 2
 107     if (nl /= 1) go to 104
-        fac(1) = real(n, kind=wp)
-        fac(2) = real(nf, kind=wp)
 
-        argh = tpi/n
+        !        factorize_loop: do
+        !            j = j + 1
+        !            if (j <= 4) then
+        !                ntry = ntryh(j)
+        !            else
+        !                ntry = ntryh(4)+2*(j-4) ! ntry = ntry + 2
+        !                inner_loop: do while (nl /= 1 )
+        !                    nq = nl/ntry
+        !                    nr = nl-ntry*nq
+        !                    if (nr /= 0) then
+        !                        cycle factorize_loop
+        !                    end if
+        !                    nf = nf+1
+        !                    fac(nf+2) = ntry
+        !                    nl = nq
+        !                    if (ntry == 2 .and. nf /= 1 ) then
+        !                        do i=2,nf
+        !                            ib = nf-i+2
+        !                            fac(ib+2) = fac(ib+1)
+        !                        end do
+        !                        fac(3) = 2
+        !                    end if
+        !                end do inner_loop
+        !            end if
+        !            exit factorize_loop
+        !        end do factorize_loop
+
+        fac(1) = n
+        fac(2) = nf
+        argh = TWO_PI/n
         is = 0
         nfm1 = nf-1
         l1 = 1
@@ -7862,7 +7875,9 @@ contains
             l2 = l1*iip
             ido = n/l2
             iipm = iip-1
+
             do j=1,iipm
+
                 ld = ld+l1
                 i = is
                 argld = real(ld, kind=wp) * argh
@@ -7871,15 +7886,18 @@ contains
                     i = i+2
                     fi = fi + 1.0_wp
                     arg = fi*argld
-                    wa(i-1) = cos ( arg )
-                    wa(i) = sin ( arg )
+                    wa(i-1) = cos(arg)
+                    wa(i) = sin(arg)
                 end do
                 is = is+ido
+
             end do
             l1 = l2
         end do
 
     end subroutine mrfti1
+
+
 
     subroutine msntb1(lot,jump,n,inc,x,wsave,dsum,xh,work,ier)
 
@@ -9611,11 +9629,9 @@ contains
             call xerfft('rfft1i ', 3)
         end if
 
-        if (n == 1) then
-            return
+        if (n /= 1) then
+            call rffti1(n,wsave(1),wsave(n+1))
         end if
-
-        call rffti1 (n,wsave(1),wsave(n+1))
 
     end subroutine rfft1i
 
@@ -10338,6 +10354,7 @@ contains
 
     end subroutine rfftf1
 
+
     subroutine rffti1(n, wa, fac)
         !
         !  Parameters:
@@ -10365,100 +10382,96 @@ contains
         !--------------------------------------------------------------
         ! Dictionary: local variables
         !--------------------------------------------------------------
-        integer (ip) i
-        integer (ip) ib
-        integer (ip) ido
-        integer (ip) ii
-        integer (ip) iip
-        integer (ip) iipm
-        integer (ip) is
-        integer (ip) j
-        integer (ip) k1
-        integer (ip) l1
-        integer (ip) l2
-        integer (ip) ld
-        integer (ip) nf
-        integer (ip) nfm1
-        integer (ip) nl
-        integer (ip) nq
-        integer (ip) nr
-        integer (ip) ntry
+        integer (ip)            :: i, ib, ido, ii, iip, ipm, is
+        integer (ip)            :: j, k1, l1, l2, ld
+        integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
         integer (ip), parameter :: ntryh(*)=[ 4, 2, 3, 5]
         real (wp),    parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
         real (wp)               :: arg,  argh, argld, fi
         !--------------------------------------------------------------
 
+
+        ntry = 0
         nl = n
         nf = 0
         j = 0
-101     j = j+1
 
-        if (j <= 4) then
-            ntry = ntryh(j)
-        else
-            ntry = ntryh(4)+2*(j-4) !ntry+2
-        end if
+        factorize_loop: do
+            ! Increment j
+            j = j+1
 
-104     nq = nl/ntry
-        nr = nl-ntry*nq
-
-        if (nr < 0) then
-            go to 101
-        else if (nr == 0) then
-            nf = nf+1
-            fac(nf+2) = ntry
-            nl = nq
-
-            if (ntry == 2) then
-                if (nf /= 1) then
-                    do i=2,nf
-                        ib = nf-i+2
-                        fac(ib+2) = fac(ib+1)
-                    end do
-                    fac(3) = 2
-                end if
+            ! Choose ntry
+            if (j <= 4) then
+                ntry = ntryh(j)
+            else
+                ntry = ntry+2
             end if
 
-            if (nl /= 1) then
-                go to 104
-            end if
+            inner_loop: do
+                nq = nl/ntry
+                nr = nl-ntry*nq
+                if (nr < 0) then
+                    cycle factorize_loop
+                else if (nr == 0) then
+                    nf = nf+1
+                    fac(nf+2) = ntry
+                    nl = nq
 
-            fac(1) = n
-            fac(2) = nf
-            argh = TWO_PI/n
-            is = 0
-            nfm1 = nf-1
-            l1 = 1
+                    if (ntry == 2 .and. nf /= 1) then
 
-            if (nfm1 /= 0) then
-                do k1=1,nfm1
-                    iip = int(fac(k1+2), kind=ip)
-                    ld = 0
-                    l2 = l1*iip
-                    ido = n/l2
-                    iipm = iip-1
-                    do j=1,iipm
-                        ld = ld+l1
-                        i = is
-                        argld = real(ld, kind=wp) * argh
-                        fi = 0.0_wp
-                        do ii=3,ido,2
-                            i = i+2
-                            fi = fi + 1.0_wp
-                            arg = fi*argld
-                            wa(i-1) = cos(arg)
-                            wa(i) = sin(arg)
+                        do i=2,nf
+                            ib = nf-i+2
+                            fac(ib+2) = fac(ib+1)
                         end do
-                        is = is+ido
+
+                        fac(3) = 2
+
+                    end if
+
+                    if (nl /= 1) cycle inner_loop
+
+                else
+                    cycle factorize_loop
+                end if
+                exit inner_loop
+            end do inner_loop
+            exit factorize_loop
+        end do factorize_loop
+
+        fac(1) = n
+        fac(2) = nf
+        argh = TWO_PI/n
+        is = 0
+        nfm1 = nf-1
+        l1 = 1
+
+        if (nfm1 /= 0) then
+            do k1=1,nfm1
+                iip = int(fac(k1+2), kind=ip)
+                ld = 0
+                l2 = l1*iip
+                ido = n/l2
+                ipm = iip-1
+                do j=1,ipm
+                    ld = ld+l1
+                    i = is
+                    argld = real(ld, kind=wp) * argh
+                    fi = 0.0_wp
+                    do ii=3,ido,2
+                        i = i+2
+                        fi = fi + 1.0_wp
+                        arg = fi*argld
+                        wa(i-1) = cos(arg)
+                        wa(i) = sin(arg)
                     end do
-                    l1 = l2
+                    is = is+ido
                 end do
-            end if
-        else
-            goto 101
+                l1 = l2
+            end do
         end if
 
     end subroutine rffti1
+
 
 
     subroutine rfftmb(lot, jump, n, inc, r, lenr, wsave, &
