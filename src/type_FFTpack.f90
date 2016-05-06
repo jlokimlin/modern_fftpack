@@ -4142,14 +4142,14 @@ contains
         integer (ip) ier1
         integer (ip) n
         integer (ip) lenx
-        real (wp) ssqrt2
         real (wp) tsqx
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
-        ier = 0
-
+        !
+        !==> Check validity of calling arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cosq1f', 6)
@@ -4162,29 +4162,35 @@ contains
             ier = 3
             call xerfft('cosq1f', 10)
             return
-        end if
-
-        if(n-2< 0) then
-            goto 102
-        else if(n-2 == 0) then
-            goto 101
         else
-            goto 103
-        end if
-101     ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
-        tsqx = ssqrt2*x(1,2)
-        x(1,2) = 0.5_wp *x(1,1)-tsqx
-        x(1,1) = 0.5_wp *x(1,1)+tsqx
-102     return
-103     call cosqf1 (n,inc,x,wsave,work,ier1)
-
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cosq1f',-5)
+            ier = 0
         end if
 
-        return
+        !
+        !==> Perform transform
+        !
+        if (n < 2) then
+            return
+        else if(n == 2) then
+            tsqx = x(1,2)/sqrt(2.0_wp)
+            x(1,2) = 0.5_wp *x(1,1)-tsqx
+            x(1,1) = 0.5_wp *x(1,1)+tsqx
+        else
+            ! Peform cosine transform
+            call cosqf1(n,inc,x,wsave,work,ier1)
+
+            ! Check error flag
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cosq1f',-5)
+            end if
+        end if
+
+
     end subroutine cosq1f
+
+
+
     subroutine cosq1i(n, wsave, lensav, ier)
 
 
@@ -4469,15 +4475,14 @@ contains
         integer (ip) lot
         integer (ip) m
         integer (ip) n
-        real (wp) ssqrt2
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
         real (wp) x1
-        !logical xercon
 
-        ier = 0
-
+        !
+        !==> Check validity of calling arguments
+        !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cosqmb', 6)
@@ -4495,37 +4500,38 @@ contains
             ier = 4
             call xerfft('cosqmb', -1)
             return
-        end if
-
-        lj = (lot-1)*jump+1
-        if(n-2< 0) then
-            goto 101
-        else if(n-2 == 0) then
-            goto 102
         else
-            goto 103
-        end if
-        101  do m=1,lj,jump
-            x(m,1) = x(m,1)
-        end do
-        return
-102     ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
-        do m=1,lj,jump
-            x1 = x(m,1)+x(m,2)
-            x(m,2) = ssqrt2*(x(m,1)-x(m,2))
-            x(m,1) = x1
-        end do
-        return
-
-103     call mcsqb1(lot,jump,n,inc,x,wsave,work,ier1)
-
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cosqmb',-5)
+            ier = 0
         end if
 
-        return
+        !
+        !==> Perform transform
+        !
+        lj = (lot-1)*jump+1
+        if (n < 2) then
+            do m=1,lj,jump
+                x(m,1) = x(m,1)
+            end do
+        else if (n == 2) then
+            do m=1,lj,jump
+                x1 = x(m,1)+x(m,2)
+                x(m,2) = (x(m,1)-x(m,2))/sqrt(2.0_wp)
+                x(m,1) = x1
+            end do
+        else
+            call mcsqb1(lot,jump,n,inc,x,wsave,work,ier1)
+
+            ! Check error flag
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cosqmb',-5)
+            end if
+        end if
+
     end subroutine cosqmb
+
+
+
     subroutine cosqmf(lot, jump, n, inc, x, lenx, wsave, lensav, work, &
         lenwrk, ier)
         ! COSQMF: 64-bit float precision forward cosine quarter wave, multiple vectors.
@@ -4601,15 +4607,14 @@ contains
         integer (ip) lot
         integer (ip) m
         integer (ip) n
-        real (wp) ssqrt2
         real (wp) tsqx
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
-        !logical xercon
 
-        ier = 0
-
+        !
+        !==> Validity of input arguments
+        !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cosqmf', 6)
@@ -4627,36 +4632,36 @@ contains
             ier = 4
             call xerfft('cosqmf', -1)
             return
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         lj = (lot-1)*jump+1
 
-        if(n-2< 0) then
-            goto 102
-        else if(n-2 == 0) then
-            goto 101
+        if (n < 2) then
+            return
+        else if (n == 2) then
+            do m=1,lj,jump
+                tsqx = x(m,2)/sqrt(2.0_wp)
+                x(m,2) = 0.5_wp * x(m,1)-tsqx
+                x(m,1) = 0.5_wp * x(m,1)+tsqx
+            end do
         else
-            goto 103
-        end if
-101     ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
+            call mcsqf1(lot,jump,n,inc,x,wsave,work,ier1)
 
-        do m=1,lj,jump
-            tsqx = ssqrt2*x(m,2)
-            x(m,2) = 0.5_wp * x(m,1)-tsqx
-            x(m,1) = 0.5_wp * x(m,1)+tsqx
-        end do
-
-102     return
-
-103     call mcsqf1(lot,jump,n,inc,x,wsave,work,ier1)
-
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cosqmf',-5)
+            ! Check error flag
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cosqmf',-5)
+            end if
         end if
 
-        return
     end subroutine cosqmf
+
+
     subroutine cosqmi(n, wsave, lensav, ier)
 
 
@@ -4700,19 +4705,18 @@ contains
         integer (ip) k
         integer (ip) lnsv
         integer (ip) n
-        real (wp) pih
+        real (wp), parameter ::  HALF_PI = acos(-1.0_wp)/2
         real (wp) wsave(lensav)
-
-        ier = 0
 
         if (lensav < 2*n + int(log( real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('cosqmi', 3)
             return
+        else
+            ier = 0
         end if
 
-        pih = 2.0_wp * atan ( 1.0_wp )
-        dt = pih/real(n, kind=wp)
+        dt = HALF_PI/n
         fk = 0.0_wp
 
         do k=1,n
@@ -4729,8 +4733,9 @@ contains
             call xerfft('cosqmi',-5)
         end if
 
-        return
     end subroutine cosqmi
+
+
     subroutine cost1b(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
 
 

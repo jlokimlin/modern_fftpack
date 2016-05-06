@@ -1,6 +1,7 @@
 # **modern\_fftpack - a Fortran library of fast Fourier transforms**
 
-The library is now fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant and employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit floating-point precision. 
+The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant, entirely free of **go to**, and employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit floating-point precision. 
+
 
 Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the modern\_fttpack library, and as a demonstration that you can correctly produce the executables. 
 
@@ -29,7 +30,7 @@ Type the following command line arguments
 
 ## Contributing
 
-This project is still a work in progress and anyone is free to contribute. 
+This project is still a work in progress and anyone is free to contribute under the proviso that they abstain from using the dreaded **go to**. 
 
 -----------------------------------------------------------------------------
 
