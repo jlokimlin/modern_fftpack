@@ -1,12 +1,56 @@
-# **fftpack - a Fortran library of fast Fourier transforms**
+# **fftpack6.0 - a modern Fortran (2008+) library of fast Fourier transforms**
 
 An object-oriented modernization of NCAR's FFTPACK5.1.
 
+* The original work, written in fixed-form FORTRAN 77, was extensively refactored to incorporate features of free-form modern Fortran (2008+).
+* The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant;
+* entirely free of **go to**;
+* employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit double precision. 
+* Numerous **do** loops are replaced with array operations to improve readability.
+* Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the fttpack library, and as a demonstration that you can correctly produce the executables. 
+* Ideally, **type**(FFTpack)'s functionality and usage will evolve into something similar to scipy.fftpack
 
-The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant, entirely free of **go to**, and employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit floating-point precision. 
 
+-----------------------------------------------------------------------------
 
-Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the fttpack library, and as a demonstration that you can correctly produce the executables. 
+## Usage
+
+```fortran
+
+    use, intrinsic :: iso_fortran_env, only: &
+       wp => REAL64, &
+       ip => INT32
+    
+    use type_FFTpack, only: &
+       FFTpack
+
+    ! Explicit typing only
+    implicit none
+    
+    type (FFTpack)  	  :: fft
+    complex (wp), allocatable :: data(l,m)
+    integer (ip)              :: error_flag
+    
+    
+    !.... generate some data
+    
+    ! Initialize object
+    fft = FFTpack(l,m)
+    
+    associate( &
+        wsave => fft%saved_workspace, &
+        wrk => fft%workspace &
+        )
+        
+        ! perform forward transform
+        call fft%cfft2f(l,l,m,data, wsave, size(wsave),wrk, size(wrk),error_flag)
+            
+    end associate
+    
+    ! Release memory
+    call fft%destroy()
+
+```
 
 -----------------------------------------------------------------------------
 
@@ -24,9 +68,9 @@ Type the following command line arguments
 
 ```bash
 
-	git clone https://github.com/jlokimlin/fftpack.git
+	git clone https://github.com/jlokimlin/fftpack6.0.git
 	
-	cd fftpack; make all
+	cd fftpack6.0; make all
 ```
 
 -----------------------------------------------------------------------------
@@ -35,13 +79,7 @@ Type the following command line arguments
 
 This project is still a work in progress and anyone is free to contribute under the proviso that they abstain from using the dreaded **go to**. 
 
------------------------------------------------------------------------------
-
-## TODO
-* Hide dynamically allocated workspace arrays from the end-user 
-* Ideally, **type**(FFTpack)'s functionality and usage will evolve into something similar to scipy.fftpack
-* Implement generic type-bound procedures %fft and %ifft to handle both complex and real transforms
-* Add differential and psuedo-differential operators
+For bug reports or feature requests please open an issue on github.
 
 -----------------------------------------------------------------------------
 
