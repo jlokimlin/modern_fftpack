@@ -229,6 +229,95 @@ contains
 
 
 
+    pure function get_2d_saved_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+        real (wp) :: temp_l, temp_m
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            temp_l = log(real(l,kind=wp))
+            temp_m = log(real(m,kind=wp))
+            lensav = 2*(l + m) + int(temp_l, kind=ip) + int(temp_m, kind=ip) + 8
+
+        end associate
+
+    end function get_2d_saved_workspace_size
+
+
+    pure function get_2d_saved_workspace(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        real (wp), allocatable    :: return_value(:)
+        !------------------------------------------------------------------
+        ! Dictionary: local variables
+        !------------------------------------------------------------------
+        integer (ip) :: lensav
+        !------------------------------------------------------------------
+
+        lensav = get_2d_saved_workspace_size(l, m)
+
+        !
+        !==> Allocate memory
+        !
+        allocate( return_value(lensav) )
+
+    end function get_2d_saved_workspace
+
+
+
+    pure function get_2d_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = 2*l*m
+
+        end associate
+
+    end function get_2d_workspace_size
+
+
+
+    pure function get_2d_workspace(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        real (wp), allocatable    :: return_value(:)
+        !------------------------------------------------------------------
+        ! Dictionary: local variables
+        !------------------------------------------------------------------
+        integer (ip) :: lenwrk
+        !------------------------------------------------------------------
+
+        lenwrk = get_2d_workspace_size(l, m)
+
+        !
+        !==> Allocate memory
+        !
+        allocate( return_value(lenwrk) )
+
+    end function get_2d_workspace
+
+
+
     pure function get_1d_sin_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -1736,76 +1825,77 @@ contains
     end subroutine c1fm1f
 
 
-    subroutine cfft1f(n, inc, c_hack, lenc, wsave, lensav, work, lenwrk, ier)
+    subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
         !
-        ! CFFT1F: complex 64-bit precision forward fast Fourier transform, 1D.
+        ! cfft1f: complex 64-bit precision forward fast fourier transform, 1d.
         !
         !  Purpose:
         !
-        !  CFFT1F computes the one-dimensional Fourier transform of a single
-        !  periodic sequence within a complex array.  This transform is referred
-        !  to as the forward transform or Fourier analysis, transforming the
+        !  cfft1f computes the one-dimensional fourier transform of a single
+        !  periodic sequence within a complex array. This transform is referred
+        !  to as the forward transform or fourier analysis, transforming the
         !  sequence from physical to spectral space.
         !
-        !  This transform is normalized since a call to CFFT1F followed
-        !  by a call to CFFT1B (or vice-versa) reproduces the original
+        !  This transform is normalized since a call to cfft1f followed
+        !  by a call to cfft1b (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  Parameters:
+        !  INPUT
         !
-        !  input, integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
-        !  small primes.
+        !  integer n, the length of the sequence to be
+        !  transformed. the transform is most efficient when
+        !  n is a product of small primes.
         !
-        !  input, integer INC, the increment between the locations, in
-        !  array C, of two consecutive elements within the sequence to be transformed.
+        !  integer inc, the increment between the locations, in
+        !  array c, of two consecutive elements within the sequence to be transformed.
         !
-        !  Input/output, complex (wp) C(LENC) containing the sequence to
-        !  be transformed.
+        !  real wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cfft1i before the first call to routine cfft1f
+        !  or cfft1b for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cfft1f and cfft1b with the same n.
         !
-        !  input, integer LENC, the dimension of the C array.
-        !  LENC must be at least INC*(N-1) + 1.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
-        !  initialized with a call to CFFT1I before the first call to routine CFFT1F
-        !  or CFFT1B for a given transform length N.  WSAVE's contents may be re-used
-        !  for subsequent calls to CFFT1F and CFFT1B with the same N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*n.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  INPUT/OUTPUT
+        !  complex c(lenc) containing the sequence to be transformed.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  real work(lenwrk), workspace array
+        !  input, integer lenc, the dimension of the c array.
+        !  lenc must be at least inc*(n-1) + 1.
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*N.
-        !
-        !  Output, integer (ip) IER, error flag.
+        !  OUTPUT
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENC not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenc not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in)     :: n
+        integer (ip), intent (in)     :: inc
+        complex (wp), intent (in out) :: c(lenc)
+        integer (ip), intent (in)     :: lenc
+        real (wp),    intent (in)     :: wsave(lensav)
+        integer (ip), intent (in)     :: lensav
+        real (wp),    intent (out)    :: work(lenwrk)
+        integer (ip), intent (in)     :: lenwrk
+        integer (ip), intent (out)    :: ier
+        !------------------------------------------------------------------
+        ! Dictionary: local variables
+        !------------------------------------------------------------------
+        real (wp), allocatable :: real_copy(:,:)
+        !------------------------------------------------------------------
 
-
-        integer (ip) lenc
-        integer (ip) lensav
-        integer (ip) lenwrk
-        real (wp) c(2,lenc)
-        complex (wp) c_hack(lenc)
-        integer (ip) ier
-        integer (ip) inc
-        integer (ip) iw1
-        integer (ip) n
-        real (wp) work(lenwrk)
-        real (wp) wsave(lensav)
-
-        ! Make copy
-        c(1,:) = real(c_hack)
-        c(2,:) = aimag(c_hack)
-
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenc < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfft1f ', 4)
@@ -1815,269 +1905,365 @@ contains
         else if (lenwrk < 2*n) then
             ier = 3
             call xerfft('cfft1f ', 8)
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         if (n /= 1) then
-            iw1 = n+n+1
-            call c1fm1f(n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
+
+            !
+            !==> Allocate memory
+            !
+            allocate( real_copy(2,size(c)) )
 
             ! Make copy
-            c_hack =  cmplx(c(1,:), c(2,:), kind=wp)
+            real_copy(1,:) = real(c)
+            real_copy(2,:) = aimag(c)
+
+            associate( iw1 => 2 * n+1 )
+
+                call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1))
+
+            end associate
+
+            ! Make copy
+            c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
+
+            !
+            !==> Release memory
+            !
+            deallocate( real_copy )
+
         end if
 
     end subroutine cfft1f
 
-    subroutine cfft2b(ldim, l, m, c_hack, wsave, lensav, work, lenwrk, ier)
+
+    subroutine cfft2b(ldim, l, m, c, wsave, lensav, work, lenwrk, ier)
         !
-        ! CFFT2B: complex 64-bit precision backward fast Fourier transform, 2D.
+        ! cfft2b: complex 64-bit precision backward fast fourier transform, 2d.
         !
         !  Purpose:
         !
-        !  CFFT2B computes the two-dimensional discrete Fourier transform of a
-        !  complex periodic array.  This transform is known as the backward
-        !  transform or Fourier synthesis, transforming from spectral to
-        !  physical space.  Routine CFFT2B is normalized, in that a call to
-        !  CFFT2B followed by a call to CFFT2F (or vice-versa) reproduces the
+        !  cfft2b computes the two-dimensional discrete fourier transform of a
+        !  complex periodic array.  this transform is known as the backward
+        !  transform or fourier synthesis, transforming from spectral to
+        !  physical space.  routine cfft2b is normalized, in that a call to
+        !  cfft2b followed by a call to cfft2f (or vice-versa) reproduces the
         !  original array within roundoff error.
         !
+        !  BUG FIX
         !  On 10 May 2010, this code was modified by changing the value
-        !  of an index into the WSAVE array.
+        !  of an index into the wsave array.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  input, integer LDIM, the first dimension of C.
+        !  INPUT
+        !  integer ldim, the first dimension of c.
         !
-        !  input, integer L, the number of elements to be transformed
-        !  in the first dimension of the two-dimensional complex array C.  The value
-        !  of L must be less than or equal to that of LDIM.  The transform is
-        !  most efficient when L is a product of small primes.
+        !  integer l, the number of elements to be transformed
+        !  in the first dimension of the two-dimensional complex array c.  the value
+        !  of l must be less than or equal to that of ldim.  the transform is
+        !  most efficient when l is a product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed in
-        !  the second dimension of the two-dimensional complex array C.  The transform
-        !  is most efficient when M is a product of small primes.
+        !  integer m, the number of elements to be transformed in
+        !  the second dimension of the two-dimensional complex array c.  the transform
+        !  is most efficient when m is a product of small primes.
         !
-        !  Input/output, complex (wp) C(LDIM,M), on intput, the array of
-        !  two dimensions containing the (L,M) subarray to be transformed.  On
+        !  real wsave(lensav). wsave's contents must be initialized with
+        !  a call to cfft2i before the first call to routine cfft2f
+        !  or cfft2b with transform lengths l and m.  wsave's contents may be
+        !  re-used for subsequent calls to cfft2f and cfft2b with the same
+        !  transform lengths l and m.
+        !
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least
+        !
+        !  2*(l+m) + int(log(real(l))) + int(log(real(m))) + 8.
+        !
+        !  real work(lenwrk).
+        !
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*l*m.
+        !
+        !  INPUT/OUTPUT
+        !  complex c(ldim,m), on intput, the array of two dimensions
+        !  containing the (l,m) subarray to be transformed.  on
         !  output, the transformed data.
         !
-        !  Input, real (wp) WSAVE(LENSAV). WSAVE's contents must be
-        !  initialized with a call to CFFT2I before the first call to routine CFFT2F
-        !  or CFFT2B with transform lengths L and M.  WSAVE's contents may be
-        !  re-used for subsequent calls to CFFT2F and CFFT2B with the same
-        !  transform lengths L and M.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least 2*(L+M) + INT(LOG(REAL(L)))
-        !  + INT(LOG(REAL(M))) + 8.
+        !  OUTPUT
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  integer ier, the error flag.
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*L*M.
-        !
-        !  Output, integer (ip) IER, the error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  5, input parameter LDIM < L;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  5, input parameter ldim < l;
         !  20, input error returned by lower level routine.
         !
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in)     :: ldim
+        integer (ip), intent (in)     :: l
+        integer (ip), intent (in)     :: m
+        complex (wp), intent (in out) :: c(ldim,m)
+        real (wp),    intent (in)     :: wsave(lensav)
+        integer (ip), intent (in)     :: lensav
+        real (wp),    intent (in out) :: work(lenwrk)
+        integer (ip), intent (in)     :: lenwrk
+        integer (ip), intent (out)    :: ier
+        !------------------------------------------------------------------
+        ! Dictionary: local variables
+        !------------------------------------------------------------------
+        integer (ip)           :: local_error_flag
+        real (wp), allocatable :: real_copy(:,:,:)
+        !------------------------------------------------------------------
 
-        integer (ip) m
-        integer (ip) ldim
-        integer (ip) lensav
-        integer (ip) lenwrk
-        complex (wp) c_hack(ldim,m)
-        integer (ip) ier
-        integer (ip) ier1
-        integer (ip) iw
-        integer (ip) l
-        real (wp) work(lenwrk)
-        real (wp) wsave(lensav)
-        real (wp) c(2,ldim,m)
-
-        ! Make a copy
-        c(1,:,:) = real(c_hack)
-        c(2,:,:) = aimag(c_hack)
-
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if ( ldim < l ) then
             ier = 5
             call xerfft('cfft2b', -2)
             return
-        else if (lensav < 2*l + int(log(real(l, kind=wp))/log(2.0_wp)) + &
-            2*m + int(log(real(m, kind=wp))/log(2.0_wp)) +8) then
+        else if (lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
             call xerfft('cfft2b', 6)
             return
-        else if (lenwrk < 2*l*m) then
+        else if (lenwrk < get_2d_workspace_size(l, m)) then
             ier = 3
             call xerfft('cfft2b', 8)
             return
+        else
+            ier = 0
         end if
-        !
-        !  transform x lines of c array
-        !
-        iw = 2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3
 
-        call cfftmb(l, 1, m, ldim, c, (l-1) + ldim*(m-1) +1, &
-            wsave(iw), 2*m + int(log(real(m, kind=wp))/log(2.0_wp)) + 4, &
-            work, 2*l*m, ier1)
 
-        if (ier1 /= 0) then
+        !
+        !==> Allocate memory
+        !
+        allocate( real_copy(2,ldim,m) )
+
+        ! Make a copy: complex to real
+        real_copy(1,:,:) = real(c)
+        real_copy(2,:,:) = aimag(c)
+
+        !
+        !==> transform x lines of real_copy
+        !
+        associate( &
+            iw =>  get_1d_saved_workspace_size(m)-1, &
+            iw1 => (l-1) + ldim*(m-1)+1, &
+            iw2 => get_1d_saved_workspace_size(m), &
+            iw3 => get_2d_workspace_size(l, m), &
+            ier1 => local_error_flag &
+            )
+
+            ! Perform transform
+            call cfftmb(l, 1, m, ldim, real_copy, iw1 , wsave(iw), iw2, work, iw3, ier1)
+
+        end associate
+
+        ! Check error_flag
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2b',-5)
             return
         end if
         !
-        !  transform y lines of c array
+        !==>  transform y lines of real_copy
         !
-        iw = 1
+        associate( &
+            iw => 1, &
+            iw1 => (m-1)*ldim + l, &
+            iw2 => get_1d_saved_workspace_size(l), &
+            iw3 => get_2d_workspace_size(l, m), &
+            ier1 => local_error_flag &
+            )
 
-        call cfftmb (m, ldim, l, 1, c, (m-1)*ldim + l, &
-            wsave(iw), 2*l + int(log(real(l, kind=wp) )/log(2.0_wp)) + 4, &
-            work, 2*m*l, ier1)
+            ! Perform transform
+            call cfftmb(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, ier1)
 
-        if (ier1 /= 0) then
+        end associate
+
+        ! Check error flag
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2b',-5)
         end if
 
-        ! Make copy
-        c_hack =  cmplx(c(1,:,:), c(2,:,:), kind=wp)
+        ! Make copy: real to complex
+        c =  cmplx(real_copy(1,:,:), real_copy(2,:,:), kind=wp)
+
+        !
+        !==> Release memory
+        !
+        deallocate( real_copy )
 
     end subroutine cfft2b
 
 
-
-    subroutine cfft2f(ldim, l, m, c_hack, wsave, lensav, work, lenwrk, ier)
-
-
+    subroutine cfft2f(ldim, l, m, c, wsave, lensav, work, lenwrk, ier)
         !
-        ! CFFT2F: complex 64-bit precision forward fast Fourier transform, 2D.
+        ! cfft2f: complex 64-bit precision forward fast fourier transform, 2d.
         !
         !  Purpose:
         !
-        !  CFFT2F computes the two-dimensional discrete Fourier transform of
+        !  cfft2f computes the two-dimensional discrete fourier transform of
         !  a complex periodic array. This transform is known as the forward
-        !  transform or Fourier analysis, transforming from physical to
-        !  spectral space. Routine CFFT2F is normalized, in that a call to
-        !  CFFT2F followed by a call to CFFT2B (or vice-versa) reproduces the
+        !  transform or fourier analysis, transforming from physical to
+        !  spectral space. routine cfft2f is normalized, in that a call to
+        !  cfft2f followed by a call to cfft2b (or vice-versa) reproduces the
         !  original array within roundoff error.
         !
+        !  BUG FIX
         !  On 10 May 2010, this code was modified by changing the value
-        !  of an index into the WSAVE array.
+        !  of an index into the wsave array.
         !
+        !  INPUT
         !
-        !  Parameters:
+        !  integer ldim, the first dimension of the array c.
         !
-        !  input, integer LDIM, the first dimension of the array C.
+        !  integer l, the number of elements to be transformed
+        !  in the first dimension of the two-dimensional complex array c.  the value
+        !  of l must be less than or equal to that of ldim.  the transform is most
+        !  efficient when l is a product of small primes.
         !
-        !  input, integer L, the number of elements to be transformed
-        !  in the first dimension of the two-dimensional complex array C.  The value
-        !  of L must be less than or equal to that of LDIM.  The transform is most
-        !  efficient when L is a product of small primes.
+        !  integer m, the number of elements to be transformed
+        !  in the second dimension of the two-dimensional complex array c.  the
+        !  transform is most efficient when m is a product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed
-        !  in the second dimension of the two-dimensional complex array C.  The
-        !  transform is most efficient when M is a product of small primes.
-        !
-        !  Input/output, complex (wp) C(LDIM,M), on input, the array of two
-        !  dimensions containing the (L,M) subarray to be transformed.  On output, the
-        !  transformed data.
-        !
-        !  Input, real (wp) WSAVE(LENSAV). WSAVE's contents must be
-        !  initialized with a call to CFFT2I before the first call to routine CFFT2F
-        !  or CFFT2B with transform lengths L and M.  WSAVE's contents may be re-used
-        !  for subsequent calls to CFFT2F and CFFT2B having those same
+        !  real wsave(lensav). wsave's contents must be
+        !  initialized with a call to cfft2i before the first call to routine cfft2f
+        !  or cfft2b with transform lengths l and m.  wsave's contents may be re-used
+        !  for subsequent calls to cfft2f and cfft2b having those same
         !  transform lengths.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least 2*(L+M) + INT(LOG(REAL(L)))
-        !  + INT(LOG(REAL(M))) + 8.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  2*(l+m) + int(log(real(l))) + int(log(real(m))) + 8.
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*L*M.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  input, integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*l*m.
+        !
+        !  INPUT/OUTPUT
+        !  complex c(ldim,m), on input, the array of two
+        !  dimensions containing the (l,m) subarray to be transformed. On output, the
+        !  transformed data.
+        !
+        !  real work(lenwrk), workspace array
+        !
+        !  OUTPUT
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  5, input parameter LDIM < L;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  5, input parameter ldim < l;
         !  20, input error returned by lower level routine.
         !
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in)     :: ldim
+        integer (ip), intent (in)     :: l
+        integer (ip), intent (in)     :: m
+        complex (wp), intent (in out) :: c(ldim,m)
+        real (wp),    intent (in)     :: wsave(lensav)
+        integer (ip), intent (in)     :: lensav
+        real (wp),    intent (in out) :: work(lenwrk)
+        integer (ip), intent (in)     :: lenwrk
+        integer (ip), intent (out)    :: ier
+        !------------------------------------------------------------------
+        integer (ip)           :: local_error_flag
+        real (wp), allocatable :: real_copy(:,:,:)
+        !------------------------------------------------------------------
 
-        integer (ip) m
-        integer (ip) ldim
-        integer (ip) lensav
-        integer (ip) lenwrk
-
-        complex (wp) c_hack(ldim,m)
-        integer (ip) ier
-        integer (ip) ier1
-        integer (ip) iw
-        integer (ip) l
-        real (wp) work(lenwrk)
-        real (wp) wsave(lensav)
-        real (wp) c(2,ldim,m)
-
-        ! Make a copy
-        c(1,:,:)=real(c_hack)
-        c(2,:,:)=aimag(c_hack)
-
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if ( ldim < l ) then
             ier = 5
             call xerfft('cfft2f', -2)
             return
-        else if (lensav < &
-            2*l + int(log(real(l, kind=wp))/log(2.0_wp)) + &
-            2*m + int(log(real(m, kind=wp))/log(2.0_wp)) +8) then
+        else if (lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
             call xerfft('cfft2f', 6)
             return
-        else if (lenwrk < 2*l*m) then
+        else if (lenwrk < get_2d_workspace_size(l, m)) then
             ier = 3
             call xerfft('cfft2f', 8)
             return
+        else
+            ier = 0
         end if
-        !
-        !  transform x lines of c array
-        !
-        iw = 2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3
 
-        call cfftmf ( l, 1, m, ldim, c, (l-1) + ldim*(m-1) +1, &
-            wsave(iw), &
-            2*m + int(log(real(m, kind=wp) )/log(2.0_wp)) + 4, &
-            work, 2*l*m, ier1)
+        !
+        !==> Allocate memory
+        !
+        allocate( real_copy(2,ldim,m) )
 
-        if (ier1 /= 0) then
+        ! Make a copy: complex to real array
+        real_copy(1,:,:)=real(c)
+        real_copy(2,:,:)=aimag(c)
+
+        !
+        !==> Transform x lines of real_copy
+        !
+        associate( &
+            iw =>  2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3, &
+            iw1 => (l-1) + ldim*(m-1) +1, &
+            iw2 => get_1d_saved_workspace_size(m), &
+            iw3 => 2*m*l, &
+            ier1 => local_error_flag &
+            )
+
+            call cfftmf(l, 1, m, ldim, real_copy, iw1, wsave(iw), iw2 , work, iw3, ier1)
+
+        end associate
+
+        ! Check error flag
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2f',-5)
             return
         end if
         !
-        !  transform y lines of c array
+        !==> Transform y lines of real_copy
         !
-        iw = 1
-        call cfftmf (m, ldim, l, 1, c, (m-1)*ldim + l, &
-            wsave(iw), 2*l + int(log(real(l, kind=wp) )/log(2.0_wp)) + 4, &
-            work, 2*m*l, ier1)
+        associate( &
+            iw => 1, &
+            iw1 => (m-1)*ldim + l, &
+            iw2 => get_1d_saved_workspace_size(l), &
+            iw3 => 2*m*l, &
+            ier1 => local_error_flag &
+            )
 
-        if (ier1 /= 0) then
+            call cfftmf(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, ier1)
+
+        end associate
+
+        ! Check error flag
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2f',-5)
         end if
 
-        ! Make copy
-        c_hack =  cmplx(c(1,:,:), c(2,:,:), kind=wp)
+        ! Make copy: real to complex
+        c =  cmplx(real_copy(1,:,:), real_copy(2,:,:), kind=wp)
+
+        !
+        !==> Release memory
+        !
+        deallocate( real_copy )
 
     end subroutine cfft2f
-
 
 
     subroutine cfft2i(l, m, wsave, lensav, ier)
@@ -2121,38 +2307,48 @@ contains
 
 
         integer (ip) lensav
-
         integer (ip) ier
-        integer (ip) ier1
-
+        integer (ip) local_error_flag
         integer (ip) l
         integer (ip) m
         real (wp) wsave(lensav)
 
-        ier = 0
 
-        if ( lensav < 2 * l + int(log(real( l, kind=wp) ) &
-            / log(2.0_wp ) ) + 2 * m + int(log(real( m, kind=wp) ) &
-            / log(2.0_wp ) ) + 8 ) then
+        !
+        !==> Check validity of input arguments
+        !
+        if ( lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
             call xerfft('cfft2i', 4)
             return
+        else
+            ier = 0
         end if
 
-        call cfftmi(l, wsave(1), 2 * l + int(log(real( l, kind=wp) ) &
-            / log(2.0_wp ) ) + 4, ier1 )
+        associate( temp => get_1d_saved_workspace_size(l) )
 
-        if ( ier1 /= 0) then
+            call cfftmi(l, wsave(1), temp, local_error_flag )
+
+        end associate
+
+        ! Check error flag
+        if ( local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2i',-5)
             return
         end if
 
-        call cfftmi ( m, &
-            wsave(2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3), &
-            2*m + int(log(real(m, kind=wp) )/log(2.0_wp)) + 4, ier1)
+        associate( &
+            iw => get_1d_saved_workspace_size(l) - 1, &
+            temp => get_1d_saved_workspace_size(m) &
+            )
 
-        if (ier1 /= 0) then
+            call cfftmi(m, wsave(iw), temp, local_error_flag)
+
+        end associate
+
+        ! Check error flag
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cfft2i',-5)
         end if
@@ -2230,9 +2426,7 @@ contains
         integer (ip) lenc
         integer (ip) lensav
         integer (ip) lenwrk
-
         real (wp) c(2,lenc)
-        !complex (wp) c(lenc)
         integer (ip) ier
         integer (ip) inc
         integer (ip) iw1
@@ -2241,15 +2435,14 @@ contains
         integer (ip) n
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
-        !logical xercon
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfftmb ', 6)
-        else if (lensav < 2*n + int(log(real(n, kind=wp)) &
-            /log(2.0_wp)) + 4) then
+        else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
             call xerfft('cfftmb ', 8)
         else if (lenwrk < 2*lot*n) then
@@ -2258,18 +2451,24 @@ contains
         else if (.not. xercon(inc,jump,n,lot)) then
             ier = 4
             call xerfft('cfftmb ', -1)
+            else
+            ier = 0
         end if
 
-        if (n == 1) then
-            return
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
+            iw1 = 2*n+1
+
+            call cmfm1b(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
+
         end if
 
-        iw1 = n+n+1
-
-        call cmfm1b(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
-
-        return
     end subroutine cfftmb
+
+
+
     subroutine cfftmf(lot, jump, n, inc, c, lenc, wsave, lensav, work, &
         lenwrk, ier)
         !
@@ -2349,10 +2548,10 @@ contains
         integer (ip) n
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
-        !logical xercon
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('cfftmf ', 6)
@@ -2365,18 +2564,23 @@ contains
         else if (.not. xercon(inc,jump,n,lot)) then
             ier = 4
             call xerfft('cfftmf ', -1)
+        else
+            ier = 0
         end if
 
-        if (n == 1) then
-            return
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
+
+            iw1 = 2*n+1
+
+            call cmfm1f(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
+
         end if
-
-        iw1 = n+n+1
-
-        call cmfm1f(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
-
-        return
     end subroutine cfftmf
+
+
     subroutine cfftmi(n, wsave, lensav, ier)
 
 
