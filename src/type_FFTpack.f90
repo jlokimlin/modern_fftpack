@@ -8637,132 +8637,7 @@ contains
 
     end subroutine r1f4kf
 
-    subroutine r1f5kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
-        !--------------------------------------------------
-        ! Dictionary: calling arguments
-        !--------------------------------------------------
-        integer (ip), intent (in)     :: ido
-        integer (ip), intent (in)     :: l1
-        real (wp),    intent (in out) :: cc(in1,ido,5,l1)
-        integer (ip), intent (in)     :: in1
-        real (wp),    intent (in out) :: ch(in2,ido,l1,5)
-        integer (ip), intent (in)     :: in2
-        real (wp),    intent (in)     :: wa1(ido)
-        real (wp),    intent (in)     :: wa2(ido)
-        real (wp),    intent (in)     :: wa3(ido)
-        real (wp),    intent (in)     :: wa4(ido)
-        !--------------------------------------------------
-        ! Dictionary: local variables
-        !--------------------------------------------------
-        integer (ip)         :: i, ic, idp2
-        real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
-        real (wp), parameter :: ARG= TWO_PI/5
-        real (wp), parameter :: TR11=cos(ARG)
-        real (wp), parameter :: TI11=sin(ARG)
-        real (wp), parameter :: TR12=cos(2.0_wp*ARG)
-        real (wp), parameter :: TI12=sin(2.0_wp*ARG)
-        !--------------------------------------------------
 
-        ch(1,1,:,1) = cc(1,1,1,:)+ 2.0_wp *cc(1,ido,2,:)+ 2.0_wp *cc(1,ido,4,:)
-        ch(1,1,:,2) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
-            +TR12* 2.0_wp *cc(1,ido,4,:))-(TI11* 2.0_wp *cc(1,1,3,:) &
-            +TI12* 2.0_wp *cc(1,1,5,:))
-        ch(1,1,:,3) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
-            +TR11* 2.0_wp *cc(1,ido,4,:))-(TI12* 2.0_wp *cc(1,1,3,:) &
-            -TI11* 2.0_wp *cc(1,1,5,:))
-        ch(1,1,:,4) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
-            +TR11* 2.0_wp *cc(1,ido,4,:))+(TI12* 2.0_wp *cc(1,1,3,:) &
-            -TI11* 2.0_wp *cc(1,1,5,:))
-        ch(1,1,:,5) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
-            +TR12* 2.0_wp *cc(1,ido,4,:))+(TI11* 2.0_wp *cc(1,1,3,:) &
-            +TI12* 2.0_wp *cc(1,1,5,:))
-
-        if (ido /= 1) then
-            idp2 = ido+2
-            do i=3,ido,2
-                ic = idp2-i
-                ch(1,i-1,:,1) = cc(1,i-1,1,:)+(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +(cc(1,i-1,5,:)+cc(1,ic-1,4,:))
-                ch(1,i,:,1) = cc(1,i,1,:)+(cc(1,i,3,:)-cc(1,ic,2,:)) &
-                    +(cc(1,i,5,:)-cc(1,ic,4,:))
-                ch(1,i-1,:,2) = wa1(i-2)*((cc(1,i-1,1,:)+TR11* &
-                    (cc(1,i-1,3,:)+cc(1,ic-1,2,:))+TR12 &
-                    *(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI11*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
-                    -wa1(i-1)*((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
-                    +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))+(TI11*(cc(1,i-1,3,:) &
-                    -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
-
-                ch(1,i,:,2) = wa1(i-2)*((cc(1,i,1,:)+TR11*(cc(1,i,3,:) &
-                    -cc(1,ic,2,:))+TR12*(cc(1,i,5,:)-cc(1,ic,4,:))) &
-                    +(TI11*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))+TI12 &
-                    *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))+wa1(i-1) &
-                    *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:) &
-                    +cc(1,ic-1,2,:))+TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:))) &
-                    -(TI11*(cc(1,i,3,:)+cc(1,ic,2,:))+TI12 &
-                    *(cc(1,i,5,:)+cc(1,ic,4,:))))
-
-                ch(1,i-1,:,3) = wa2(i-2) &
-                    *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI12*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
-                    -wa2(i-1) &
-                    *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
-                    cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
-                    +(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
-                    *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
-
-                ch(1,i,:,3) = wa2(i-2) &
-                    *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
-                    cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
-                    +(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
-                    *(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
-                    +wa2(i-1) &
-                    *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI12*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:))))
-
-                ch(1,i-1,:,4) = wa3(i-2) &
-                    *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI12*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
-                    -wa3(i-1) &
-                    *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
-                    cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
-                    -(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
-                    *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
-
-                ch(1,i,:,4) = wa3(i-2) &
-                    *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
-                    cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
-                    -(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
-                    *(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
-                    +wa3(i-1) &
-                    *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI12*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:))))
-
-                ch(1,i-1,:,5) = wa4(i-2) &
-                    *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI11*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
-                    -wa4(i-1) &
-                    *((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
-                    +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))-(TI11*(cc(1,i-1,3,:) &
-                    -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
-
-                ch(1,i,:,5) = wa4(i-2) &
-                    *((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
-                    +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))-(TI11*(cc(1,i-1,3,:) &
-                    -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
-                    +wa4(i-1) &
-                    *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
-                    +TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI11*(cc(1,i,3,:) &
-                    +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:))))
-            end do
-        end if
-
-    end subroutine r1f5kb
 
     subroutine r1f5kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
         ! Dictionary: calling arguments
@@ -9899,6 +9774,138 @@ contains
             end if
 
         end subroutine r1f4kb
+
+
+        subroutine r1f5kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
+            !--------------------------------------------------
+            ! Dictionary: calling arguments
+            !--------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,5,l1)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,5)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            real (wp),    intent (in)     :: wa3(ido)
+            real (wp),    intent (in)     :: wa4(ido)
+            !--------------------------------------------------
+            ! Dictionary: local variables
+            !--------------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: ARG= TWO_PI/5
+            real (wp), parameter :: TR11=cos(ARG)
+            real (wp), parameter :: TI11=sin(ARG)
+            real (wp), parameter :: TR12=cos(2.0_wp*ARG)
+            real (wp), parameter :: TI12=sin(2.0_wp*ARG)
+            !--------------------------------------------------
+
+            ch(1,1,:,1) = cc(1,1,1,:)+ 2.0_wp *cc(1,ido,2,:)+ 2.0_wp *cc(1,ido,4,:)
+            ch(1,1,:,2) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
+                +TR12* 2.0_wp *cc(1,ido,4,:))-(TI11* 2.0_wp *cc(1,1,3,:) &
+                +TI12* 2.0_wp *cc(1,1,5,:))
+            ch(1,1,:,3) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
+                +TR11* 2.0_wp *cc(1,ido,4,:))-(TI12* 2.0_wp *cc(1,1,3,:) &
+                -TI11* 2.0_wp *cc(1,1,5,:))
+            ch(1,1,:,4) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
+                +TR11* 2.0_wp *cc(1,ido,4,:))+(TI12* 2.0_wp *cc(1,1,3,:) &
+                -TI11* 2.0_wp *cc(1,1,5,:))
+            ch(1,1,:,5) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
+                +TR12* 2.0_wp *cc(1,ido,4,:))+(TI11* 2.0_wp *cc(1,1,3,:) &
+                +TI12* 2.0_wp *cc(1,1,5,:))
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+                        ch(1,i-1,:,1) = cc(1,i-1,1,:)+(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +(cc(1,i-1,5,:)+cc(1,ic-1,4,:))
+                        ch(1,i,:,1) = cc(1,i,1,:)+(cc(1,i,3,:)-cc(1,ic,2,:)) &
+                            +(cc(1,i,5,:)-cc(1,ic,4,:))
+                        ch(1,i-1,:,2) = wa1(i-2)*((cc(1,i-1,1,:)+TR11* &
+                            (cc(1,i-1,3,:)+cc(1,ic-1,2,:))+TR12 &
+                            *(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI11*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
+                            -wa1(i-1)*((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
+                            +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))+(TI11*(cc(1,i-1,3,:) &
+                            -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
+
+                        ch(1,i,:,2) = wa1(i-2)*((cc(1,i,1,:)+TR11*(cc(1,i,3,:) &
+                            -cc(1,ic,2,:))+TR12*(cc(1,i,5,:)-cc(1,ic,4,:))) &
+                            +(TI11*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))+TI12 &
+                            *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))+wa1(i-1) &
+                            *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:) &
+                            +cc(1,ic-1,2,:))+TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:))) &
+                            -(TI11*(cc(1,i,3,:)+cc(1,ic,2,:))+TI12 &
+                            *(cc(1,i,5,:)+cc(1,ic,4,:))))
+
+                        ch(1,i-1,:,3) = wa2(i-2) &
+                            *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI12*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
+                            -wa2(i-1) &
+                            *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
+                            cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
+                            +(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
+                            *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
+
+                        ch(1,i,:,3) = wa2(i-2) &
+                            *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
+                            cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
+                            +(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
+                            *(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
+                            +wa2(i-1) &
+                            *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))-(TI12*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:))))
+
+                        ch(1,i-1,:,4) = wa3(i-2) &
+                            *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI12*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
+                            -wa3(i-1) &
+                            *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
+                            cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
+                            -(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
+                            *(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
+
+                        ch(1,i,:,4) = wa3(i-2) &
+                            *((cc(1,i,1,:)+TR12*(cc(1,i,3,:)- &
+                            cc(1,ic,2,:))+TR11*(cc(1,i,5,:)-cc(1,ic,4,:))) &
+                            -(TI12*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))-TI11 &
+                            *(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
+                            +wa3(i-1) &
+                            *((cc(1,i-1,1,:)+TR12*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR11*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI12*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))-TI11*(cc(1,i,5,:)+cc(1,ic,4,:))))
+
+                        ch(1,i-1,:,5) = wa4(i-2) &
+                            *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI11*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:)))) &
+                            -wa4(i-1) &
+                            *((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
+                            +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))-(TI11*(cc(1,i-1,3,:) &
+                            -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:))))
+
+                        ch(1,i,:,5) = wa4(i-2) &
+                            *((cc(1,i,1,:)+TR11*(cc(1,i,3,:)-cc(1,ic,2,:)) &
+                            +TR12*(cc(1,i,5,:)-cc(1,ic,4,:)))-(TI11*(cc(1,i-1,3,:) &
+                            -cc(1,ic-1,2,:))+TI12*(cc(1,i-1,5,:)-cc(1,ic-1,4,:)))) &
+                            +wa4(i-1) &
+                            *((cc(1,i-1,1,:)+TR11*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)) &
+                            +TR12*(cc(1,i-1,5,:)+cc(1,ic-1,4,:)))+(TI11*(cc(1,i,3,:) &
+                            +cc(1,ic,2,:))+TI12*(cc(1,i,5,:)+cc(1,ic,4,:))))
+                    end do
+            end select
+
+        end subroutine r1f5kb
+
 
 
     end subroutine rfft1b
