@@ -8425,57 +8425,7 @@ contains
     end subroutine msntf1
 
 
-    subroutine r1f2kb(ido,l1,cc,in1,ch,in2,wa1)
 
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(in1,ido,2,l1)
-        real (wp) ch(in2,ido,l1,2)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-
-        do k=1,l1
-            ch(1,1,k,1) = cc(1,1,1,k)+cc(1,ido,2,k)
-            ch(1,1,k,2) = cc(1,1,1,k)-cc(1,ido,2,k)
-        end do
-
-        if (ido < 2) then
-            return
-        else if (ido == 2) then
-            do k=1,l1
-                ch(1,ido,k,1) = cc(1,ido,1,k)+cc(1,ido,1,k)
-                ch(1,ido,k,2) = -(cc(1,1,2,k)+cc(1,1,2,k))
-            end do
-        else
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-
-                    ch(1,i-1,k,1) = cc(1,i-1,1,k)+cc(1,ic-1,2,k)
-                    ch(1,i,k,1) = cc(1,i,1,k)-cc(1,ic,2,k)
-
-                    ch(1,i-1,k,2) = wa1(i-2)*(cc(1,i-1,1,k)-cc(1,ic-1,2,k)) &
-                        -wa1(i-1)*(cc(1,i,1,k)+cc(1,ic,2,k))
-                    ch(1,i,k,2) = wa1(i-2)*(cc(1,i,1,k)+cc(1,ic,2,k))+wa1(i-1) &
-                        *(cc(1,i-1,1,k)-cc(1,ic-1,2,k))
-                end do
-            end do
-            if (mod(ido,2) /= 1) then
-                do k=1,l1
-                    ch(1,ido,k,1) = cc(1,ido,1,k)+cc(1,ido,1,k)
-                    ch(1,ido,k,2) = -(cc(1,1,2,k)+cc(1,1,2,k))
-                end do
-            end if
-        end if
-
-    end subroutine r1f2kb
 
     subroutine r1f2kf(ido,l1,cc,in1,ch,in2,wa1)
 
@@ -9894,6 +9844,56 @@ contains
             end associate
 
         end subroutine rfftb1
+
+
+        subroutine r1f2kb(ido,l1,cc,in1,ch,in2,wa1)
+            !--------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,2,l1)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,2)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            !--------------------------------------------------------------
+            ! Dictionary: local variables
+            !--------------------------------------------------------------
+            integer (ip) :: i, ic, idp2
+            !--------------------------------------------------------------
+
+            ch(1,1,:,1) = cc(1,1,1,:)+cc(1,ido,2,:)
+            ch(1,1,:,2) = cc(1,1,1,:)-cc(1,ido,2,:)
+
+            if (ido < 2) then
+                return
+            else
+                select case (ido)
+                    case (2)
+                        ch(1,ido,:,1) = cc(1,ido,1,:)+cc(1,ido,1,:)
+                        ch(1,ido,:,2) = -(cc(1,1,2,:)+cc(1,1,2,:))
+                    case default
+                        idp2 = ido+2
+                        do i=3,ido,2
+                            ic = idp2-i
+
+                            ch(1,i-1,:,1) = cc(1,i-1,1,:)+cc(1,ic-1,2,:)
+                            ch(1,i,:,1) = cc(1,i,1,:)-cc(1,ic,2,:)
+
+                            ch(1,i-1,:,2) = wa1(i-2)*(cc(1,i-1,1,:)-cc(1,ic-1,2,:)) &
+                                -wa1(i-1)*(cc(1,i,1,:)+cc(1,ic,2,:))
+                            ch(1,i,:,2) = wa1(i-2)*(cc(1,i,1,:)+cc(1,ic,2,:))+wa1(i-1) &
+                                *(cc(1,i-1,1,:)-cc(1,ic-1,2,:))
+                        end do
+                        if (mod(ido,2) /= 1) then
+                            ch(1,ido,:,1) = cc(1,ido,1,:)+cc(1,ido,1,:)
+                            ch(1,ido,:,2) = -(cc(1,1,2,:)+cc(1,1,2,:))
+                        end if
+                end select
+            end if
+
+        end subroutine r1f2kb
 
     end subroutine rfft1b
 
