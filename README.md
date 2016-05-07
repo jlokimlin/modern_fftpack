@@ -1,5 +1,8 @@
 # **modern\_fftpack - a Fortran library of fast Fourier transforms**
 
+An object-oriented modernization of NCAR's FFTPACK5.1.
+
+
 The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant, entirely free of **go to**, and employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit floating-point precision. 
 
 
