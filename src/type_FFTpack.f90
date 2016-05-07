@@ -151,6 +151,7 @@ contains
 
     end function fftpack_2d_constructor
 
+
     pure function fftpack_1d_constructor(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -524,7 +525,7 @@ contains
         !
         !==> Check validity of calling arguments
         !
-        if (lenc < inc * ( n - 1 ) + 1) then
+        if (lenc < inc * (n - 1) + 1) then
             ier = 1
             call xerfft( 'cfft1b ', 4)
         else if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
@@ -731,7 +732,7 @@ contains
             allocate( cr2(l1), cr3(l1) )
             allocate( ti2(l1), tr2(l1) )
 
-            if (.not.( 1 < ido .or. na == 1)) then
+            if (1 >= ido .and. na /= 1) then
                 tr2 = cc(1,:,1,2)+cc(1,:,1,3)
                 cr2 = cc(1,:,1,1)+TAUR*tr2
                 cc(1,:,1,1) = cc(1,:,1,1)+tr2
@@ -1236,7 +1237,7 @@ contains
 
             l1 = l2
             iw = iw+(iip-1)*(2*ido)
-            if(iip <= 5) then
+            if (iip <= 5) then
                 na = 1-na
             end if
         end do
@@ -2437,11 +2438,11 @@ contains
         !  integer LENC, the dimension of the C array.
         !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to CFFTMI before the first call to routine CFFTMF
         !  or CFFTMB for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -2548,11 +2549,11 @@ contains
         !  integer LENC, the dimension of the C array.
         !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to CFFTMI before the first call to routine CFFTMF
         !  or CFFTMB for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -2621,7 +2622,7 @@ contains
         !
         !  Purpose:
         !
-        !  CFFTMI initializes array WSAVE for use in its companion routines
+        !  CFFTMI initializes array wsave for use in its companion routines
         !  CFFTMB and CFFTMF.  CFFTMI must be called before the first call
         !  to CFFTMB or CFFTMF, and after whenever the value of integer N changes.
         !
@@ -2631,10 +2632,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors
+        !  real wsave(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used in
         !  routines CFFTMB or CFFTMF.
         !
@@ -3866,6 +3867,8 @@ contains
 
     end subroutine cmfgkb
 
+
+
     subroutine cmfgkf(lot, ido, iip, l1, lid, na, cc, cc1, im1, in1, &
         ch, ch1, im2, in2, wa)
 
@@ -4141,7 +4144,7 @@ contains
             l1 = l2
             iw = iw+(iip-1)*(2*ido)
 
-            if(iip <= 5) then
+            if (iip <= 5) then
                 na = 1-na
             end if
 
@@ -4209,7 +4212,7 @@ contains
             l1 = l2
             iw = iw+(iip-1)*(2*ido)
 
-            if(iip <= 5) then
+            if (iip <= 5) then
                 na = 1-na
             end if
         end do
@@ -4246,12 +4249,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSQ1I before the first call to routine COSQ1F
-        !  or COSQ1B for a given transform length N.  WSAVE's contents may be
+        !  or COSQ1B for a given transform length N.  wsave's contents may be
         !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -4298,7 +4301,7 @@ contains
             return
         end if
 
-        if(n < 2) then
+        if (n < 2) then
             return
         else if (n == 2) then
             ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
@@ -4346,12 +4349,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSQ1I before the first call to routine COSQ1F
-        !  or COSQ1B for a given transform length N.  WSAVE's contents may be
+        !  or COSQ1B for a given transform length N.  wsave's contents may be
         !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -4405,7 +4408,7 @@ contains
         !
         if (n < 2) then
             return
-        else if(n == 2) then
+        else if (n == 2) then
             tsqx = x(1,2)/sqrt(2.0_wp)
             x(1,2) = 0.5_wp *x(1,1)-tsqx
             x(1,1) = 0.5_wp *x(1,1)+tsqx
@@ -4433,10 +4436,10 @@ contains
         !
         !  Purpose:
         !
-        !  COSQ1I initializes array WSAVE for use in its companion routines
+        !  COSQ1I initializes array wsave for use in its companion routines
         !  COSQ1F and COSQ1B.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -4445,10 +4448,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product
         !  of small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors of N
+        !  real wsave(LENSAV), containing the prime factors of N
         !  and also containing certain trigonometric values which will be used
         !  in routines COSQ1B or COSQ1F.
         !
@@ -4635,10 +4638,12 @@ contains
             x(1,i-1) = xim1
         end do
 
-        return
     end subroutine cosqf1
+
+
+
     subroutine cosqmb(lot, jump, n, inc, x, lenx, wsave, lensav, work, lenwrk, &
-        ier )
+        ier)
         ! COSQMB: 64-bit float precision backward cosine quarter wave, multiple vectors.
         !
         !  Purpose:
@@ -4674,12 +4679,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSQMI before the first call to routine COSQMF
-        !  or COSQMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or COSQMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COSQMF and COSQMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -4805,12 +4810,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSQMI before the first call to routine COSQMF
-        !  or COSQMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or COSQMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COSQMF and COSQMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -4902,10 +4907,10 @@ contains
         !
         !  Purpose:
         !
-        !  COSQMI initializes array WSAVE for use in its companion routines
+        !  COSQMI initializes array wsave for use in its companion routines
         !  COSQMF and COSQMB.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -4914,10 +4919,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors of
+        !  real wsave(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used
         !  in routines COSQMB or COSQMF.
         !
@@ -5001,12 +5006,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COST1I before the first call to routine COST1F
-        !  or COST1B for a given transform length N.  WSAVE's contents may be re-used
+        !  or COST1B for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COST1F and COST1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -5062,8 +5067,9 @@ contains
             call xerfft('cost1b',-5)
         end if
 
-        return
     end subroutine cost1b
+
+
     subroutine cost1f(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
 
 
@@ -5096,12 +5102,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COST1I before the first call to routine COST1F
-        !  or COST1B for a given transform length N.  WSAVE's contents may be re-used
+        !  or COST1B for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COST1F and COST1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -5172,10 +5178,10 @@ contains
         !
         !  Purpose:
         !
-        !  COST1I initializes array WSAVE for use in its companion routines
+        !  COST1I initializes array wsave for use in its companion routines
         !  COST1F and COST1B.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -5184,10 +5190,10 @@ contains
         !  transformed.  The transform is most efficient when N-1 is a product
         !  of small primes.
         !
-        !  integer LENSAV, dimension of WSAVE array.
+        !  integer LENSAV, dimension of wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors of
+        !  real wsave(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used in
         !  routines COST1B or COST1F.
         !
@@ -5256,6 +5262,8 @@ contains
 
     end subroutine cost1i
 
+
+
     subroutine costb1(n, inc, x, wsave, work, ier)
 
         integer (ip) inc
@@ -5291,9 +5299,9 @@ contains
         np1 = n+1
         ns2 = n/2
 
-        if(n < 2) then
+        if (n < 2) then
             return
-        else if(n == 2) then
+        else if (n == 2) then
             x1h = x(1,1)+x(1,2)
             x(1,2) = x(1,1)-x(1,2)
             x(1,1) = x1h
@@ -5346,7 +5354,7 @@ contains
                     x(1,nm1) = x(1,nm1)+x(1,nm1)
                 end if
 
-                fnm1s4 = real ( nm1, kind=wp) / 4.0_wp
+                fnm1s4 = real(nm1, kind=wp)/4
 
                 do i=3,n,2
                     xi = fnm1s4*x(1,i)
@@ -5510,12 +5518,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSTMI before the first call to routine COSTMF
-        !  or COSTMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or COSTMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COSTMF and COSTMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -5625,12 +5633,12 @@ contains
         !  integer LENR, the dimension of the  R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to COSTMI before the first call to routine COSTMF
-        !  or COSTMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or COSTMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to COSTMF and COSTMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -5710,10 +5718,10 @@ contains
         !
         !  Purpose:
         !
-        !  COSTMI initializes array WSAVE for use in its companion routines
+        !  COSTMI initializes array wsave for use in its companion routines
         !  COSTMF and COSTMB.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -5722,10 +5730,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4
         !
-        !  real WSAVE(LENSAV), containing the prime factors of N
+        !  real wsave(LENSAV), containing the prime factors of N
         !  and also containing certain trigonometric values which will be used
         !  in routines COSTMB or COSTMF.
         !
@@ -5781,9 +5789,9 @@ contains
                 wsave(kc) = 2.0_wp * cos(fk*dt)
             end do
 
-            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) +4
+            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
 
-            call rfftmi (nm1, wsave(n+1), lnsv, ier1)
+            call rfftmi(nm1, wsave(n+1), lnsv, ier1)
 
             if (ier1 /= 0) then
                 ier = 20
@@ -5896,7 +5904,7 @@ contains
         integer (ip) lot
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -5963,9 +5971,9 @@ contains
         lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
         lnwk = lot*n
 
-        call rfftmf(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+        call rfftmf(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('mcsqf1',-5)
             return
@@ -6024,9 +6032,9 @@ contains
         ns2 = n/2
         lj = (lot-1)*jump+1
 
-        if(n < 2) then
+        if (n < 2) then
             return
-        else if(n == 2) then
+        else if (n == 2) then
             do m=1,lj,jump
                 x1h = x(m,1)+x(m,2)
                 x(m,2) = x(m,1)-x(m,2)
@@ -6098,7 +6106,7 @@ contains
                     x(m,1) = fnm1s2 * x(m,1)
                 end do
 
-                if(mod(nm1,2) == 0) then
+                if (mod(nm1,2) == 0) then
                     do m=1,lj,jump
                         x(m,nm1) = x(m,nm1)+x(m,nm1)
                     end do
@@ -6616,9 +6624,9 @@ contains
                 end do
             end do
 
-            if(ido < 2) then
+            if (ido < 2) then
                 return
-            else if(ido == 2) then
+            else if (ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -7226,7 +7234,7 @@ contains
         tsnm = -tsn
         modn = mod(n,2)
 
-        if(modn /= 0) then
+        if (modn /= 0) then
             nl = n-1
         else
             nl = n-2
@@ -7316,9 +7324,9 @@ contains
                 end do
             end do
 
-            if(ido < 2) then
+            if (ido < 2) then
                 return
-            else if(ido == 2) then
+            else if (ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -8177,7 +8185,7 @@ contains
         ier = 0
         lj = (lot-1)*jump+1
 
-        if(n < 2) then
+        if (n < 2) then
             return
         else if (n == 2) then
             do m=1,lj,jump
@@ -8210,9 +8218,7 @@ contains
                 end do
             end if
 
-            do m=1,lot
-                xh(m,1) = 0.0_wp
-            end do
+            xh(:,1) = 0.0_wp
 
             lnxh = lot-1 + lot*(np1-1) + 1
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
@@ -8226,10 +8232,8 @@ contains
                 return
             end if
 
-            if(mod(np1,2) == 0) then
-                do m=1,lot
-                    xh(m,np1) = xh(m,np1)+xh(m,np1)
-                end do
+            if (mod(np1,2) == 0) then
+                xh(:,np1) = 2.0_wp * xh(:,np1)
             end if
 
             fnp1s4 = real(np1, kind=wp)/4
@@ -8328,13 +8332,11 @@ contains
                 m1 = 0
                 do m=1,lj,jump
                     m1 = m1 + 1
-                    xh(m1,ns2+2) =  4.0_wp  * x(m,ns2+1)
+                    xh(m1,ns2+2) =  4.0_wp * x(m,ns2+1)
                 end do
             end if
 
-            do m=1,lot
-                xh(m,1) = 0.0_wp
-            end do
+            xh(:,1) = 0.0_wp
 
             lnxh = lot-1 + lot*(np1-1) + 1
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
@@ -8349,10 +8351,8 @@ contains
                 return
             end if
 
-            if(mod(np1,2) == 0) then
-                do m=1,lot
-                    xh(m,np1) = xh(m,np1)+xh(m,np1)
-                end do
+            if (mod(np1,2) == 0) then
+                xh(:,np1) = 2.0_wp * xh(:,np1)
             end if
 
 
@@ -8407,7 +8407,7 @@ contains
             ch(1,1,k,2) = cc(1,1,1,k)-cc(1,ido,2,k)
         end do
 
-        if(ido < 2) then
+        if (ido < 2) then
             return
         else if (ido == 2) then
             do k=1,l1
@@ -8459,7 +8459,7 @@ contains
             ch(1,ido,2,k) = cc(1,1,k,1)-cc(1,1,k,2)
         end do
 
-        if(ido < 2) then
+        if (ido < 2) then
             return
         else if (ido == 2) then
             do k=1,l1
@@ -9446,43 +9446,26 @@ contains
             end do
         end do
 
-        if (ido >= l1) then
-            do k=1,l1
-                do i=1,ido
-                    cc(1,i,1,k) = ch(1,i,k,1)
-                end do
-            end do
-        else
-            do i=1,ido
-                do k=1,l1
-                    cc(1,i,1,k) = ch(1,i,k,1)
-                end do
-            end do
-        end if
+        cc(1,:,1,:) = ch(1,:,:,1)
 
         do j=2,iipph
             jc = iipp2-j
-            j2 = j+j
-            do k=1,l1
-                cc(1,ido,j2-2,k) = ch(1,1,k,j)
-                cc(1,1,j2-1,k) = ch(1,1,k,jc)
-            end do
+            j2 = 2*j
+            cc(1,ido,j2-2,:) = ch(1,1,:,j)
+            cc(1,1,j2-1,:) = ch(1,1,:,jc)
         end do
-
 
         if (ido /= 1) then
             if (nbd >= l1) then
                 do j=2,iipph
                     jc = iipp2-j
                     j2 = j+j
-                    do k=1,l1
-                        do i=3,ido,2
-                            ic = idp2-i
-                            cc(1,i-1,j2-1,k) = ch(1,i-1,k,j)+ch(1,i-1,k,jc)
-                            cc(1,ic-1,j2-2,k) = ch(1,i-1,k,j)-ch(1,i-1,k,jc)
-                            cc(1,i,j2-1,k) = ch(1,i,k,j)+ch(1,i,k,jc)
-                            cc(1,ic,j2-2,k) = ch(1,i,k,jc)-ch(1,i,k,j)
-                        end do
+                    do i=3,ido,2
+                        ic = idp2-i
+                        cc(1,i-1,j2-1,:) = ch(1,i-1,:,j)+ch(1,i-1,:,jc)
+                        cc(1,ic-1,j2-2,:) = ch(1,i-1,:,j)-ch(1,i-1,:,jc)
+                        cc(1,i,j2-1,:) = ch(1,i,:,j)+ch(1,i,:,jc)
+                        cc(1,ic,j2-2,:) = ch(1,i,:,jc)-ch(1,i,:,j)
                     end do
                 end do
             else
@@ -9491,12 +9474,10 @@ contains
                     j2 = j+j
                     do i=3,ido,2
                         ic = idp2-i
-                        do k=1,l1
-                            cc(1,i-1,j2-1,k) = ch(1,i-1,k,j)+ch(1,i-1,k,jc)
-                            cc(1,ic-1,j2-2,k) = ch(1,i-1,k,j)-ch(1,i-1,k,jc)
-                            cc(1,i,j2-1,k) = ch(1,i,k,j)+ch(1,i,k,jc)
-                            cc(1,ic,j2-2,k) = ch(1,i,k,jc)-ch(1,i,k,j)
-                        end do
+                        cc(1,i-1,j2-1,:) = ch(1,i-1,:,j)+ch(1,i-1,:,jc)
+                        cc(1,ic-1,j2-2,:) = ch(1,i-1,:,j)-ch(1,i-1,:,jc)
+                        cc(1,i,j2-1,:) = ch(1,i,:,j)+ch(1,i,:,jc)
+                        cc(1,ic,j2-2,:) = ch(1,i,:,jc)-ch(1,i,:,j)
                     end do
                 end do
             end if
@@ -9599,10 +9580,8 @@ contains
                 select case (j)
                     case (1)
                         ntry = 4
-                    case (2)
-                        ntry = 2
-                    case (3)
-                        ntry = 3
+                    case (2:3)
+                        ntry = j
                     case (4)
                         ntry = 5
                     case default
@@ -9694,11 +9673,11 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFT1I before the first call to routine
         !  RFFT1F or RFFT1B for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -9781,11 +9760,11 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFT1I before the first call to routine RFFT1F
         !  or RFFT1B for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -9844,10 +9823,10 @@ contains
         !
         !  Purpose:
         !
-        !  RFFT1I initializes array WSAVE for use in its companion routines
+        !  RFFT1I initializes array wsave for use in its companion routines
         !  RFFT1B and RFFT1F.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -9856,11 +9835,11 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  real WSAVE(LENSAV), containing the prime factors of
+        !  real wsave(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used in
         !  routines RFFT1B or RFFT1F.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  integer IER, error flag.
@@ -9920,13 +9899,13 @@ contains
         !  dimensions.  On input, R contains the L/2+1-by-M complex subarray of
         !  spectral coefficients, on output, the physical coefficients.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFT2I before the first call to routine RFFT2F
-        !  or RFFT2B with lengths L and M.  WSAVE's contents may be re-used for
+        !  or RFFT2B with lengths L and M.  wsave's contents may be re-used for
         !  subsequent calls to RFFT2F and RFFT2B with the same transform lengths
         !  L and M.
         !
-        !  integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the wsave
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
@@ -9948,10 +9927,10 @@ contains
         integer (ip) lenwrk
         integer (ip) m
 
-        integer (ip) i
+        
         integer (ip) ier
         integer (ip) ier1
-        integer (ip) j
+        
         integer (ip) l
         integer (ip) ldh
         integer (ip) ldw
@@ -9999,19 +9978,19 @@ contains
         !
         !==> Transform second dimension of array
         !
-        do j=2,2*((m+1)/2)-1
-            r(1,j) = r(1,j)+r(1,j)
-        end do
+        associate( mj => 2*((m+1)/2)-1 )
 
-        do j=3,m,2
-            r(1,j) = -r(1,j)
-        end do
+            r(1,2:mj) = 2.0_wp * r(1,2:mj)
+
+        end associate
+
+        r(1,3:m:2) = -r(1,3:m:2)
 
         call rfftmb(1,1,m,ldim,r,m*ldim, wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
 
         ldh = int((l+1)/2)
 
-        if( 1 < ldh ) then
+        if ( 1 < ldh ) then
             ldw = ldh+ldh
             !
             !  r and work are switched because the the first dimension
@@ -10022,7 +10001,7 @@ contains
             call cfftmb(ldh-1,1,m,ldh,work(2),ldh*m, &
                 wsave(lwsav+1),mwsav,r,l*m, ier1)
 
-            if(ier1/=0) then
+            if (ier1/=0) then
                 ier=20
                 call xerfft('rfft2b',-5)
                 return
@@ -10031,15 +10010,15 @@ contains
             call w2r(ldim,ldw,l,m,r,work)
         end if
 
-        if(modl == 0) then
+        if (modl == 0) then
 
-            do j=2,2*((m+1)/2)-1
-                r(l,j) = r(l,j)+r(l,j)
-            end do
+            associate( mj => 2*((m+1)/2)-1 )
 
-            do j=3,m,2
-                r(l,j) = -r(l,j)
-            end do
+                r(l,2:mj) = 2.0_wp * r(l,2:mj)
+
+            end associate
+
+            r(l,3:m:2) = -r(l,3:m:2)
 
             call rfftmb(1,1,m,ldim,r(l,1),m*ldim, &
                 wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
@@ -10049,16 +10028,8 @@ contains
         !
         ldx = 2*int((l+1)/2)-1
 
-        do i=2,ldx
-            do j=1,m
-                r(i,j) = r(i,j)+r(i,j)
-            end do
-        end do
-        do j=1,m
-            do i=3,ldx,2
-                r(i,j) = -r(i,j)
-            end do
-        end do
+        r(2:ldx,1:m) = 2.0_wp * r(2:ldx,1:m)
+        r(3:ldx:2,1:m) = -r(3:ldx:2,1:m)
 
         associate( &
             arg_1 => m*ldim, &
@@ -10108,12 +10079,12 @@ contains
         !  dimensions.  On input, containing the L-by-M physical data to be
         !  transformed.  On output, the spectral coefficients.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFT2I before the first call to routine RFFT2F
-        !  or RFFT2B with lengths L and M.  WSAVE's contents may be re-used for
+        !  or RFFT2B with lengths L and M.  wsave's contents may be re-used for
         !  subsequent calls to RFFT2F and RFFT2B with the same transform lengths.
         !
-        !  integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the wsave
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
@@ -10137,10 +10108,10 @@ contains
         integer (ip) lenwrk
         integer (ip) m
 
-        integer (ip) i
+        
         integer (ip) ier
-        integer (ip) ier1
-        integer (ip) j
+        integer (ip) local_error_flag
+        
         integer (ip) l
         integer (ip) ldh
         integer (ip) ldw
@@ -10188,14 +10159,14 @@ contains
         !
         associate( &
             arg_1 => m*ldim, &
-            arg_2 =>  l+int(log(real(l, kind=wp) )/log(2.0_wp))+4 &
+            arg_2 => l+int(log(real(l, kind=wp))/log(2.0_wp))+4 &
             )
 
-            call rfftmf(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,ier1)
+            call rfftmf(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,size(work),local_error_flag)
 
         end associate
 
-        if(ier1 /= 0 ) then
+        if (local_error_flag /= 0) then
             ier=20
             call xerfft('rfft2f',-5)
             return
@@ -10203,18 +10174,10 @@ contains
 
         ldx = 2*int((l+1)/2)-1
 
-        do i=2,ldx
-            do j=1,m
-                r(i,j) = 0.5_wp * r(i,j)
-            end do
-        end do
+        r(2:ldx,1:m) = 0.5_wp * r(2:ldx,1:m)
 
-        do j=1,m
-            do i=3,ldx,2
-                r(i,j) = -r(i,j)
-            end do
-        end do
-        !
+        r(3:ldx:2,1:m) = -r(3:ldx:2,1:m)
+
         !==>  Reshuffle to add in nyquist imaginary components
         !
         modl = mod(l,2)
@@ -10223,15 +10186,15 @@ contains
         !==>  Transform second dimension of array
         !
         call rfftmf(1,1,m,ldim,r,m*ldim, &
-            wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
+            wsave(lwsav+mwsav+1),mmsav,work,size(work),local_error_flag)
 
-        do j=2,2*((m+1)/2)-1
-            r(1,j) = 0.5_wp * r(1,j)
-        end do
+        associate( mj => 2*((m+1)/2)-1 )
 
-        do j=3,m,2
-            r(1,j) = -r(1,j)
-        end do
+            r(1,2:mj) = 0.5_wp * r(1,2:mj)
+
+        end associate
+
+        r(1,3:m:2) = -r(1,3:m:2)
 
         ldh = int((l+1)/2)
 
@@ -10243,9 +10206,9 @@ contains
             !
             call r2w(ldim,ldw,l,m,r,work)
             call cfftmf(ldh-1,1,m,ldh,work(2),ldh*m, &
-                wsave(lwsav+1),mwsav,r,l*m, ier1)
+                wsave(lwsav+1),mwsav,r,l*m, local_error_flag)
 
-            if(ier1 /= 0 ) then
+            if (local_error_flag /= 0) then
                 ier=20
                 call xerfft('rfft2f',-5)
                 return
@@ -10254,38 +10217,40 @@ contains
             call w2r(ldim,ldw,l,m,r,work)
         end if
 
-        if(modl == 0) then
+        if (modl == 0) then
 
             call rfftmf(1,1,m,ldim,r(l,1),m*ldim, &
-                wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
+                wsave(lwsav+mwsav+1),mmsav,work,size(work),local_error_flag)
 
-            do j=2,2*((m+1)/2)-1
-                r(l,j) = 0.5_wp * r(l,j)
-            end do
+            associate( mj => 2*((m+1)/2)-1 )
 
-            do j=3,m,2
-                r(l,j) = -r(l,j)
-            end do
+                r(l,2:mj) = 0.5_wp * r(l,2:mj)
+
+            end associate
+
+            r(l,3:m:2) = -r(l,3:m:2)
 
         end if
 
-        if(ier1 /= 0 ) then
+        if (local_error_flag /= 0) then
             ier=20
             call xerfft('rfft2f',-5)
         end if
 
     end subroutine rfft2f
 
+
+
     subroutine rfft2i(l, m, wsave, lensav, ier)
         ! RFFT2I: initialization for RFFT2B and RFFT2F.
         !
         !  Purpose:
-        !  RFFT2I initializes real array WSAVE for use in its companion routines
+        !  RFFT2I initializes real array wsave for use in its companion routines
         !  RFFT2F and RFFT2B for computing the two-dimensional fast Fourier
         !  transform of real data.  Prime factorizations of L and M, together with
         !  tabulations of the trigonometric functions, are computed and stored in
-        !  array WSAVE.  RFFT2I must be called prior to the first call to RFFT2F
-        !  or RFFT2B.  Separate WSAVE arrays are required for different values of
+        !  array wsave.  RFFT2I must be called prior to the first call to RFFT2F
+        !  or RFFT2B.  Separate wsave arrays are required for different values of
         !  L or M.
         !
         !
@@ -10297,11 +10262,11 @@ contains
         !  in the second dimension.  The transform is most efficient when M is a
         !  product of small primes.
         !
-        !  integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the wsave
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
-        !  real WSAVE(LENSAV), containing the prime factors
+        !  real wsave(LENSAV), containing the prime factors
         !  of L and M, and also containing certain trigonometric values which
         !  will be used in routines RFFT2B or RFFT2F.
         !
@@ -10315,7 +10280,7 @@ contains
         integer (ip) lensav
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) l
         integer (ip) lwsav
         integer (ip) m
@@ -10339,25 +10304,25 @@ contains
             return
         end if
 
-        call rfftmi(l, wsave(1), lwsav, ier1)
+        call rfftmi(l, wsave(1), lwsav, local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('rfft2i',-5)
             return
         end if
 
-        call cfftmi (m, wsave(lwsav+1),mwsav,ier1)
+        call cfftmi(m, wsave(lwsav+1),mwsav,local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('rfft2i',-5)
             return
         end if
 
-        call rfftmi(m,wsave(lwsav+mwsav+1),mmsav, ier1)
+        call rfftmi(m,wsave(lwsav+mwsav+1),mmsav, local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('rfft2i',-5)
             return
@@ -10394,13 +10359,14 @@ contains
 
         nf = int(fac(2), kind=ip)
         na = 0
+
         do k1=1,nf
             iip = int(fac(k1+2), kind=ip)
             na = 1-na
-            if(iip <= 5) then
+            if (iip <= 5) then
                 cycle
             end if
-            if(k1 == nf) then
+            if (k1 == nf) then
                 cycle
             end if
             na = 1-na
@@ -10408,7 +10374,7 @@ contains
 
         modn = mod(n,2)
 
-        if(modn /= 0) then
+        if (modn /= 0) then
             nl = n-1
         else
             nl = n-2
@@ -10580,7 +10546,7 @@ contains
         tsnm = -tsn
         modn = mod(n,2)
 
-        if(modn /= 0) then
+        if (modn /= 0) then
             nl = n-1
         else
             nl = n-2
@@ -10592,7 +10558,7 @@ contains
                 c(1,j) = tsn*ch(j)
                 c(1,j+1) = tsnm*ch(j+1)
             end do
-            if(modn == 0) then
+            if (modn == 0) then
                 c(1,n) = sn*ch(n)
             end if
         else
@@ -10601,7 +10567,7 @@ contains
                 c(1,j) = tsn*c(1,j)
                 c(1,j+1) = tsnm*c(1,j+1)
             end do
-            if(modn == 0) then
+            if (modn == 0) then
                 c(1,n) = sn*c(1,n)
             end if
         end if
@@ -10765,11 +10731,11 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFTMI before the first call to routine RFFTMF
         !  or RFFTMB for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must  be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -10870,11 +10836,11 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to RFFTMI before the first call to routine RFFTMF
         !  or RFFTMB for a given transform length N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11019,12 +10985,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINQ1I before the first call to routine SINQ1F
-        !  or SINQ1B for a given transform length N.  WSAVE's contents may be
+        !  or SINQ1B for a given transform length N.  wsave's contents may be
         !  re-used for subsequent calls to SINQ1F and SINQ1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11069,17 +11035,14 @@ contains
             ier = 0
         end if
 
-        if ( 1 >= n ) then
+        if (1 >= n) then
             !
             !   x(1,1) = 4.*x(1,1) line disabled by dick valent 08/26/2010
             !
             return
         else
             ns2 = n/2
-
-            do k=2,n,2
-                x(1,k) = -x(1,k)
-            end do
+            x(1,2:n:2) = -x(1,2:n:2)
 
             call cosq1b(n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
 
@@ -11130,12 +11093,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINQ1I before the first call to routine SINQ1F
-        !  or SINQ1B for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINQ1B for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINQ1F and SINQ1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11200,9 +11163,7 @@ contains
                 return
             end if
 
-            do k=2,n,2
-                x(1,k) = -x(1,k)
-            end do
+            x(1,2:n:2) = -x(1,2:n:2)
         end if
 
     end subroutine sinq1f
@@ -11226,10 +11187,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors
+        !  real wsave(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         ! in routines SINQ1B or SINQ1F.
         !
@@ -11303,12 +11264,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINQMI before the first call to routine SINQMF
-        !  or SINQMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINQMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINQMF and SINQMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11330,7 +11291,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -11364,25 +11325,20 @@ contains
         lj = (lot-1)*jump+1
 
         if (1 >= n ) then
-            do m=1,lj,jump
-                x(m,1) =  4.0_wp * x(m,1)
-            end do
+            x(1:lj:jump,1) =  4.0_wp * x(1:lj:jump,1)
         else
             ns2 = n/2
+            x(2:n:2,1:lj:jump) = -x(1:lj:jump,2:n:2)
 
-            do k=2,n,2
-                do m=1,lj,jump
-                    x(m,k) = -x(m,k)
-                end do
-            end do
+            call cosqmb(lot,jump,n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
-            call cosqmb(lot,jump,n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
-
-            if (ier1 /= 0) then
+            ! Check error flag
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('sinqmb',-5)
                 return
             end if
+
             do k=1,ns2
                 kc = n-k
                 do m=1,lj,jump
@@ -11436,12 +11392,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINQMI before the first call to routine SINQMF
-        !  or SINQMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINQMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINQMF and SINQMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11464,7 +11420,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -11514,19 +11470,15 @@ contains
                 end do
             end do
 
-            call cosqmf(lot,jump,n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
+            call cosqmf(lot,jump,n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('sinqmf',-5)
                 return
             end if
 
-            do k=2,n,2
-                do m=1,lj,jump
-                    x(m,k) = -x(m,k)
-                end do
-            end do
+            x(1:lj:jump,2:n:2) = -x(1:lj:jump,2:n:2)
         end if
 
     end subroutine sinqmf
@@ -11541,10 +11493,10 @@ contains
         !
         !  Purpose:
         !
-        !  SINQMI initializes array WSAVE for use in its companion routines
+        !  SINQMI initializes array wsave for use in its companion routines
         !  SINQMF and SINQMB.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -11553,10 +11505,10 @@ contains
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors
+        !  real wsave(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINQMB or SINQMF.
         !
@@ -11568,9 +11520,8 @@ contains
 
 
         integer (ip) lensav
-
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) n
         real (wp) wsave(lensav)
 
@@ -11582,10 +11533,10 @@ contains
             return
         end if
 
-        call cosqmi(n, wsave, lensav, ier1)
+        call cosqmi(n, wsave, lensav, local_error_flag)
 
         ! Check error flag
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('sinqmi',-5)
         end if
@@ -11624,12 +11575,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINT1I before the first call to routine SINT1F
-        !  or SINT1B for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINT1B for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINT1F and SINT1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11721,12 +11672,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINT1I before the first call to routine SINT1F
-        !  or SINT1B for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINT1B for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINT1F and SINT1B with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -11795,10 +11746,10 @@ contains
         !
         !  Purpose:
         !
-        !  SINT1I initializes array WSAVE for use in its companion routines
+        !  SINT1I initializes array wsave for use in its companion routines
         !  SINT1F and SINT1B.  The prime factorization of N together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
+        !  in array wsave.  Separate wsave arrays are required for different
         !  values of N.
         !
         !  Parameters:
@@ -11807,10 +11758,10 @@ contains
         !  transformed.  The transform is most efficient when N+1 is a product
         !  of small primes.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
-        !  real WSAVE(LENSAV), containing the prime factors
+        !  real wsave(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINT1B or SINT1F.
         !
@@ -11938,7 +11889,7 @@ contains
                 return
             end if
 
-            if(mod(np1,2) == 0) then
+            if (mod(np1,2) == 0) then
                 xh(np1) = xh(np1)+xh(np1)
             end if
 
@@ -11989,9 +11940,9 @@ contains
 
         ier = 0
 
-        if(n < 2) then
+        if (n < 2) then
             return
-        else if(n == 2) then
+        else if (n == 2) then
             xhold = (x(1,1)+x(1,2))/sqrt(3.0_wp)
             x(1,2) = (x(1,1)-x(1,2))/sqrt(3.0_wp)
             x(1,1) = xhold
@@ -12025,7 +11976,7 @@ contains
                 return
             end if
 
-            if(mod(np1,2) == 0) then
+            if (mod(np1,2) == 0) then
                 xh(np1) = xh(np1)+xh(np1)
             end if
 
@@ -12086,12 +12037,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINTMI before the first call to routine SINTMF
-        !  or SINTMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINTMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINTMF and SINTMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
@@ -12199,12 +12150,12 @@ contains
         !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
-        !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
+        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
         !  initialized with a call to SINTMI before the first call to routine SINTMF
-        !  or SINTMB for a given transform length N.  WSAVE's contents may be re-used
+        !  or SINTMB for a given transform length N.  wsave's contents may be re-used
         !  for subsequent calls to SINTMF and SINTMB with the same N.
         !
-        !  integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
