@@ -9766,6 +9766,135 @@ contains
             call rfftb1(n,inc,r,work,wsave,wsave(n+1))
         end if
 
+    contains
+
+        subroutine rfftb1(n, in, c, ch, wa, fac)
+            !-------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !-------------------------------------------------------------
+            integer (ip), intent (in)     :: n
+            integer (ip), intent (in)     :: in
+            real (wp),    intent (in out) :: c(in,*)
+            real (wp),    intent (out)    :: ch(*)
+            real (wp),    intent (in)     :: wa(n)
+            real (wp),    intent (in)     :: fac(15)
+            !-------------------------------------------------------------
+            ! Dictionary: local variables
+            !-------------------------------------------------------------
+            integer (ip) :: idl1, ido, iip
+            integer (ip) :: workspace_indices(4)
+            integer (ip) :: j, k, l1, l2
+            integer (ip) :: modn, na, nf, nl
+            !-------------------------------------------------------------
+
+            nf = int(fac(2), kind=ip)
+            na = 0
+
+            factorization_loop: do k=1,nf
+                iip = int(fac(k+2), kind=ip)
+                na = 1-na
+                if (iip <= 5) then
+                    cycle factorization_loop
+                end if
+                if (k == nf) then
+                    cycle factorization_loop
+                end if
+                na = 1-na
+            end do factorization_loop
+
+            modn = mod(n,2)
+
+            if (modn /= 0) then
+                nl = n-1
+            else
+                nl = n-2
+            end if
+
+            if (na /= 0) then
+                ch(1) = c(1,1)
+                ch(n) = c(1,n)
+                do j=2,nl,2
+                    ch(j) = 0.5_wp*c(1,j)
+                    ch(j+1) = -0.5_wp*c(1,j+1)
+                end do
+            else
+                do j=2,nl,2
+                    c(1,j) = 0.5_wp*c(1,j)
+                    c(1,j+1) = -0.5_wp*c(1,j+1)
+                end do
+            end if
+
+            associate( &
+                iw1 => workspace_indices(1), &
+                iw2 => workspace_indices(2), &
+                iw3 => workspace_indices(3), &
+                iw4 => workspace_indices(4) &
+                )
+
+                l1 = 1
+                iw1 = 1
+                do k=1,nf
+                    iip = int(fac(k+2), kind=ip)
+                    l2 = iip*l1
+                    ido = n/l2
+                    idl1 = ido*l1
+                    select case (iip)
+                        case (2)
+                            select case (na)
+                                case (0)
+                                    call r1f2kb(ido,l1,c,in,ch,1,wa(iw1))
+                                case default
+                                    call r1f2kb(ido,l1,ch,1,c,in,wa(iw1))
+                            end select
+                            na = 1-na
+                        case (3)
+                            iw2 = iw1+ido
+                            select case (na)
+                                case (0)
+                                    call r1f3kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
+                                case default
+                                    call r1f3kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
+                            end select
+                            na = 1-na
+                        case (4)
+                            iw2 = iw1+ido
+                            iw3 = iw2+ido
+                            select case (na)
+                                case (0)
+                                    call r1f4kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
+                                case default
+                                    call r1f4kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
+                            end select
+                            na = 1-na
+                        case (5)
+                            iw2 = iw1+ido
+                            iw3 = iw2+ido
+                            iw4 = iw3+ido
+                            select case (na)
+                                case (0)
+                                    call r1f5kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                case default
+                                    call r1f5kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                            end select
+                            na = 1-na
+                        case default
+                            select case (na)
+                                case (0)
+                                    call r1fgkb(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
+                                case default
+                                    call r1fgkb(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
+                            end select
+                            if (ido == 1) then
+                                na = 1-na
+                            end if
+                    end select
+                    l1 = l2
+                    iw1 = iw1+(iip-1)*ido
+                end do
+            end associate
+
+        end subroutine rfftb1
+
     end subroutine rfft1b
 
     subroutine rfft1f(n, inc, r, lenr, wsave, lensav, work, lenwrk, ier)
@@ -10370,125 +10499,7 @@ contains
 
 
 
-    subroutine rfftb1(n, in, c, ch, wa, fac)
 
-        integer (ip) in
-        integer (ip) n
-
-        real (wp) c(in,*)
-        real (wp) ch(*)
-        real (wp) fac(15)
-        integer (ip) idl1
-        integer (ip) ido
-        integer (ip) iip
-        integer (ip) iw
-        integer (ip) ix2
-        integer (ip) ix3
-        integer (ip) ix4
-        integer (ip) j
-        integer (ip) k1
-        integer (ip) l1
-        integer (ip) l2
-        integer (ip) modn
-        integer (ip) na
-        integer (ip) nf
-        integer (ip) nl
-        real (wp) wa(n)
-
-        nf = int(fac(2), kind=ip)
-        na = 0
-
-        do k1=1,nf
-            iip = int(fac(k1+2), kind=ip)
-            na = 1-na
-            if (iip <= 5) then
-                cycle
-            end if
-            if (k1 == nf) then
-                cycle
-            end if
-            na = 1-na
-        end do
-
-        modn = mod(n,2)
-
-        if (modn /= 0) then
-            nl = n-1
-        else
-            nl = n-2
-        end if
-
-        if (na /= 0) then
-            ch(1) = c(1,1)
-            ch(n) = c(1,n)
-            do j=2,nl,2
-                ch(j) = 0.5_wp*c(1,j)
-                ch(j+1) = -0.5_wp*c(1,j+1)
-            end do
-        else
-            do j=2,nl,2
-                c(1,j) = 0.5_wp*c(1,j)
-                c(1,j+1) = -0.5_wp*c(1,j+1)
-            end do
-        end if
-
-        l1 = 1
-        iw = 1
-        do k1=1,nf
-            iip = int(fac(k1+2), kind=ip)
-            l2 = iip*l1
-            ido = n/l2
-            idl1 = ido*l1
-            select case (iip)
-                case (2)
-                    if (na == 0) then
-                        call r1f2kb(ido,l1,c,in,ch,1,wa(iw))
-                    else
-                        call r1f2kb(ido,l1,ch,1,c,in,wa(iw))
-                    end if
-                    na = 1-na
-                case (3)
-                    ix2 = iw+ido
-                    if (na == 0) then
-                        call r1f3kb(ido,l1,c,in,ch,1,wa(iw),wa(ix2))
-                    else
-                        call r1f3kb(ido,l1,ch,1,c,in,wa(iw),wa(ix2))
-                    end if
-                    na = 1-na
-                case (4)
-                    ix2 = iw+ido
-                    ix3 = ix2+ido
-                    if (na == 0) then
-                        call r1f4kb(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3))
-                    else
-                        call r1f4kb(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3))
-                    end if
-                    na = 1-na
-                case (5)
-                    ix2 = iw+ido
-                    ix3 = ix2+ido
-                    ix4 = ix3+ido
-                    if (na == 0) then
-                        call r1f5kb(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                    else
-                        call r1f5kb(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                    end if
-                    na = 1-na
-                case default
-                    if (na == 0) then
-                        call r1fgkb(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw))
-                    else
-                        call r1fgkb(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw))
-                    end if
-                    if (ido == 1) then
-                        na = 1-na
-                    end if
-            end select
-            l1 = l2
-            iw = iw+(iip-1)*ido
-        end do
-
-    end subroutine rfftb1
 
     subroutine rfftf1(n, in, c, ch, wa, fac)
 
