@@ -281,15 +281,16 @@ contains
         integer (ip), intent (in) :: m
         integer (ip)              :: return_value
         !------------------------------------------------------------------
-        real (wp) :: temp_l, temp_m
-        !------------------------------------------------------------------
 
         associate( lensav => return_value )
+            associate( &
+                log_l => log(real(l,kind=wp)), &
+                log_m => log(real(m,kind=wp)) &
+                )
 
-            temp_l = log(real(l,kind=wp))
-            temp_m = log(real(m,kind=wp))
-            lensav = 2*(l + m) + int(temp_l, kind=ip) + int(temp_m, kind=ip) + 8
+                lensav = 2*(l+m)+int(log_l, kind=ip)+int(log_m, kind=ip)+8
 
+            end associate
         end associate
 
     end function get_2d_saved_workspace_size
@@ -444,6 +445,9 @@ contains
         integer (ip), intent (out) :: ier
         !--------------------------------------------------------------
 
+        !
+        !==> Check validity of input arguments
+        !
         if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cfftmi ', 3)
@@ -451,6 +455,9 @@ contains
             ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         if (n /= 1) then
             associate( iw1 => 2*n+1 )
 
@@ -464,37 +471,34 @@ contains
 
     subroutine cfft1b(n, inc, complex_data, lenc, wsave, lensav, work, lenwrk, ier)
         !
-        !  input
-        !  n, the length of the sequence to be
+        !  INPUT
+        !  integer n, the length of the sequence to be
         !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  input
-        !  inc, the increment between the locations, in
+        !  integer inc, the increment between the locations, in
         !  array c, of two consecutive elements within the sequence to be transformed.
         !
-        !  input/output,
-        !  complex_data(lenc) containing the sequence to be
-        !  transformed.
-        !
-        !  input
-        !  lenc, the dimension of the complex_data array.
+        !  integer lenc, the dimension of the complex_data array.
         !  lenc must be at least inc*(n-1) + 1.
         !
-        !  input
-        !  wsave(lensav). wsave's contents must be initialized with a call
+        !  real wsave(lensav). wsave's contents must be initialized with a call
         !  to cfft1i before the first call to routine cfft1f
         !  or cfft1b for a given transform length n.  wsave's contents may be
         !  re-used for subsequent calls to cfft1f and cfft1b with the same n.
         !
-        !  input
-        !  lensav, the dimension of the wsave array.
+        !  integer lensav, the dimension of the wsave array.
         !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  workspace work(lenwrk).
         !
         !  input lenwrk, the dimension of the work array.
         !  lenwrk must be at least 2*n.
+        !
+        !  INPUT/OUTPUT
+        !  complex complex_data(lenc) containing the sequence to be
+        !  transformed.
+        !
+        !  real workspace work(lenwrk).
         !
         !  integer ier, error flag.
         !  0, successful exit;
@@ -548,7 +552,7 @@ contains
             allocate( real_copy(2,size(complex_data)) )
 
             !
-            !==> Copy complex to real
+            !==> Make copy: complex to real
             !
             real_copy(1,:) = real(complex_data)
             real_copy(2,:) = aimag(complex_data)
@@ -558,7 +562,7 @@ contains
             call c1fm1b(n, inc, real_copy, work, wsave, wsave(iw1), wsave(iw1+1) )
 
             !
-            !==> Copy real to complex
+            !==> Make copy: real to complex
             !
             complex_data =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
 
@@ -640,20 +644,20 @@ contains
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
-            integer (ip), intent (in)   :: ido
-            integer (ip), intent (in)   :: l1
-            integer (ip), intent (in)   :: na
-            real (wp),  intent (in out) :: cc(in1,l1,ido,2)
-            integer (ip), intent (in)   :: in1
-            real (wp),  intent (in out) :: ch(in2,l1,2,ido)
-            integer (ip), intent (in)   :: in2
-            real (wp),  intent (in out) :: wa(ido,1,2)
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,ido,2)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,2,ido)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,1,2)
             !----------------------------------------------------------------------
             ! Dictionary: local variables
             !----------------------------------------------------------------------
             integer (ip)           :: i !! Counter
             real (wp), allocatable :: chold1(:), chold2(:)
-            real (wp), allocatable :: ti2(:),  tr2(:)
+            real (wp), allocatable :: ti2(:), tr2(:)
             !----------------------------------------------------------------------
 
             if (ido <= 1 .and. na /= 1) then
@@ -702,6 +706,8 @@ contains
 
         end subroutine c1f2kb
 
+
+
         subroutine c1f3kb(ido, l1, na, cc, in1, ch, in2, wa)
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
@@ -718,6 +724,8 @@ contains
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
             integer (ip)           :: i !! Counter
+            real (wp), allocatable :: di2(:), di3(:)
+            real (wp), allocatable :: dr2(:), dr3(:)
             real (wp), allocatable :: ci2(:), ci3(:)
             real (wp), allocatable :: cr2(:), cr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
@@ -759,6 +767,12 @@ contains
                 ch(2,:,2,1) = ci2+cr3
                 ch(2,:,3,1) = ci2-cr3
 
+                !
+                !==> Allocate memory
+                !
+                allocate( dr2(l1), dr3(l1) )
+                allocate( di2(l1), di3(l1) )
+
                 do i=2,ido
                     tr2 = cc(1,:,i,2)+cc(1,:,i,3)
                     cr2 = cc(1,:,i,1)+TAUR*tr2
@@ -768,18 +782,23 @@ contains
                     ch(2,:,1,i) = cc(2,:,i,1)+ti2
                     cr3 = TAUI*(cc(1,:,i,2)-cc(1,:,i,3))
                     ci3 = TAUI*(cc(2,:,i,2)-cc(2,:,i,3))
-                    associate( &
-                        dr2 => cr2-ci3, &
-                        dr3 => cr2+ci3, &
-                        di2 => ci2+cr3, &
-                        di3 => ci2-cr3 &
-                        )
-                        ch(2,:,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
-                        ch(1,:,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
-                        ch(2,:,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
-                        ch(1,:,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
-                    end associate
+
+                    dr2 = cr2-ci3
+                    dr3 = cr2+ci3
+                    di2 = ci2+cr3
+                    di3 = ci2-cr3
+
+                    ch(2,:,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
+                    ch(1,:,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
+                    ch(2,:,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
+                    ch(1,:,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
+
                 end do
+                !
+                !==> Release memory
+                !
+                deallocate( dr2, dr3 )
+                deallocate( di2, di3 )
             end if
 
             !
@@ -791,103 +810,114 @@ contains
 
         end subroutine c1f3kb
 
+
         subroutine c1f4kb(ido, l1, na, cc, in1, ch, in2, wa)
+            !----------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,ido,4)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,4,ido)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,3,2)
+            !----------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------------------
+            integer (ip)           :: i !! Counter
+            real (wp), allocatable :: ci2(:), ci3(:), ci4(:)
+            real (wp), allocatable :: cr2(:), cr3(:), cr4(:)
+            real (wp), allocatable :: ti1(:), ti2(:), ti3(:), ti4(:)
+            real (wp), allocatable :: tr1(:), tr2(:), tr3(:), tr4(:)
+            !----------------------------------------------------------------------
 
-            integer (ip) ido
-            integer (ip) in1
-            integer (ip) in2
-            integer (ip) l1
-
-            real (wp) cc(in1,l1,ido,4)
-            real (wp) ch(in2,l1,4,ido)
-            real (wp) ci2
-            real (wp) ci3
-            real (wp) ci4
-            real (wp) cr2
-            real (wp) cr3
-            real (wp) cr4
-            integer (ip) i
-            integer (ip) k
-            integer (ip) na
-            real (wp) ti1
-            real (wp) ti2
-            real (wp) ti3
-            real (wp) ti4
-            real (wp) tr1
-            real (wp) tr2
-            real (wp) tr3
-            real (wp) tr4
-            real (wp) wa(ido,3,2)
+            !
+            !==> Allocate memory
+            !
+            allocate( ti1(l1), ti2(l1), ti3(l1), ti4(l1) )
+            allocate( tr1(l1), tr2(l1), tr3(l1), tr4(l1) )
 
             if (1 >= ido .and. na /= 1) then
-                do k=1,l1
-                    ti1 = cc(2,k,1,1)-cc(2,k,1,3)
-                    ti2 = cc(2,k,1,1)+cc(2,k,1,3)
-                    tr4 = cc(2,k,1,4)-cc(2,k,1,2)
-                    ti3 = cc(2,k,1,2)+cc(2,k,1,4)
-                    tr1 = cc(1,k,1,1)-cc(1,k,1,3)
-                    tr2 = cc(1,k,1,1)+cc(1,k,1,3)
-                    ti4 = cc(1,k,1,2)-cc(1,k,1,4)
-                    tr3 = cc(1,k,1,2)+cc(1,k,1,4)
-                    cc(1,k,1,1) = tr2+tr3
-                    cc(1,k,1,3) = tr2-tr3
-                    cc(2,k,1,1) = ti2+ti3
-                    cc(2,k,1,3) = ti2-ti3
-                    cc(1,k,1,2) = tr1+tr4
-                    cc(1,k,1,4) = tr1-tr4
-                    cc(2,k,1,2) = ti1+ti4
-                    cc(2,k,1,4) = ti1-ti4
-                end do
+                ti1 = cc(2,:,1,1)-cc(2,:,1,3)
+                ti2 = cc(2,:,1,1)+cc(2,:,1,3)
+                tr4 = cc(2,:,1,4)-cc(2,:,1,2)
+                ti3 = cc(2,:,1,2)+cc(2,:,1,4)
+                tr1 = cc(1,:,1,1)-cc(1,:,1,3)
+                tr2 = cc(1,:,1,1)+cc(1,:,1,3)
+                ti4 = cc(1,:,1,2)-cc(1,:,1,4)
+                tr3 = cc(1,:,1,2)+cc(1,:,1,4)
+                cc(1,:,1,1) = tr2+tr3
+                cc(1,:,1,3) = tr2-tr3
+                cc(2,:,1,1) = ti2+ti3
+                cc(2,:,1,3) = ti2-ti3
+                cc(1,:,1,2) = tr1+tr4
+                cc(1,:,1,4) = tr1-tr4
+                cc(2,:,1,2) = ti1+ti4
+                cc(2,:,1,4) = ti1-ti4
             else
-                do k=1,l1
-                    ti1 = cc(2,k,1,1)-cc(2,k,1,3)
-                    ti2 = cc(2,k,1,1)+cc(2,k,1,3)
-                    tr4 = cc(2,k,1,4)-cc(2,k,1,2)
-                    ti3 = cc(2,k,1,2)+cc(2,k,1,4)
-                    tr1 = cc(1,k,1,1)-cc(1,k,1,3)
-                    tr2 = cc(1,k,1,1)+cc(1,k,1,3)
-                    ti4 = cc(1,k,1,2)-cc(1,k,1,4)
-                    tr3 = cc(1,k,1,2)+cc(1,k,1,4)
-                    ch(1,k,1,1) = tr2+tr3
-                    ch(1,k,3,1) = tr2-tr3
-                    ch(2,k,1,1) = ti2+ti3
-                    ch(2,k,3,1) = ti2-ti3
-                    ch(1,k,2,1) = tr1+tr4
-                    ch(1,k,4,1) = tr1-tr4
-                    ch(2,k,2,1) = ti1+ti4
-                    ch(2,k,4,1) = ti1-ti4
-                end do
+                ti1 = cc(2,:,1,1)-cc(2,:,1,3)
+                ti2 = cc(2,:,1,1)+cc(2,:,1,3)
+                tr4 = cc(2,:,1,4)-cc(2,:,1,2)
+                ti3 = cc(2,:,1,2)+cc(2,:,1,4)
+                tr1 = cc(1,:,1,1)-cc(1,:,1,3)
+                tr2 = cc(1,:,1,1)+cc(1,:,1,3)
+                ti4 = cc(1,:,1,2)-cc(1,:,1,4)
+                tr3 = cc(1,:,1,2)+cc(1,:,1,4)
+                ch(1,:,1,1) = tr2+tr3
+                ch(1,:,3,1) = tr2-tr3
+                ch(2,:,1,1) = ti2+ti3
+                ch(2,:,3,1) = ti2-ti3
+                ch(1,:,2,1) = tr1+tr4
+                ch(1,:,4,1) = tr1-tr4
+                ch(2,:,2,1) = ti1+ti4
+                ch(2,:,4,1) = ti1-ti4
+
+                !
+                !==> Allocate memory
+                !
+                allocate( ci2(l1), ci3(l1), ci4(l1) )
+                allocate( cr2(l1), cr3(l1), cr4(l1) )
 
                 do i=2,ido
-                    do k=1,l1
-                        ti1 = cc(2,k,i,1)-cc(2,k,i,3)
-                        ti2 = cc(2,k,i,1)+cc(2,k,i,3)
-                        ti3 = cc(2,k,i,2)+cc(2,k,i,4)
-                        tr4 = cc(2,k,i,4)-cc(2,k,i,2)
-                        tr1 = cc(1,k,i,1)-cc(1,k,i,3)
-                        tr2 = cc(1,k,i,1)+cc(1,k,i,3)
-                        ti4 = cc(1,k,i,2)-cc(1,k,i,4)
-                        tr3 = cc(1,k,i,2)+cc(1,k,i,4)
-                        ch(1,k,1,i) = tr2+tr3
-                        cr3 = tr2-tr3
-                        ch(2,k,1,i) = ti2+ti3
-                        ci3 = ti2-ti3
-                        cr2 = tr1+tr4
-                        cr4 = tr1-tr4
-                        ci2 = ti1+ti4
-                        ci4 = ti1-ti4
-                        ch(1,k,2,i) = wa(i,1,1)*cr2-wa(i,1,2)*ci2
-                        ch(2,k,2,i) = wa(i,1,1)*ci2+wa(i,1,2)*cr2
-                        ch(1,k,3,i) = wa(i,2,1)*cr3-wa(i,2,2)*ci3
-                        ch(2,k,3,i) = wa(i,2,1)*ci3+wa(i,2,2)*cr3
-                        ch(1,k,4,i) = wa(i,3,1)*cr4-wa(i,3,2)*ci4
-                        ch(2,k,4,i) = wa(i,3,1)*ci4+wa(i,3,2)*cr4
-                    end do
+                    ti1 = cc(2,:,i,1)-cc(2,:,i,3)
+                    ti2 = cc(2,:,i,1)+cc(2,:,i,3)
+                    ti3 = cc(2,:,i,2)+cc(2,:,i,4)
+                    tr4 = cc(2,:,i,4)-cc(2,:,i,2)
+                    tr1 = cc(1,:,i,1)-cc(1,:,i,3)
+                    tr2 = cc(1,:,i,1)+cc(1,:,i,3)
+                    ti4 = cc(1,:,i,2)-cc(1,:,i,4)
+                    tr3 = cc(1,:,i,2)+cc(1,:,i,4)
+                    ch(1,:,1,i) = tr2+tr3
+                    cr3 = tr2-tr3
+                    ch(2,:,1,i) = ti2+ti3
+                    ci3 = ti2-ti3
+                    cr2 = tr1+tr4
+                    cr4 = tr1-tr4
+                    ci2 = ti1+ti4
+                    ci4 = ti1-ti4
+                    ch(1,:,2,i) = wa(i,1,1)*cr2-wa(i,1,2)*ci2
+                    ch(2,:,2,i) = wa(i,1,1)*ci2+wa(i,1,2)*cr2
+                    ch(1,:,3,i) = wa(i,2,1)*cr3-wa(i,2,2)*ci3
+                    ch(2,:,3,i) = wa(i,2,1)*ci3+wa(i,2,2)*cr3
+                    ch(1,:,4,i) = wa(i,3,1)*cr4-wa(i,3,2)*ci4
+                    ch(2,:,4,i) = wa(i,3,1)*ci4+wa(i,3,2)*cr4
                 end do
+                !
+                !==> Release memory
+                !
+                deallocate( ci2, ci3, ci4 )
+                deallocate( cr2, cr3, cr4 )
             end if
 
-        end subroutine c1f4kb
+            !
+            !==> Release memory
+            !
+            deallocate( ti1, ti2, ti3, ti4 )
+            deallocate( tr1, tr2, tr3, tr4 )
 
+        end subroutine c1f4kb
 
         subroutine c1f5kb(ido, l1, na, cc, in1, ch, in2, wa)
             !------------------------------------------------------------------
@@ -912,18 +942,21 @@ contains
             real (wp), allocatable :: dr2(:), dr3(:), dr4(:), dr5(:)
             real (wp), allocatable :: ti2(:), ti3(:), ti4(:), ti5(:)
             real (wp), allocatable :: tr2(:), tr3(:), tr4(:), tr5(:)
-            real (wp), parameter   :: TI11 =  0.9510565162951536_wp
-            real (wp), parameter   :: TI12 =  0.5877852522924731_wp
-            real (wp), parameter   :: TR11 =  0.3090169943749474_wp
-            real (wp), parameter   :: TR12 = -0.8090169943749474_wp
+            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
+            real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+
             !------------------------------------------------------------------
 
             !
             !==> Allocate memory
             !
+            allocate( chold1(l1), chold2(l1) )
             allocate( ti2(l1), ti3(l1), ti4(l1), ti5(l1) )
             allocate( tr2(l1),  tr3(l1), tr4(l1), tr5(l1) )
-            allocate( chold1(l1), chold2(l1) )
             allocate( cr2(l1), cr3(l1), cr4(l1), cr5(l1) )
             allocate( ci2(l1), ci3(l1), ci4(l1), ci5(l1) )
 
@@ -3351,14 +3384,17 @@ contains
         real (wp) ti3
         real (wp) ti4
         real (wp) ti5
-        real (wp), parameter :: ti11 =  0.9510565162951536_wp
-        real (wp), parameter :: ti12 =  0.5877852522924731_wp
         real (wp) tr2
         real (wp) tr3
         real (wp) tr4
         real (wp) tr5
-        real (wp), parameter :: tr11 =  0.3090169943749474_wp
-        real (wp), parameter :: tr12 = -0.8090169943749474_wp
+        real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+        real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+        real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
+        real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+        real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+        real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+
         real (wp) wa(ido,4,2)
 
         m1d = (lot-1)*im1+1
@@ -3519,14 +3555,18 @@ contains
         real (wp) ti3
         real (wp) ti4
         real (wp) ti5
-        real (wp), parameter :: ti11 = -0.9510565162951536_wp
-        real (wp), parameter :: ti12 = -0.5877852522924731_wp
         real (wp) tr2
         real (wp) tr3
         real (wp) tr4
         real (wp) tr5
-        real (wp), parameter :: tr11 =  0.3090169943749474_wp
-        real (wp), parameter :: tr12 = -0.8090169943749474_wp
+
+        real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+        real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+        real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
+        real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
+        real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+        real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+
         real (wp) wa(ido,4,2)
 
         m1d = (lot-1)*im1+1
@@ -4276,17 +4316,17 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) lenx
         integer (ip) n
-        real (wp) ssqrt2
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
         real (wp) x1
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cosq1b', 6)
@@ -4299,18 +4339,24 @@ contains
             ier = 3
             call xerfft('cosq1b', 10)
             return
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         if (n < 2) then
             return
         else if (n == 2) then
-            ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
             x1 = x(1,1)+x(1,2)
-            x(1,2) = ssqrt2*(x(1,1)-x(1,2))
+            x(1,2) = (x(1,1)-x(1,2))/sqrt(2.0_wp)
             x(1,1) = x1
         else
-            call cosqb1(n,inc,x,wsave,work,ier1)
-            if (ier1 /= 0) then
+            call cosqb1(n,inc,x,wsave,work,local_error_flag)
+
+            ! check error flag
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('cosq1b',-5)
             end if
@@ -4376,7 +4422,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) n
         integer (ip) lenx
         real (wp) tsqx
@@ -4414,10 +4460,10 @@ contains
             x(1,1) = 0.5_wp *x(1,1)+tsqx
         else
             ! Peform cosine transform
-            call cosqf1(n,inc,x,wsave,work,ier1)
+            call cosqf1(n,inc,x,wsave,work,local_error_flag)
 
             ! Check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('cosq1f',-5)
             end if
@@ -4467,23 +4513,27 @@ contains
         real (wp) dt
         real (wp) fk
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
-        integer (ip) lnsv
         integer (ip) n
-        real (wp) pih
+        real (wp), parameter :: HALF_PI = acos(-1.0_wp)/2
         real (wp) wsave(lensav)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
             call xerfft('cosq1i', 3)
             return
+        else
+            ier = 0
         end if
 
-        pih = 2.0_wp * atan ( 1.0_wp )
-        dt = pih / real (n, kind=wp)
+        !
+        !==> Perform transform
+        !
+        dt = HALF_PI /n
         fk = 0.0_wp
 
         do k=1,n
@@ -4491,10 +4541,13 @@ contains
             wsave(k) = cos(fk*dt)
         end do
 
-        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4
-        call rfft1i(n, wsave(n+1), lnsv, ier1)
+        associate( lnsv => n+int(log(real(n, kind=wp))/log(2.0_wp))+4 )
 
-        if (ier1 /= 0) then
+            call rfft1i(n, wsave(n+1), lnsv, local_error_flag)
+
+        end associate
+
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cosq1i',-5)
         end if
@@ -4508,12 +4561,9 @@ contains
 
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
-        integer (ip) lenx
-        integer (ip) lnsv
-        integer (ip) lnwk
         integer (ip) modn
         integer (ip) n
         integer (ip) np2
@@ -4536,17 +4586,21 @@ contains
         x(1,1) = 0.5_wp * x(1,1)
         modn = mod(n,2)
 
-        if (modn == 0 ) then
+        if (modn == 0) then
             x(1,n) = 0.5_wp * x(1,n)
         end if
 
-        lenx = inc*(n-1)  + 1
-        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
-        lnwk = n
+        associate( &
+            lenx => inc*(n-1)  + 1, &
+            lnsv => n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4, &
+            lnwk => n &
+            )
 
-        call rfft1b(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+            call rfft1b(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-        if (ier1 /= 0) then
+        end associate
+
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cosqb1',-5)
             return
@@ -4559,7 +4613,7 @@ contains
         end do
 
         if (modn == 0) then
-            x(1,ns2+1) = wsave(ns2)*(x(1,ns2+1)+x(1,ns2+1))
+            x(1,ns2+1) = 2.0_wp * wsave(ns2) * x(1,ns2+1)
         end if
 
         do k=2,ns2
@@ -4568,7 +4622,7 @@ contains
             x(1,kc) = work(k)-work(kc)
         end do
 
-        x(1,1) = x(1,1)+x(1,1)
+        x(1,1) = 2.0_wp * x(1,1)
 
     end subroutine cosqb1
 
@@ -4579,12 +4633,9 @@ contains
 
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
-        integer (ip) lenx
-        integer (ip) lnsv
-        integer (ip) lnwk
         integer (ip) modn
         integer (ip) n
         integer (ip) np2
@@ -4607,7 +4658,7 @@ contains
         modn = mod(n,2)
 
         if (modn == 0) then
-            work(ns2+1) = x(1,ns2+1)+x(1,ns2+1)
+            work(ns2+1) = 2.0_wp * x(1,ns2+1)
         end if
 
         do k=2,ns2
@@ -4620,13 +4671,17 @@ contains
             x(1,ns2+1) = wsave(ns2)*work(ns2+1)
         end if
 
-        lenx = inc*(n-1)  + 1
-        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
-        lnwk = n
+        associate( &
+            lenx => inc*(n-1)  + 1, &
+            lnsv => n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4, &
+            lnwk => n &
+            )
 
-        call rfft1f(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+            call rfft1f(n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-        if (ier1 /= 0) then
+        end associate
+
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('cosqf1',-5)
             return
@@ -5040,8 +5095,9 @@ contains
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cost1b', 6)
@@ -5054,17 +5110,21 @@ contains
             ier = 3
             call xerfft('cost1b', 10)
             return
+        else
+            ier = 0
         end if
 
-        if (n == 1) then
-            return
-        end if
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
 
-        call costb1(n,inc,x,wsave,work,ier1)
+            call costb1(n,inc,x,wsave,work,ier1)
 
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cost1b',-5)
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cost1b',-5)
+            end if
         end if
 
     end subroutine cost1b
@@ -5129,7 +5189,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) lenx
         integer (ip) n
         real (wp) work(lenwrk)
@@ -5160,9 +5220,9 @@ contains
         !
         if (n /= 1) then
 
-            call costf1(n,inc,x,wsave,work,ier1)
+            call costf1(n,inc,x,wsave,work,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('cost1f',-5)
             end if
@@ -5209,7 +5269,7 @@ contains
         real (wp) dt
         real (wp) fk
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lnsv
@@ -5252,9 +5312,9 @@ contains
 
             lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) +4
 
-            call rfft1i (nm1, wsave(n+1), lnsv, ier1)
+            call rfft1i(nm1, wsave(n+1), lnsv, local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('cost1i',-5)
             end if
@@ -5272,7 +5332,7 @@ contains
         real (wp) fnm1s4
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lenx
@@ -5331,16 +5391,16 @@ contains
                 modn = mod(n,2)
 
                 if (modn /= 0) then
-                    x(1,ns2+1) = x(1,ns2+1)+x(1,ns2+1)
+                    x(1,ns2+1) = 2.0_wp * x(1,ns2+1)
                 end if
 
                 lenx = inc*(nm1-1) + 1
                 lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp), kind=ip) + 4
                 lnwk = nm1
 
-                call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+                call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-                if (ier1 /= 0) then
+                if (local_error_flag /= 0) then
                     ier = 20
                     call xerfft('costb1',-5)
                     return
@@ -5351,7 +5411,7 @@ contains
                 x(1,1) = fnm1s2*x(1,1)
 
                 if (mod(nm1,2) == 0) then
-                    x(1,nm1) = x(1,nm1)+x(1,nm1)
+                    x(1,nm1) = 2.0_wp * x(1,nm1)
                 end if
 
                 fnm1s4 = real(nm1, kind=wp)/4
@@ -5363,11 +5423,9 @@ contains
                     dsum = dsum+xi
                 end do
 
-                if (modn /= 0) then
-                    return
+                if (modn == 0) then
+                    x(1,n) = dsum
                 end if
-
-                x(1,n) = dsum
             end if
         end if
 
@@ -9538,8 +9596,8 @@ contains
             iip = int(fac(k1), kind=ip)
             l2 = l1 * iip
             ido = n / l2
-            call tables(ido, iip, wa(iw) )
-            iw = iw + ( iip - 1 ) * (2*ido)
+            call tables(ido, iip, wa(iw))
+            iw = iw + (iip - 1) * (2*ido)
             l1 = l2
         end do
 
@@ -10381,7 +10439,6 @@ contains
         end if
 
         if (na /= 0) then
-
             ch(1) = c(1,1)
             ch(n) = c(1,n)
             do j=2,nl,2
@@ -10497,46 +10554,51 @@ contains
             na = 1-na
             select case (iip)
                 case (2)
-                    if (na == 0) then
-                        call r1f2kf(ido,l1,c,in,ch,1,wa(iw))
-                    else
-                        call r1f2kf(ido,l1,ch,1,c,in,wa(iw))
-                    end if
+                    select case (na)
+                        case (0)
+                            call r1f2kf(ido,l1,c,in,ch,1,wa(iw))
+                        case default
+                            call r1f2kf(ido,l1,ch,1,c,in,wa(iw))
+                    end select
                 case (3)
                     ix2 = iw+ido
-                    if (na == 0) then
-                        call r1f3kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2))
-                    else
-                        call r1f3kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2))
-                    end if
+                    select case (na)
+                        case (0)
+                            call r1f3kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2))
+                        case default
+                            call r1f3kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2))
+                    end select
                 case (4)
                     ix2 = iw+ido
                     ix3 = ix2+ido
-                    if (na == 0) then
-                        call r1f4kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3))
-                    else
-                        call r1f4kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3))
-                    end if
+                    select case (na)
+                        case (0)
+                            call r1f4kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3))
+                        case default
+                            call r1f4kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3))
+                    end select
                 case (5)
                     ix2 = iw+ido
                     ix3 = ix2+ido
                     ix4 = ix3+ido
-                    if (na == 0) then
-                        call r1f5kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                    else
-                        call r1f5kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                    end if
+                    select case (na)
+                        case (0)
+                            call r1f5kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3),wa(ix4))
+                        case default
+                            call r1f5kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3),wa(ix4))
+                    end select
                 case default
                     if (ido == 1) then
                         na = 1-na
                     end if
-                    if (na == 0) then
-                        call r1fgkf(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw))
-                        na = 1
-                    else
-                        call r1fgkf(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw))
-                        na = 0
-                    end if
+                    select case (na)
+                        case (0)
+                            call r1fgkf(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw))
+                            na = 1
+                        case default
+                            call r1fgkf(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw))
+                            na = 0
+                    end select
             end select
             l2 = l1
         end do
@@ -10870,6 +10932,9 @@ contains
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
 
+        !
+        !==> Check validity of input arguments
+        !
         if (lenr < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('rfftmf ', 6)
@@ -10890,6 +10955,9 @@ contains
             ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         if (n /= 1) then
             call mrftf1(lot,jump,n,inc,r,work,wsave,wsave(n+1))
         end if
@@ -12266,7 +12334,7 @@ contains
 
         real (wp) dt
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) lnsv
         integer (ip) n
@@ -12297,14 +12365,16 @@ contains
             dt = PI/np1
 
             do k = 1, ns2
-                wsave(k) = 2.0_wp * sin(k*dt)
+                wsave(k) = 2.0_wp * sin(real(k, kind=wp) * dt)
             end do
 
-            lnsv = np1 + int(log(real(np1, kind=wp) )/log(2.0_wp)) + 4
+            associate( nsv => np1+int(log(real(np1, kind=wp) )/log(2.0_wp))+4)
 
-            call rfftmi(np1, wsave(ns2+1), lnsv, ier1)
+                call rfftmi(np1, wsave(ns2+1), lnsv, local_error_flag)
 
-            if ( ier1 /= 0 ) then
+            end associate
+
+            if ( local_error_flag /= 0 ) then
                 ier = 20
                 call xerfft( 'sintmi', -5 )
             end if
