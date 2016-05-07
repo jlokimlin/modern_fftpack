@@ -51,103 +51,105 @@ program tcfft2
     integer (ip), parameter :: l=100, m=100, ldim=l
     complex (wp)            :: c(l,m)
     real (wp)               :: rr(l,m), ri(l,m)
-    real (wp), allocatable  :: wsave(:), work(:)
     !------------------------------------------------------
 
     !
     !==> Allocate memory
     !
-    wsave = fft%get_2d_saved_workspace(l,m)
-    work = fft%get_2d_workspace(l,m)
+    fft = FFTpack(l,m)
 
-    !
-    !==> Identify test and initialize FFT
-    !
-    write( stdout, '(A)') 'program tcfft2 and related messages:'
-    call fft%cfft2i(l,m,wsave, size(wsave),error_flag)
+    associate( &
+        wsave => fft%saved_workspace, &
+        work => fft%workspace &
+        )
+        !
+        !==> Identify test and initialize FFT
+        !
+        write( stdout, '(A)') 'program tcfft2 and related messages:'
+        call fft%cfft2i(l,m,wsave, size(wsave),error_flag)
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2i'
-        stop
-    end if
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2i'
+            stop
+        end if
 
-    !
-    !==> generate test matrix for forward-backward test
-    !
-    call get_random_matrix(rr, ri, c)
+        !
+        !==> generate test matrix for forward-backward test
+        !
+        call get_random_matrix(rr, ri, c)
 
-    !
-    !==> perform forward transform
-    !
-    call fft%cfft2f(ldim,l,m,c, &
-        wsave, size(wsave),work, size(work),error_flag)
+        !
+        !==> perform forward transform
+        !
+        call fft%cfft2f(ldim,l,m,c, &
+            wsave, size(wsave),work, size(work),error_flag)
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
-        stop
-    end if
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
+            stop
+        end if
 
-    !
-    !==> perform backward transform
-    !
-    call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
+        !
+        !==> perform backward transform
+        !
+        call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
-        stop
-    end if
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
+            stop
+        end if
 
-    !
-    !==> Print test results
-    !
-    associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
+        !
+        !==> Print test results
+        !
+        associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
 
-        write( stdout, '(A,E23.15E3)' ) 'cfft2 forward-backward max error =', max_err
+            write( stdout, '(A,E23.15E3)' ) 'cfft2 forward-backward max error =', max_err
+
+        end associate
+
+        !==> generate test matrix for backward-forward test
+
+        call get_random_matrix(rr, ri, c)
+
+        !==> perform backward transform
+
+        call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
+
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
+            stop
+        end if
+
+        !==> perform forward transform
+        !
+        call fft%cfft2f(ldim,l,m,c, wsave, size(wsave), work, size(work), error_flag)
+
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
+            stop
+        end if
+
+        !
+        !==> Print test results
+        !
+        associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
+
+            write( stdout, '(A,E23.15E3)' ) 'cfft2 backward-forward max error =', max_err
+            write( stdout, '(A,/)') 'end program tcfft2 and related messages'
+
+        end associate
 
     end associate
-
-    !==> generate test matrix for backward-forward test
-
-    call get_random_matrix(rr, ri, c)
-
-    !==> perform backward transform
-
-    call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
-        stop
-    end if
-
-    !==> perform forward transform
-    !
-    call fft%cfft2f(ldim,l,m,c, wsave, size(wsave), work, size(work), error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
-        stop
-    end if
-
-    !
-    !==> Print test results
-    !
-    associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
-
-        write( stdout, '(A,E23.15E3)' ) 'cfft2 backward-forward max error =', max_err
-        write( stdout, '(A,/)') 'end program tcfft2 and related messages'
-
-    end associate
-
     !
     !==> Release memory
     !
-    deallocate( wsave )
-    deallocate( work )
+    call fft%destroy()
 
 contains
 

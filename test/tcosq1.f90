@@ -28,8 +28,6 @@
 !     *                                                               *
 !     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 !
-!     parameter(lensav= 2*n + int(log(real(n))/log(2.)) + 4)
-!
 program tcosq1
 
     use, intrinsic :: iso_fortran_env, only: &
@@ -50,106 +48,109 @@ program tcosq1
     integer (ip)            :: error_flag
     integer (ip), parameter :: n=10**3
     real (wp)               :: real_data(n), data_copy(n)
-    real (wp), allocatable  :: wsave(:), work(:)
     !------------------------------------------------------
 
     !
     !==> Allocate memory
     !
-    wsave = fft%get_1d_saved_workspace(n)
-    work = fft%get_1d_workspace(n)
-    !
-    !==> Identify test and initialize FFT
-    !
-    write( stdout, '(A)') 'program tcosq1 and related messages:'
-    call fft%cosq1i(n,wsave,size(wsave),error_flag)
+    fft = FFTpack(n)
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1i'
-        stop
-    end if
+    associate( &
+        wsave => fft%saved_workspace, &
+        work => fft%workspace &
+        )
+        !
+        !==> Identify test and initialize FFT
+        !
+        write( stdout, '(A)') 'program tcosq1 and related messages:'
+        call fft%cosq1i(n,wsave,size(wsave),error_flag)
 
-    !
-    !==> Generate test vector for forward-backward test
-    !
-    call random_seed()
-    call random_number(real_data)
-    data_copy = real_data
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1i'
+            stop
+        end if
 
-    !
-    !==> Perform forward transform
-    !
-    call fft%cosq1f(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
+        !
+        !==> Generate test vector for forward-backward test
+        !
+        call random_seed()
+        call random_number(real_data)
+        data_copy = real_data
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1f !'
-        stop
-    end if
+        !
+        !==> Perform forward transform
+        !
+        call fft%cosq1f(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
 
-    !==> Perform backward transform
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1f !'
+            stop
+        end if
 
-    call fft%cosq1b(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
+        !==> Perform backward transform
 
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1b !'
-        stop
-    end if
+        call fft%cosq1b(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
 
-    !
-    !==> Print test results
-    !
-    associate( max_err => maxval(abs(real_data-data_copy)) )
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1b !'
+            stop
+        end if
 
-        write( stdout, '(A,E23.15E3)' ) 'cosq1 forward-backward max error =', max_err
+        !
+        !==> Print test results
+        !
+        associate( max_err => maxval(abs(real_data-data_copy)) )
+
+            write( stdout, '(A,E23.15E3)' ) 'cosq1 forward-backward max error =', max_err
+
+        end associate
+
+        !
+        !==> Generate test vector for backward-forward test
+        !
+        call random_seed()
+        call random_number(real_data)
+        data_copy = real_data
+
+        !
+        !==> Perform backward transform
+        !
+        call fft%cosq1b(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
+
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1b !'
+            stop
+        end if
+
+        !
+        !==> Perform forward transform
+        !
+        call fft%cosq1f(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
+
+        ! Check error flag
+        if (error_flag /= 0) then
+            write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1f !'
+            stop
+        end if
+
+        !
+        !==> Print test results
+        !
+        associate( max_err => maxval(abs(real_data-data_copy)) )
+
+            write( stdout, '(A,E23.15E3)' ) 'cosq1 backward-forward max error =', max_err
+            write( stdout, '(A,/)') 'end program tcosq1 and related messages'
+
+        end associate
 
     end associate
-
-    !
-    !==> Generate test vector for backward-forward test
-    !
-    call random_seed()
-    call random_number(real_data)
-    data_copy = real_data
-
-    !
-    !==> Perform backward transform
-    !
-    call fft%cosq1b(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1b !'
-        stop
-    end if
-
-    !
-    !==> Perform forward transform
-    !
-    call fft%cosq1f(n,1,real_data,n, wsave,size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine cosq1f !'
-        stop
-    end if
-
-    !
-    !==> Print test results
-    !
-    associate( max_err => maxval(abs(real_data-data_copy)) )
-
-        write( stdout, '(A,E23.15E3)' ) 'cosq1 backward-forward max error =', max_err
-        write( stdout, '(A,/)') 'end program tcosq1 and related messages'
-
-    end associate
-
     !
     !==> Release memory
     !
-    deallocate( wsave )
-    deallocate( work )
+    call fft%destroy()
 
 end program tcosq1

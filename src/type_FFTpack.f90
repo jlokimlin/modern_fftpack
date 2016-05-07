@@ -126,7 +126,46 @@ module type_FFTpack
         !----------------------------------------------------------------------
     end type FFTpack
 
+    ! Declare constructor
+    interface FFTpack
+        module procedure fftpack_2d_constructor
+        module procedure fftpack_1d_constructor
+    end interface
+
 contains
+
+    pure function fftpack_2d_constructor(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        type (FFTpack)            :: return_value
+        !------------------------------------------------------------------
+
+        !
+        !==> Allocate memory
+        !
+        return_value %saved_workspace = get_2d_saved_workspace(l,m)
+        return_value%workspace = get_2d_workspace(l,m)
+
+    end function fftpack_2d_constructor
+
+    pure function fftpack_1d_constructor(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        type (FFTpack)            :: return_value
+        !------------------------------------------------------------------
+
+        !
+        !==> Allocate memory
+        !
+        return_value %saved_workspace = get_1d_saved_workspace(n)
+        return_value%workspace = get_1d_workspace(n)
+
+    end function fftpack_1d_constructor
 
     subroutine destroy_fftpack(this)
         !------------------------------------------------------------------
