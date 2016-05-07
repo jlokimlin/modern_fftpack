@@ -495,7 +495,7 @@ contains
         !  input lenwrk, the dimension of the work array.
         !  lenwrk must be at least 2*n.
         !
-        !  output, integer (ip) ier, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
         !  1, input parameter lenc not big enough;
         !  2, input parameter lensav not big enough;
@@ -1907,7 +1907,7 @@ contains
         !  complex c(lenc) containing the sequence to be transformed.
         !
         !  real work(lenwrk), workspace array
-        !  input, integer lenc, the dimension of the c array.
+        !  integer lenc, the dimension of the c array.
         !  lenc must be at least inc*(n-1) + 1.
         !
         !  OUTPUT
@@ -2193,7 +2193,7 @@ contains
         !  2*(l+m) + int(log(real(l))) + int(log(real(m))) + 8.
         !
         !
-        !  input, integer lenwrk, the dimension of the work array.
+        !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least 2*l*m.
         !
         !  INPUT/OUTPUT
@@ -2427,18 +2427,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array C.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array C, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array C, of two consecutive elements within the same sequence to be
         !  transformed.
         !
@@ -2447,22 +2447,22 @@ contains
         !  number of dimensions, but the total number of locations must be at least
         !  LENC.  On output, C contains the transformed sequences.
         !
-        !  input, integer LENC, the dimension of the C array.
+        !  integer LENC, the dimension of the C array.
         !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to CFFTMI before the first call to routine CFFTMF
         !  or CFFTMB for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit
         !  1, input parameter LENC not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -2539,18 +2539,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be
+        !  integer LOT, the number of sequences to be
         !  transformed within array C.
         !
-        !  input, integer JUMP, the increment between the locations,
+        !  integer JUMP, the increment between the locations,
         !  in array C, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array C, of two consecutive elements within the same sequence to be
         !  transformed.
         !
@@ -2558,22 +2558,22 @@ contains
         !  each having length N, to be transformed.  C can have any number of
         !  dimensions, but the total number of locations must be at least LENC.
         !
-        !  input, integer LENC, the dimension of the C array.
+        !  integer LENC, the dimension of the C array.
         !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to CFFTMI before the first call to routine CFFTMF
         !  or CFFTMB for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0 successful exit;
         !  1 input parameter LENC not big enough;
         !  2 input parameter LENSAV not big enough;
@@ -2641,18 +2641,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
+        !  real WSAVE(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used in
         !  routines CFFTMB or CFFTMF.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough.
         !
@@ -2674,7 +2674,7 @@ contains
 
         if (n /= 1) then
             iw1 = n+n+1
-            call mcfti1 (n,wsave,wsave(iw1),wsave(iw1+1))
+            call mcfti1(n,wsave,wsave(iw1),wsave(iw1+1))
         end if
 
     end subroutine cfftmi
@@ -4247,17 +4247,17 @@ contains
         !  by a call to COSQ1F (or vice-versa) reproduces the original
         !  array  within roundoff error.
         !
-        !  input, integer N, the number of elements to be transformed
+        !  integer N, the number of elements to be transformed
         !  in the sequence.  The transform is most efficient when N is a
         !  product of small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR); on input, containing the sequence
+        !  Input/real R(LENR); on input, containing the sequence
         !  to be transformed, and on output, containing the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -4265,15 +4265,15 @@ contains
         !  or COSQ1B for a given transform length N.  WSAVE's contents may be
         !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -4312,9 +4312,9 @@ contains
             return
         end if
 
-        if(n-2 < 0) then
+        if(n < 2) then
             return
-        else if (n-2 == 0) then
+        else if (n == 2) then
             ssqrt2 = 1.0_wp / sqrt ( 2.0_wp )
             x1 = x(1,1)+x(1,2)
             x(1,2) = ssqrt2*(x(1,1)-x(1,2))
@@ -4347,17 +4347,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the number of elements to be transformed
+        !  integer N, the number of elements to be transformed
         !  in the sequence.  The transform is most efficient when N is a
         !  product of small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR); on input, containing the sequence
+        !  Input/real R(LENR); on input, containing the sequence
         !  to be transformed, and on output, containing the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -4365,15 +4365,15 @@ contains
         !  or COSQ1B for a given transform length N.  WSAVE's contents may be
         !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -4455,18 +4455,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product
         !  of small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors of N
+        !  real WSAVE(LENSAV), containing the prime factors of N
         !  and also containing certain trigonometric values which will be used
         !  in routines COSQ1B or COSQ1F.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -4666,26 +4666,26 @@ contains
         !  by a call to COSQMF (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations,
+        !  integer JUMP, the increment between the locations,
         !  in array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), array containing LOT sequences,
+        !  Input/real R(LENR), array containing LOT sequences,
         !  each having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -4693,15 +4693,15 @@ contains
         !  or COSQMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COSQMF and COSQMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -4797,26 +4797,26 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), array containing LOT sequences,
+        !  Input/real R(LENR), array containing LOT sequences,
         !  each having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -4824,15 +4824,15 @@ contains
         !  or COSQMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COSQMF and COSQMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -4924,18 +4924,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors of
+        !  real WSAVE(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used
         !  in routines COSQMB or COSQMF.
         !
-        !  input, integer IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -5002,17 +5002,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N-1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing the sequence to
+        !  Input/real R(LENR), containing the sequence to
         !   be transformed.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -5020,15 +5020,15 @@ contains
         !  or COST1B for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COST1F and COST1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N-1.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -5069,7 +5069,7 @@ contains
             return
         end if
 
-        call costb1 (n,inc,x,wsave,work,ier1)
+        call costb1(n,inc,x,wsave,work,ier1)
 
         if (ier1 /= 0) then
             ier = 20
@@ -5097,17 +5097,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N-1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing the sequence to
+        !  Input/real R(LENR), containing the sequence to
         !  be transformed.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -5115,15 +5115,15 @@ contains
         !  or COST1B for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COST1F and COST1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N-1.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -5189,18 +5189,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N-1 is a product
         !  of small primes.
         !
-        !  input, integer LENSAV, dimension of WSAVE array.
+        !  integer LENSAV, dimension of WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors of
+        !  real WSAVE(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used in
         !  routines COST1B or COST1F.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -5300,9 +5300,9 @@ contains
         np1 = n+1
         ns2 = n/2
 
-        if(n-2 < 0) then
+        if(n < 2) then
             return
-        else if(n-2 == 0) then
+        else if(n == 2) then
             x1h = x(1,1)+x(1,2)
             x(1,2) = x(1,1)-x(1,2)
             x(1,1) = x1h
@@ -5408,9 +5408,9 @@ contains
         np1 = n+1
         ns2 = n/2
 
-        if (n-2 < 0) then
+        if (n < 2) then
             return
-        else if (n-2 == 0) then
+        else if (n == 2) then
             x1h = x(1,1)+x(1,2)
             x(1,2) = 0.5_wp * (x(1,1)-x(1,2))
             x(1,1) = 0.5_wp * x1h
@@ -5497,26 +5497,26 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N-1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), array containing LOT sequences,
+        !  Input/real R(LENR), array containing LOT sequences,
         !  each having length N.  On input, the data to be transformed; on output,
         !  the transormed data.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -5524,15 +5524,15 @@ contains
         !  or COSTMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COSTMF and COSTMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(N+1).
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -5578,7 +5578,7 @@ contains
             return
         end if
 
-        iw1 = lot+lot+1
+        iw1 = 2*lot+1
         call mcstb1(lot,jump,n,inc,x,wsave,work,work(iw1),ier1)
 
         if (ier1 /= 0) then
@@ -5608,26 +5608,26 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations,
+        !  integer JUMP, the increment between the locations,
         !  in array R, of the first elements of two consecutive sequences to
         !  be transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N-1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), array containing LOT sequences,
+        !  Input/real R(LENR), array containing LOT sequences,
         !  each having length N.  On input, the data to be transformed; on output,
         !  the transormed data.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.
         !
-        !  input, integer LENR, the dimension of the  R array.
+        !  integer LENR, the dimension of the  R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -5635,15 +5635,15 @@ contains
         !  or COSTMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to COSTMF and COSTMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(N+1).
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -5723,18 +5723,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors of N
+        !  real WSAVE(LENSAV), containing the prime factors of N
         !  and also containing certain trigonometric values which will be used
         !  in routines COSTMB or COSTMF.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -6026,9 +6026,9 @@ contains
         ns2 = n/2
         lj = (lot-1)*jump+1
 
-        if(n-2 < 0) then
+        if(n < 2) then
             return
-        else if(n-2 == 0) then
+        else if(n == 2) then
             do m=1,lj,jump
                 x1h = x(m,1)+x(m,2)
                 x(m,2) = x(m,1)-x(m,2)
@@ -6170,9 +6170,9 @@ contains
         ns2 = n/2
         lj = (lot-1)*jump+1
 
-        if (n-2 < 0) then
+        if (n < 2) then
             return
-        else if (n-2 == 0) then
+        else if (n == 2) then
             do m=1,lj,jump
                 x1h = x(m,1)+x(m,2)
                 x(m,2) = 0.5_wp * (x(m,1)-x(m,2))
@@ -8180,9 +8180,9 @@ contains
         ier = 0
         lj = (lot-1)*jump+1
 
-        if(n-2 < 0) then
+        if(n < 2) then
             return
-        else if (n-2 == 0) then
+        else if (n == 2) then
             do m=1,lj,jump
                 xhold = HALF_SQRT3*(x(m,1)+x(m,2))
                 x(m,2) = HALF_SQRT3*(x(m,1)-x(m,2))
@@ -8344,6 +8344,8 @@ contains
             lnwk = lot*np1
 
             call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,ier1)
+
+            ! Check error flag
             if (ier1 /= 0) then
                 ier = 20
                 call xerfft('msntf1',-5)
@@ -9680,32 +9682,32 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, the data to be
+        !  Input/real R(LENR), on input, the data to be
         !  transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to RFFT1I before the first call to routine
         !  RFFT1F or RFFT1B for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -9767,32 +9769,32 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, contains the sequence
+        !  Input/real R(LENR), on input, contains the sequence
         !  to be transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to RFFT1I before the first call to routine RFFT1F
         !  or RFFT1B for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough:
         !  2, input parameter LENSAV not big enough;
@@ -9811,8 +9813,9 @@ contains
         real (wp) wsave(lensav)
         real (wp) r(lenr)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenr < inc*(n-1) + 1) then
             ier = 1
             call xerfft('rfft1f ', 6)
@@ -9822,10 +9825,15 @@ contains
         else if (lenwrk < n) then
             ier = 3
             call xerfft('rfft1f ', 10)
+        else
+            ier = 0
         end if
 
+        !
+        !==> Perform transform
+        !
         if (n /= 1) then
-            call rfftf1 (n,inc,r,work,wsave,wsave(n+1))
+            call rfftf1(n,inc,r,work,wsave,wsave(n+1))
         end if
 
     end subroutine rfft1f
@@ -9845,18 +9853,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors of
+        !  real WSAVE(LENSAV), containing the prime factors of
         !  N and also containing certain trigonometric values which will be used in
         !  routines RFFT1B or RFFT1F.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough.
         !
@@ -9897,19 +9905,19 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LDIM, the first dimension of the 2D real
+        !  integer LDIM, the first dimension of the 2D real
         !  array R, which must be at least 2*(L/2+1).
         !
-        !  input, integer L, the number of elements to be transformed
+        !  integer L, the number of elements to be transformed
         !  in the first dimension of the two-dimensional real array R.  The value of
         !  L must be less than or equal to that of LDIM.  The transform is most
         !  efficient when L is a product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed
+        !  integer M, the number of elements to be transformed
         !  in the second dimension of the two-dimensional real array R.  The transform
         !  is most efficient when M is a product of small primes.
         !
-        !  Input/output, real (wp) R(LDIM,M), the real array of two
+        !  Input/real R(LDIM,M), the real array of two
         !  dimensions.  On input, R contains the L/2+1-by-M complex subarray of
         !  spectral coefficients, on output, the physical coefficients.
         !
@@ -9919,17 +9927,17 @@ contains
         !  subsequent calls to RFFT2F and RFFT2B with the same transform lengths
         !  L and M.
         !
-        !  input, integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the WSAVE
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
         !  Workspace, real (wp) WORK(LENWRK).  WORK provides workspace, and
         !  its contents need not be saved between calls to routines RFFT2B and RFFT2F.
         !
-        !  input, integer  LENWRK, the number of elements in the WORK
+        !  integer  LENWRK, the number of elements in the WORK
         !  array.  LENWRK must be at least LDIM*M.
         !
-        !  Output, integer (ip) IER, the error flag.
+        !  integer IER, the error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  3, input parameter LENWRK not big enough;
@@ -10085,19 +10093,19 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LDIM, the first dimension of the 2D real
+        !  integer LDIM, the first dimension of the 2D real
         !  array R, which must be at least 2*(L/2+1).
         !
-        !  input, integer L, the number of elements to be transformed
+        !  integer L, the number of elements to be transformed
         !  in the first dimension of the two-dimensional real array R.  The value
         !  of L must be less than or equal to that of LDIM.  The transform is most
         !  efficient when L is a product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed
+        !  integer M, the number of elements to be transformed
         !  in the second dimension of the two-dimensional real array R.  The
         !  transform is most efficient when M is a product of small primes.
         !
-        !  Input/output, real (wp) R(LDIM,M), the real array of two
+        !  Input/real R(LDIM,M), the real array of two
         !  dimensions.  On input, containing the L-by-M physical data to be
         !  transformed.  On output, the spectral coefficients.
         !
@@ -10106,17 +10114,17 @@ contains
         !  or RFFT2B with lengths L and M.  WSAVE's contents may be re-used for
         !  subsequent calls to RFFT2F and RFFT2B with the same transform lengths.
         !
-        !  input, integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the WSAVE
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
         !  Workspace, real (wp) WORK(LENWRK), provides workspace, and its
         !  contents need not be saved between calls to routines RFFT2F and RFFT2B.
         !
-        !  input, integer LENWRK, the number of elements in the WORK
+        !  integer LENWRK, the number of elements in the WORK
         !  array.  LENWRK must be at least LDIM*M.
         !
-        !  Output, integer (ip) IER, the error flag.
+        !  integer IER, the error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  3, input parameter LENWRK not big enough;
@@ -10282,23 +10290,23 @@ contains
         !  L or M.
         !
         !
-        !  input, integer L, the number of elements to be transformed
+        !  integer L, the number of elements to be transformed
         !  in the first dimension.  The transform is most efficient when L is a
         !  product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed
+        !  integer M, the number of elements to be transformed
         !  in the second dimension.  The transform is most efficient when M is a
         !  product of small primes.
         !
-        !  input, integer LENSAV, the number of elements in the WSAVE
+        !  integer LENSAV, the number of elements in the WSAVE
         !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
         !  + INT(LOG(REAL(M))) + 8.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
+        !  real WSAVE(LENSAV), containing the prime factors
         !  of L and M, and also containing certain trigonometric values which
         !  will be used in routines RFFT2B or RFFT2F.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -10735,41 +10743,41 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), real array containing LOT
+        !  Input/real R(LENR), real array containing LOT
         !  sequences, each having length N.  R can have any number of dimensions,
         !  but the total number of locations must be at least LENR.  On input, the
         !  spectral data to be transformed, on output the physical data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to RFFTMI before the first call to routine RFFTMF
         !  or RFFTMB for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must  be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -10840,41 +10848,41 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), real array containing LOT
+        !  Input/real R(LENR), real array containing LOT
         !  sequences, each having length N.  R can have any number of dimensions, but
         !  the total number of locations must be at least LENR.  On input, the
         !  physical data to be transformed, on output the spectral data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
         !  initialized with a call to RFFTMI before the first call to routine RFFTMF
         !  or RFFTMB for a given transform length N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -10923,35 +10931,34 @@ contains
     end subroutine rfftmf
 
     subroutine rfftmi(n, wsave, lensav, ier)
-
-
         !
-        !! RFFTMI: initialization for RFFTMB and RFFTMF.
+        ! rfftmi: initialization for rfftmb and rfftmf.
         !
         !  Purpose:
         !
-        !  RFFTMI initializes array WSAVE for use in its companion routines
-        !  RFFTMB and RFFTMF.  The prime factorization of N together with a
+        !  rfftmi initializes array wsave for use in its companion routines
+        !  rfftmb and rfftmf.  the prime factorization of n together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array WSAVE.  Separate WSAVE arrays are required for different
-        !  values of N.
+        !  in array wsave.  separate wsave arrays are required for different
+        !  values of n.
         !
-        !  Parameters:
+        !  INPUT
         !
-        !  input, integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least n + int(log(real(n))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), work array containing the prime
-        !  factors of N and also containing certain trigonometric
-        !  values which will be used in routines RFFTMB or RFFTMF.
+        !  OUTPUT
+        !  real wsave(lensav), work array containing the prime
+        !  factors of n and also containing certain trigonometric
+        !  values which will be used in routines rfftmb or rfftmf.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough.
+        !  2, input parameter lensav not big enough.
         !
 
 
@@ -10961,21 +10968,24 @@ contains
         integer (ip) n
         real (wp) wsave(lensav)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
             call xerfft('rfftmi ', 3)
             return
+        else
+            ier = 0
         end if
 
-        if (n == 1) then
-            return
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
+            call mrfti1(n,wsave(1),wsave(n+1))
         end if
 
-        call mrfti1 (n,wsave(1),wsave(n+1))
-
-        return
     end subroutine rfftmi
 
 
@@ -10996,17 +11006,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, the sequence to be
+        !  Input/real R(LENR), on input, the sequence to be
         !  transformed.  On output, the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11014,15 +11024,15 @@ contains
         !  or SINQ1B for a given transform length N.  WSAVE's contents may be
         !  re-used for subsequent calls to SINQ1F and SINQ1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, the error flag.
+        !  integer IER, the error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11107,17 +11117,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, the sequence to be
+        !  Input/real R(LENR), on input, the sequence to be
         !  transformed.  On output, the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11125,15 +11135,15 @@ contains
         !  or SINQ1B for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINQ1F and SINQ1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  Output, integer (ip) IER, the error flag.
+        !  integer IER, the error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11208,18 +11218,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
+        !  real WSAVE(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         ! in routines SINQ1B or SINQ1F.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -11267,26 +11277,26 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing LOT sequences, each
+        !  Input/real R(LENR), containing LOT sequences, each
         !  having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11294,15 +11304,15 @@ contains
         !  or SINQMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINQMF and SINQMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11400,26 +11410,26 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within array R.
         !
-        !  input, integer JUMP, the increment between the locations,
+        !  integer JUMP, the increment between the locations,
         !  in array R, of the first elements of two consecutive sequences to
         !  be transformed.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing LOT sequences, each
+        !  Input/real R(LENR), containing LOT sequences, each
         !  having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11427,15 +11437,15 @@ contains
         !  or SINQMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINQMF and SINQMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11535,18 +11545,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
+        !  real WSAVE(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINQMB or SINQMF.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -11597,17 +11607,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N+1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, contains the sequence
+        !  Input/real R(LENR), on input, contains the sequence
         !  to be transformed, and on output, the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11615,15 +11625,15 @@ contains
         !  or SINT1B for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINT1F and SINT1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*N+2.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11695,17 +11705,17 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N+1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations,
+        !  integer INC, the increment between the locations,
         !  in array R, of two consecutive elements within the sequence.
         !
-        !  Input/output, real (wp) R(LENR), on input, contains the sequence
+        !  Input/real R(LENR), on input, contains the sequence
         !  to be transformed, and on output, the transformed sequence.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -11713,15 +11723,15 @@ contains
         !  or SINT1B for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINT1F and SINT1B with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*N+2.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11790,18 +11800,18 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of the sequence to be
+        !  integer N, the length of the sequence to be
         !  transformed.  The transform is most efficient when N+1 is a product
         !  of small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
+        !  real WSAVE(LENSAV), containing the prime factors
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINT1B or SINT1F.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -12052,25 +12062,25 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be transformed
+        !  integer LOT, the number of sequences to be transformed
         !  within the array R.
         !
-        !  input, integer JUMP, the increment between the locations, in
+        !  integer JUMP, the increment between the locations, in
         !  array R, of the first elements of two consecutive sequences.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N+1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing LOT sequences, each
+        !  Input/real R(LENR), containing LOT sequences, each
         !  having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -12078,15 +12088,15 @@ contains
         !  or SINTMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINTMF and SINTMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(2*N+4).
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -12133,7 +12143,7 @@ contains
             ier = 0
         end if
 
-        iw1 = lot+lot+1
+        iw1 = 2*lot+1
         iw2 = iw1+lot*(n+1)
 
         call msntb1(lot,jump,n,inc,x,wsave,work,work(iw1),work(iw2),ier1)
@@ -12165,25 +12175,25 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer LOT, the number of sequences to be
+        !  integer LOT, the number of sequences to be
         !  transformed within.
         !
-        !  input, integer JUMP, the increment between the locations,
+        !  integer JUMP, the increment between the locations,
         !  in array R, of the first elements of two consecutive sequences.
         !
-        !  input, integer N, the length of each sequence to be
+        !  integer N, the length of each sequence to be
         !  transformed.  The transform is most efficient when N+1 is a product of
         !  small primes.
         !
-        !  input, integer INC, the increment between the locations, in
+        !  integer INC, the increment between the locations, in
         !  array R, of two consecutive elements within the same sequence.
         !
-        !  Input/output, real (wp) R(LENR), containing LOT sequences, each
+        !  Input/real R(LENR), containing LOT sequences, each
         !  having length N.  R can have any number of dimensions, but the total
         !  number of locations must be at least LENR.  On input, R contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  input, integer LENR, the dimension of the R array.
+        !  integer LENR, the dimension of the R array.
         !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
         !
         !  Input, real (wp) WSAVE(LENSAV).  WSAVE's contents must be
@@ -12191,15 +12201,15 @@ contains
         !  or SINTMB for a given transform length N.  WSAVE's contents may be re-used
         !  for subsequent calls to SINTMF and SINTMB with the same N.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
+        !  integer LENSAV, the dimension of the WSAVE array.
         !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
         !
         !  Workspace, real (wp) WORK(LENWRK).
         !
-        !  input, integer LENWRK, the dimension of the WORK array.
+        !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(2*N+4).
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer IER, error flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -12225,6 +12235,9 @@ contains
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
+        !
+        !==> Check validity of input arguments
+        !
         if ( lenx < ( lot - 1) * jump + inc * ( n - 1 ) + 1 ) then
             ier = 1
             call xerfft( 'sintmf', 6 )
@@ -12277,20 +12290,20 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least n/2 + n + int(log(real(n))) + 4.
         !
-        !  Output, real (wp) WSAVE(LENSAV), containing the prime factors
-        !  of N and also containing certain trigonometric values which will be used
-        !  in routines SINTMB or SINTMF.
+        !  real wsave(lensav), containing the prime factors
+        !  of n and also containing certain trigonometric values which will be used
+        !  in routines sintmb or sintmf.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
 
@@ -12384,7 +12397,7 @@ contains
         !
         !  Parameters:
         !
-        !  input, integer INC, JUMP, N, LOT, the parameters to check.
+        !  integer INC, JUMP, N, LOT, the parameters to check.
         !
         !  Output, logical xercon, is TRUE if the parameters are consistent.
         !
@@ -12408,11 +12421,11 @@ contains
             j = jnew
         end do
         !
-        !  LCM = least common multiple of INC and JUMP.
+        !=> least common multiple of inc and jump.
         !
-        lcm = ( inc * jump ) / i
+        lcm = (inc * jump) / i
 
-        if ( lcm <= ( n - 1 ) * inc .and. lcm <= ( lot - 1 ) * jump ) then
+        if ( lcm <= (n - 1) * inc .and. lcm <= (lot - 1) * jump ) then
             return_value = .false.
         else
             return_value = .true.
@@ -12438,7 +12451,7 @@ contains
         !
         !  Input, character (len=*) SRNAME, the name of the calling routine.
         !
-        !  input, integer INFO, an error code.  When a single invalid
+        !  integer INFO, an error code.  When a single invalid
         !  parameter in the parameter list of the calling routine has been detected,
         !  INFO is the position of that parameter.  In the case when an illegal
         !  combination of LOT, JUMP, N, and INC has been detected, the calling
