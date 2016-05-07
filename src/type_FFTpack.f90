@@ -1350,7 +1350,7 @@ contains
             allocate( cr2(l1), cr3(l1) )
             allocate( ti2(l1), tr2(l1) )
 
-            if ( 1 >= ido ) then
+            if (1 >= ido) then
                 sn = 1.0_wp/(3 * l1)
                 if (na /= 1) then
                     tr2 = cc(1,:,1,2)+cc(1,:,1,3)
@@ -1545,51 +1545,38 @@ contains
 
 
         subroutine c1f5kf(ido, l1, na, cc, in1, ch, in2, wa)
-
+            !----------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------
             integer (ip) ido
             integer (ip) in1
             integer (ip) in2
             integer (ip) l1
-
+            integer (ip) na
             real (wp) cc(in1,l1,ido,5)
             real (wp) ch(in2,l1,5,ido)
-            real (wp) chold1
-            real (wp) chold2
-            real (wp) ci2
-            real (wp) ci3
-            real (wp) ci4
-            real (wp) ci5
-            real (wp) cr2
-            real (wp) cr3
-            real (wp) cr4
-            real (wp) cr5
-            real (wp) di2
-            real (wp) di3
-            real (wp) di4
-            real (wp) di5
-            real (wp) dr2
-            real (wp) dr3
-            real (wp) dr4
-            real (wp) dr5
-            integer (ip) i
-            integer (ip) k
-            integer (ip) na
-            real (wp) sn
-            real (wp) ti2
-            real (wp) ti3
-            real (wp) ti4
-            real (wp) ti5
-            real (wp), parameter :: TI11 = -0.9510565162951536_wp
-            real (wp), parameter :: TI12 = -0.5877852522924731_wp
-            real (wp) tr2
-            real (wp) tr3
-            real (wp) tr4
-            real (wp) tr5
-            real (wp), parameter :: TR11 =  0.3090169943749474_wp
-            real (wp), parameter :: TR12 = -0.8090169943749474_wp
             real (wp) wa(ido,4,2)
+            !----------------------------------------------------------
+            ! Dictionary: local variables
+            !----------------------------------------------------------
+            integer (ip)         :: i, k
+            real (wp)            :: sn
+            real (wp)            :: chold1, chold2
+            real (wp)            :: ci2, ci3, ci4, ci5
+            real (wp)            :: cr2, cr3, cr4, cr5
+            real (wp)            :: di2, di3, di4, di5
+            real (wp)            :: dr2, dr3, dr4, dr5
+            real (wp)            :: ti2, ti3, ti4, ti5
+            real (wp)            :: tr2, tr3, tr4, tr5
+            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
+            real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+            !----------------------------------------------------------
 
-            if ( 1 >= ido ) then
+            if (1 >= ido) then
                 sn = 1.0_wp/(5 * l1)
                 if (na /= 1) then
                     do k=1,l1
@@ -1800,7 +1787,7 @@ contains
                 end do
             end do
 
-            if ( 1 >= ido )then
+            if (1 >= ido)then
                 sn = 1.0_wp/(iip * l1)
                 if (na /= 1) then
                     do ki=1,lid
@@ -2263,7 +2250,7 @@ contains
             iw =>  2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3, &
             iw1 => (l-1) + ldim*(m-1) +1, &
             iw2 => get_1d_saved_workspace_size(m), &
-            iw3 => 2*m*l, &
+            iw3 => get_2d_workspace_size(l, m), &
             ier1 => local_error_flag &
             )
 
@@ -2587,7 +2574,6 @@ contains
         integer (ip) lenwrk
 
         real(wp) c(2,lenc)
-        !complex (wp) c(lenc)
         integer (ip) ier
         integer (ip) inc
         integer (ip) iw1
@@ -2784,7 +2770,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if ( 1 >= ido ) then
+        if (1 >= ido) then
             sn = 1.0_wp/(2 * l1)
             if (na /= 1) then
                 do k=1,l1
@@ -2977,7 +2963,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if ( 1 >= ido ) then
+        if (1 >= ido) then
             sn = 1.0_wp/(3 * l1)
             if (na /= 1) then
                 do k=1,l1
@@ -3219,7 +3205,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if ( 1 >= ido ) then
+        if (1 >= ido) then
             sn = 1.0_wp /(4 * l1)
             if (na /= 1) then
                 do k=1,l1
@@ -3545,7 +3531,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if ( 1 >= ido ) then
+        if (1 >= ido) then
             sn = 1.0_wp/(5 * l1)
             if (na /= 1) then
                 do k=1,l1
@@ -3988,7 +3974,7 @@ contains
             end do
         end do
 
-        if ( 1 >= ido ) then
+        if (1 >= ido) then
             sn = 1.0_wp /(iip * l1)
             if (na /= 1) then
                 do ki=1,lid
@@ -5144,8 +5130,9 @@ contains
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
             call xerfft('cost1f', 6)
@@ -5158,17 +5145,21 @@ contains
             ier = 3
             call xerfft('cost1f', 10)
             return
+        else
+            ier = 0
         end if
 
-        if (n == 1) then
-            return
-        end if
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
 
-        call costf1(n,inc,x,wsave,work,ier1)
+            call costf1(n,inc,x,wsave,work,ier1)
 
-        if (ier1 /= 0) then
-            ier = 20
-            call xerfft('cost1f',-5)
+            if (ier1 /= 0) then
+                ier = 20
+                call xerfft('cost1f',-5)
+            end if
         end if
 
     end subroutine cost1f
@@ -5307,7 +5298,7 @@ contains
             x(1,2) = x(1,1)-x(1,2)
             x(1,1) = x1h
         else
-            if ( 3 >= n ) then
+            if (3 >= n) then
                 x1p3 = x(1,1)+x(1,3)
                 x2 = x(1,2)
                 x(1,2) = x(1,1)-x(1,3)
@@ -5415,7 +5406,7 @@ contains
             x(1,2) = 0.5_wp * (x(1,1)-x(1,2))
             x(1,1) = 0.5_wp * x1h
         else
-            if ( 3 >= n ) then
+            if (3 >= n) then
                 x1p3 = x(1,1)+x(1,3)
                 tx2 = x(1,2)+x(1,2)
                 x(1,2) = 0.5_wp * (x(1,1)-x(1,3))
@@ -5556,10 +5547,10 @@ contains
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
         real (wp) x(inc,*)
-        !logical xercon
 
-        ier = 0
-
+        !
+        !==> Check validity of input arguments
+        !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call xerfft('costmb', 6)
@@ -5576,6 +5567,8 @@ contains
             ier = 4
             call xerfft('costmb', -1)
             return
+        else
+            ier = 0
         end if
 
         iw1 = 2*lot+1
@@ -5586,8 +5579,10 @@ contains
             call xerfft('costmb',-5)
         end if
 
-        return
     end subroutine costmb
+
+
+
     subroutine costmf(lot, jump, n, inc, x, lenx, wsave, lensav, work, &
         lenwrk, ier)
 
@@ -5891,8 +5886,9 @@ contains
             x(m,1) = x(m,1)+x(m,1)
         end do
 
-        return
     end subroutine mcsqb1
+
+
 
     subroutine mcsqf1(lot,jump,n,inc,x,wsave,work,ier)
 
@@ -5985,6 +5981,8 @@ contains
 
     end subroutine mcsqf1
 
+
+
     subroutine mcstb1(lot,jump,n,inc,x,wsave,dsum,work,ier)
 
         integer (ip) inc
@@ -6035,7 +6033,7 @@ contains
                 x(m,1) = x1h
             end do
         else
-            if ( 3 >= n ) then
+            if (3 >= n) then
                 do m=1,lj,jump
                     x1p3 = x(m,1)+x(m,3)
                     x2 = x(m,2)
@@ -6179,7 +6177,7 @@ contains
                 x(m,1) = 0.5_wp * x1h
             end do
         else
-            if ( 3 >= n ) then
+            if (3 >= n) then
                 do m=1,lj,jump
                     x1p3 = x(m,1)+x(m,3)
                     tx2 = x(m,2)+x(m,2)
@@ -6234,7 +6232,7 @@ contains
                     dsum(m) = snm1*dsum(m)
                 end do
 
-                if ( mod(nm1,2) == 0) then
+                if (mod(nm1,2) == 0) then
                     do m=1,lj,jump
                         x(m,nm1) = x(m,nm1)+x(m,nm1)
                     end do
@@ -6309,7 +6307,7 @@ contains
             if (iip <= 5) then
                 cycle
             end if
-            if(k1 == nf) then
+            if (k1 == nf) then
                 cycle
             end if
             na = 1-na
@@ -6319,7 +6317,7 @@ contains
         halfm = -0.5_wp
         modn = mod(n,2)
 
-        if(modn /= 0) then
+        if (modn /= 0) then
             nl = n-1
         else
             nl = n-2
@@ -6444,9 +6442,9 @@ contains
                 end do
             end do
 
-            if (ido-2 < 0) then
+            if (ido < 2) then
                 return
-            else if (ido-2 == 0) then
+            else if (ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -6618,9 +6616,9 @@ contains
                 end do
             end do
 
-            if(ido-2 < 0) then
+            if(ido < 2) then
                 return
-            else if(ido-2 == 0) then
+            else if(ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -7318,9 +7316,9 @@ contains
                 end do
             end do
 
-            if(ido-2 < 0) then
+            if(ido < 2) then
                 return
-            else if(ido-2 == 0) then
+            else if(ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -7490,9 +7488,9 @@ contains
                 end do
             end do
 
-            if (ido-2 < 0) then
+            if (ido < 2) then
                 return
-            else if (ido-2 == 0) then
+            else if (ido == 2) then
                 do k=1,l1
                     m2 = m2s
                     do m1=1,m1d,im1
@@ -8058,7 +8056,6 @@ contains
         real (wp),    parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
         real (wp)               :: arg, argh, argld, fi
         !--------------------------------------------------------------
-
 
         ntry = 0
         nl = n
@@ -9064,6 +9061,8 @@ contains
 
 
     end subroutine r1f5kf
+
+
 
     subroutine r1fgkb(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
         ! Dictionary: calling arguments
@@ -10340,7 +10339,7 @@ contains
             return
         end if
 
-        call rfftmi (l, wsave(1), lwsav, ier1)
+        call rfftmi(l, wsave(1), lwsav, ier1)
 
         if (ier1 /= 0) then
             ier = 20
@@ -10356,7 +10355,7 @@ contains
             return
         end if
 
-        call rfftmi (m,wsave(lwsav+mwsav+1),mmsav, ier1)
+        call rfftmi(m,wsave(lwsav+mwsav+1),mmsav, ier1)
 
         if (ier1 /= 0) then
             ier = 20
@@ -10364,8 +10363,9 @@ contains
             return
         end if
 
-        return
     end subroutine rfft2i
+
+
 
     subroutine rfftb1(n, in, c, ch, wa, fac)
 
@@ -11190,12 +11190,16 @@ contains
                 x(1,k) = x(1,kc+1)
                 x(1,kc+1) = xhold
             end do
+
             call cosq1f(n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
+
+            ! check error flag
             if (ier1 /= 0) then
                 ier = 20
                 call xerfft('sinq1f',-5)
                 return
             end if
+
             do k=2,n,2
                 x(1,k) = -x(1,k)
             end do
@@ -11580,12 +11584,12 @@ contains
 
         call cosqmi(n, wsave, lensav, ier1)
 
+        ! Check error flag
         if (ier1 /= 0) then
             ier = 20
             call xerfft('sinqmi',-5)
         end if
 
-        return
     end subroutine sinqmi
 
     subroutine sint1b(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
@@ -11641,13 +11645,12 @@ contains
         !  20, input error returned by lower level routine.
         !
 
-
         integer (ip) inc
         integer (ip) lensav
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) lenx
         integer (ip) n
         real (wp) work(lenwrk)
@@ -11677,10 +11680,10 @@ contains
         !
         !==> Perform transform
         !
-        call sintb1(n,inc,x,wsave,work,work(n+2),ier1)
+        call sintb1(n,inc,x,wsave,work,work(n+2),local_error_flag)
 
         ! Check error flag
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('sint1b',-5)
         end if
@@ -11745,7 +11748,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) lenx
         integer (ip) n
         real (wp) work(lenwrk)
@@ -11775,9 +11778,9 @@ contains
         !
         !==> Perform transform
         !
-        call sintf1(n,inc,x,wsave,work,work(n+2),ier1)
+        call sintf1(n,inc,x,wsave,work,work(n+2),local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('sint1f',-5)
         end if
@@ -11822,7 +11825,7 @@ contains
 
         real (wp) dt
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) lnsv
         integer (ip) n
@@ -11858,10 +11861,10 @@ contains
 
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) +4
 
-            call rfft1i(np1, wsave(ns2+1), lnsv, ier1)
+            call rfft1i(np1, wsave(ns2+1), lnsv, local_error_flag)
 
             ! Check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('sint1i',-5)
             end if
@@ -11878,7 +11881,7 @@ contains
         real (wp) fnp1s4
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lnsv
@@ -11927,9 +11930,9 @@ contains
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
             lnwk = np1
 
-            call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,ier1)
+            call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call xerfft('sintb1',-5)
                 return
@@ -12111,7 +12114,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) iw1
         integer (ip) iw2
         integer (ip) jump
@@ -12146,9 +12149,9 @@ contains
         iw1 = 2*lot+1
         iw2 = iw1+lot*(n+1)
 
-        call msntb1(lot,jump,n,inc,x,wsave,work,work(iw1),work(iw2),ier1)
+        call msntb1(lot,jump,n,inc,x,wsave,work,work(iw1),work(iw2),local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call xerfft('sintmb',-5)
             return
@@ -12466,7 +12469,7 @@ contains
         write ( stderr, '(A)' ) ' xerfft - fatal error'
 
         if ( 1 <= info ) then
-            write ( stderr, '(a,a,a,i3,a)') '  On entry to ',trim(srname),&
+            write ( stderr, '(3(A),I3,A)') '  On entry to ',trim(srname),&
                 ' parameter number ', info, ' had an illegal value.'
         else if ( info == -1 ) then
             write( stderr, '(4(A))') '  On entry to ',trim(srname), &
