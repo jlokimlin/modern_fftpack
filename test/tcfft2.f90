@@ -49,12 +49,16 @@ program tcfft2
     type (FFTpack)          :: fft
     integer (ip)            :: error_flag
     integer (ip), parameter :: l=100, m=100, ldim=l
-    integer (ip), parameter :: lensav=420
-    integer (ip), parameter :: lenwrk=2*l*m
     complex (wp)            :: c(l,m)
     real (wp)               :: rr(l,m), ri(l,m)
-    real (wp)               :: wsave(lensav), work(lenwrk)
-    !------------------------------------------------------------------
+    real (wp), allocatable  :: wsave(:), work(:)
+    !------------------------------------------------------
+
+    !
+    !==> Allocate memory
+    !
+    wsave = fft%get_2d_saved_workspace(l,m)
+    work = fft%get_2d_workspace(l,m)
 
     !
     !==> Identify test and initialize FFT
@@ -138,6 +142,12 @@ program tcfft2
         write( stdout, '(A,/)') 'end program tcfft2 and related messages'
 
     end associate
+
+    !
+    !==> Release memory
+    !
+    deallocate( wsave )
+    deallocate( work )
 
 contains
 

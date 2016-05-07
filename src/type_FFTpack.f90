@@ -58,6 +58,10 @@ module type_FFTpack
         procedure, nopass, public :: get_1d_workspace
         procedure, nopass, public :: get_1d_sin_workspace_size
         procedure, nopass, public :: get_1d_sin_workspace
+        procedure, nopass, public :: get_2d_saved_workspace_size
+        procedure, nopass, public :: get_2d_saved_workspace
+        procedure, nopass, public :: get_2d_workspace_size
+        procedure, nopass, public :: get_2d_workspace
         procedure,         public :: destroy => destroy_fftpack
         !----------------------------------------------------------------------
         ! Complex transform routines
@@ -2451,7 +2455,7 @@ contains
         else if (.not. xercon(inc,jump,n,lot)) then
             ier = 4
             call xerfft('cfftmb ', -1)
-            else
+        else
             ier = 0
         end if
 
