@@ -9869,66 +9869,66 @@ contains
 
     end subroutine rfft1b
 
+
     subroutine rfft1f(n, inc, r, lenr, wsave, lensav, work, lenwrk, ier)
-
-
         !
-        !! RFFT1F: 64-bit float precision forward fast Fourier transform, 1D.
+        ! rfft1f: 1d forward fast fourier transform
         !
         !  Purpose:
         !
-        !  RFFT1F computes the one-dimensional Fourier transform of a periodic
-        !  sequence within a real array.  This is referred to as the forward
-        !  transform or Fourier analysis, transforming the sequence from physical
-        !  to spectral space.  This transform is normalized since a call to
-        !  RFFT1F followed by a call to RFFT1B (or vice-versa) reproduces the
+        !  rfft1f computes the one-dimensional fourier transform of a periodic
+        !  sequence within a real array. This is referred to as the forward
+        !  transform or fourier analysis, transforming the sequence from physical
+        !  to spectral space. This transform is normalized since a call to
+        !  rfft1f followed by a call to rfft1b (or vice-versa) reproduces the
         !  original array within roundoff error.
         !
         !  Parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations, in
+        !  array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR), on input, contains the sequence
+        !  input/real r(lenr), on input, contains the sequence
         !  to be transformed, and on output, the transformed data.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1) + 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1) + 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to RFFT1I before the first call to routine RFFT1F
-        !  or RFFT1B for a given transform length N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to rfft1i before the first call to routine rfft1f
+        !  or rfft1b for a given transform length n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough:
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough.
+        !  1, input parameter lenr not big enough:
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough.
         !
-
-
-        integer (ip) lenr
-        integer (ip) lensav
-        integer (ip) lenwrk
-
-        integer (ip) ier
-        integer (ip) inc
-        integer (ip) n
-        real (wp) work(lenwrk)
-        real (wp) wsave(lensav)
-        real (wp) r(lenr)
+        !--------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !--------------------------------------------------------------
+        integer (ip), intent (in)     :: n
+        integer (ip), intent (in)     :: inc
+        real (wp),    intent (in out) :: r(lenr)
+        integer (ip), intent (in)     :: lenr
+        real (wp),    intent (out)    :: work(lenwrk)
+        integer (ip), intent (in)     :: lenwrk
+        real (wp),    intent (in)     :: wsave(lensav)
+        integer (ip), intent (in)     :: lensav
+        integer (ip), intent (out)    :: ier
+        !--------------------------------------------------------------
 
         !
         !==> Check validity of input arguments
@@ -9953,7 +9953,140 @@ contains
             call rfftf1(n,inc,r,work,wsave,wsave(n+1))
         end if
 
+
+    contains
+
+
+        subroutine rfftf1(n, in, c, ch, wa, fac)
+            !--------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in)     :: n
+            integer (ip), intent (in)     :: in
+            real (wp),    intent (in out) :: c(in,*)
+            real (wp),    intent (out)    :: ch(:)
+            real (wp),    intent (in)     :: wa(n)
+            real (wp),    intent (in)     :: fac(15)
+            !--------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !--------------------------------------------------------------
+            integer (ip) :: idl1, ido, iip
+            integer (ip) :: workspace_indices(4)
+            integer (ip) :: j,  k1, kh, l1, l2
+            integer (ip) :: modn, na, nf, nl
+            real (wp)    :: sn, tsn, tsnm
+            !--------------------------------------------------------------
+
+            nf = int(fac(2), kind=ip)
+            na = 1
+            l2 = n
+
+            associate( &
+                iw1 => workspace_indices(1), &
+                iw2 => workspace_indices(2), &
+                iw3 => workspace_indices(3), &
+                iw4 => workspace_indices(4) &
+                )
+
+                iw1 = n
+
+                do k1=1,nf
+                    kh = nf-k1
+                    iip = int(fac(kh+3), kind=ip)
+                    l1 = l2/iip
+                    ido = n/l2
+                    idl1 = ido*l1
+                    iw1 = iw1-(iip-1)*ido
+                    na = 1-na
+                    select case (iip)
+                        case (2)
+                            select case (na)
+                                case (0)
+                                    call r1f2kf(ido,l1,c,in,ch,1,wa(iw1))
+                                case default
+                                    call r1f2kf(ido,l1,ch,1,c,in,wa(iw1))
+                            end select
+                        case (3)
+                            iw2 = iw1+ido
+                            select case (na)
+                                case (0)
+                                    call r1f3kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
+                                case default
+                                    call r1f3kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
+                            end select
+                        case (4)
+                            iw2 = iw1+ido
+                            iw3 = iw2+ido
+                            select case (na)
+                                case (0)
+                                    call r1f4kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
+                                case default
+                                    call r1f4kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
+                            end select
+                        case (5)
+                            iw2 = iw1+ido
+                            iw3 = iw2+ido
+                            iw4 = iw3+ido
+                            select case (na)
+                                case (0)
+                                    call r1f5kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                case default
+                                    call r1f5kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                            end select
+                        case default
+                            if (ido == 1) then
+                                na = 1-na
+                            end if
+                            select case (na)
+                                case (0)
+                                    call r1fgkf(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
+                                    na = 1
+                                case default
+                                    call r1fgkf(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
+                                    na = 0
+                            end select
+                    end select
+                    l2 = l1
+                end do
+
+            end associate
+
+            sn = 1.0_wp/n
+            tsn =  2.0_wp/n
+            tsnm = -tsn
+            modn = mod(n,2)
+
+            if (modn /= 0) then
+                nl = n-1
+            else
+                nl = n-2
+            end if
+
+            if (na == 0) then
+                c(1,1) = sn*ch(1)
+                do j=2,nl,2
+                    c(1,j) = tsn*ch(j)
+                    c(1,j+1) = tsnm*ch(j+1)
+                end do
+                if (modn == 0) then
+                    c(1,n) = sn*ch(n)
+                end if
+            else
+                c(1,1) = sn*c(1,1)
+                do j=2,nl,2
+                    c(1,j) = tsn*c(1,j)
+                    c(1,j+1) = tsnm*c(1,j+1)
+                end do
+                if (modn == 0) then
+                    c(1,n) = sn*c(1,n)
+                end if
+            end if
+
+        end subroutine rfftf1
+
+
     end subroutine rfft1f
+
 
 
     subroutine rfft1i(n, wsave, lensav, ier)
@@ -10468,136 +10601,6 @@ contains
         end if
 
     end subroutine rfft2i
-
-
-
-
-
-    subroutine rfftf1(n, in, c, ch, wa, fac)
-
-        integer (ip) in
-        integer (ip) n
-
-        real (wp) c(in,*)
-        real (wp) ch(*)
-        real (wp) fac(15)
-        integer (ip) idl1
-        integer (ip) ido
-        integer (ip) iip
-        integer (ip) iw
-        integer (ip) ix2
-        integer (ip) ix3
-        integer (ip) ix4
-        integer (ip) j
-        integer (ip) k1
-        integer (ip) kh
-        integer (ip) l1
-        integer (ip) l2
-        integer (ip) modn
-        integer (ip) na
-        integer (ip) nf
-        integer (ip) nl
-        real (wp) sn
-        real (wp) tsn
-        real (wp) tsnm
-        real (wp) wa(n)
-
-        nf = int(fac(2), kind=ip)
-        na = 1
-        l2 = n
-        iw = n
-
-        do k1=1,nf
-            kh = nf-k1
-            iip = int(fac(kh+3), kind=ip)
-            l1 = l2/iip
-            ido = n/l2
-            idl1 = ido*l1
-            iw = iw-(iip-1)*ido
-            na = 1-na
-            select case (iip)
-                case (2)
-                    select case (na)
-                        case (0)
-                            call r1f2kf(ido,l1,c,in,ch,1,wa(iw))
-                        case default
-                            call r1f2kf(ido,l1,ch,1,c,in,wa(iw))
-                    end select
-                case (3)
-                    ix2 = iw+ido
-                    select case (na)
-                        case (0)
-                            call r1f3kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2))
-                        case default
-                            call r1f3kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2))
-                    end select
-                case (4)
-                    ix2 = iw+ido
-                    ix3 = ix2+ido
-                    select case (na)
-                        case (0)
-                            call r1f4kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3))
-                        case default
-                            call r1f4kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3))
-                    end select
-                case (5)
-                    ix2 = iw+ido
-                    ix3 = ix2+ido
-                    ix4 = ix3+ido
-                    select case (na)
-                        case (0)
-                            call r1f5kf(ido,l1,c,in,ch,1,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                        case default
-                            call r1f5kf(ido,l1,ch,1,c,in,wa(iw),wa(ix2),wa(ix3),wa(ix4))
-                    end select
-                case default
-                    if (ido == 1) then
-                        na = 1-na
-                    end if
-                    select case (na)
-                        case (0)
-                            call r1fgkf(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw))
-                            na = 1
-                        case default
-                            call r1fgkf(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw))
-                            na = 0
-                    end select
-            end select
-            l2 = l1
-        end do
-
-        sn = 1.0_wp/n
-        tsn =  2.0_wp/n
-        tsnm = -tsn
-        modn = mod(n,2)
-
-        if (modn /= 0) then
-            nl = n-1
-        else
-            nl = n-2
-        end if
-
-        if (na == 0) then
-            c(1,1) = sn*ch(1)
-            do j=2,nl,2
-                c(1,j) = tsn*ch(j)
-                c(1,j+1) = tsnm*ch(j+1)
-            end do
-            if (modn == 0) then
-                c(1,n) = sn*ch(n)
-            end if
-        else
-            c(1,1) = sn*c(1,1)
-            do j=2,nl,2
-                c(1,j) = tsn*c(1,j)
-                c(1,j+1) = tsnm*c(1,j+1)
-            end do
-            if (modn == 0) then
-                c(1,n) = sn*c(1,n)
-            end if
-        end if
-
-    end subroutine rfftf1
 
 
     subroutine rffti1(n, wa, fac)
