@@ -8550,93 +8550,7 @@ contains
 
     end subroutine r1f3kf
 
-    subroutine r1f4kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
 
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(in1,ido,4,l1)
-        real (wp) ch(in2,ido,l1,4)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-        real (wp) wa2(ido)
-        real (wp) wa3(ido)
-        real (wp), parameter :: SQRT2 = sqrt(2.0_wp)
-
-        do k=1,l1
-            ch(1,1,k,3) = (cc(1,1,1,k)+cc(1,ido,4,k)) &
-                -(cc(1,ido,2,k)+cc(1,ido,2,k))
-            ch(1,1,k,1) = (cc(1,1,1,k)+cc(1,ido,4,k)) &
-                +(cc(1,ido,2,k)+cc(1,ido,2,k))
-            ch(1,1,k,4) = (cc(1,1,1,k)-cc(1,ido,4,k)) &
-                +(cc(1,1,3,k)+cc(1,1,3,k))
-            ch(1,1,k,2) = (cc(1,1,1,k)-cc(1,ido,4,k)) &
-                -(cc(1,1,3,k)+cc(1,1,3,k))
-        end do
-
-        if (ido < 2) then
-            return
-        else if (ido == 2) then
-            do k=1,l1
-                ch(1,ido,k,1) = (cc(1,ido,1,k)+cc(1,ido,3,k)) &
-                    +(cc(1,ido,1,k)+cc(1,ido,3,k))
-                ch(1,ido,k,2) = SQRT2*((cc(1,ido,1,k)-cc(1,ido,3,k)) &
-                    -(cc(1,1,2,k)+cc(1,1,4,k)))
-                ch(1,ido,k,3) = (cc(1,1,4,k)-cc(1,1,2,k)) &
-                    +(cc(1,1,4,k)-cc(1,1,2,k))
-                ch(1,ido,k,4) = -SQRT2*((cc(1,ido,1,k)-cc(1,ido,3,k)) &
-                    +(cc(1,1,2,k)+cc(1,1,4,k)))
-            end do
-        else
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-                    ch(1,i-1,k,1) = (cc(1,i-1,1,k)+cc(1,ic-1,4,k)) &
-                        +(cc(1,i-1,3,k)+cc(1,ic-1,2,k))
-                    ch(1,i,k,1) = (cc(1,i,1,k)-cc(1,ic,4,k)) &
-                        +(cc(1,i,3,k)-cc(1,ic,2,k))
-                    ch(1,i-1,k,2)=wa1(i-2)*((cc(1,i-1,1,k)-cc(1,ic-1,4,k)) &
-                        -(cc(1,i,3,k)+cc(1,ic,2,k)))-wa1(i-1) &
-                        *((cc(1,i,1,k)+cc(1,ic,4,k))+(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))
-                    ch(1,i,k,2)=wa1(i-2)*((cc(1,i,1,k)+cc(1,ic,4,k)) &
-                        +(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))+wa1(i-1) &
-                        *((cc(1,i-1,1,k)-cc(1,ic-1,4,k))-(cc(1,i,3,k)+cc(1,ic,2,k)))
-                    ch(1,i-1,k,3)=wa2(i-2)*((cc(1,i-1,1,k)+cc(1,ic-1,4,k)) &
-                        -(cc(1,i-1,3,k)+cc(1,ic-1,2,k)))-wa2(i-1) &
-                        *((cc(1,i,1,k)-cc(1,ic,4,k))-(cc(1,i,3,k)-cc(1,ic,2,k)))
-                    ch(1,i,k,3)=wa2(i-2)*((cc(1,i,1,k)-cc(1,ic,4,k)) &
-                        -(cc(1,i,3,k)-cc(1,ic,2,k)))+wa2(i-1) &
-                        *((cc(1,i-1,1,k)+cc(1,ic-1,4,k))-(cc(1,i-1,3,k) &
-                        +cc(1,ic-1,2,k)))
-                    ch(1,i-1,k,4)=wa3(i-2)*((cc(1,i-1,1,k)-cc(1,ic-1,4,k)) &
-                        +(cc(1,i,3,k)+cc(1,ic,2,k)))-wa3(i-1) &
-                        *((cc(1,i,1,k)+cc(1,ic,4,k))-(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))
-                    ch(1,i,k,4)=wa3(i-2)*((cc(1,i,1,k)+cc(1,ic,4,k)) &
-                        -(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))+wa3(i-1) &
-                        *((cc(1,i-1,1,k)-cc(1,ic-1,4,k))+(cc(1,i,3,k)+cc(1,ic,2,k)))
-                end do
-            end do
-            if (mod(ido,2) /= 1) then
-                do k=1,l1
-                    ch(1,ido,k,1) = (cc(1,ido,1,k)+cc(1,ido,3,k)) &
-                        +(cc(1,ido,1,k)+cc(1,ido,3,k))
-                    ch(1,ido,k,2) = SQRT2*((cc(1,ido,1,k)-cc(1,ido,3,k)) &
-                        -(cc(1,1,2,k)+cc(1,1,4,k)))
-                    ch(1,ido,k,3) = (cc(1,1,4,k)-cc(1,1,2,k)) &
-                        +(cc(1,1,4,k)-cc(1,1,2,k))
-                    ch(1,ido,k,4) = -SQRT2*((cc(1,ido,1,k)-cc(1,ido,3,k)) &
-                        +(cc(1,1,2,k)+cc(1,1,4,k)))
-                end do
-            end if
-        end if
-
-    end subroutine r1f4kb
 
     subroutine r1f4kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
 
@@ -9898,6 +9812,93 @@ contains
             end select
 
         end subroutine r1f3kb
+
+        subroutine r1f4kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,4,l1)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,4)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            real (wp),    intent (in)     :: wa3(ido)
+            !------------------------------------------------------------------
+            ! Dictionary: local variables
+            !------------------------------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: SQRT2 = sqrt(2.0_wp)
+            !------------------------------------------------------------------
+
+
+            ch(1,1,:,3) = (cc(1,1,1,:)+cc(1,ido,4,:)) &
+                -(cc(1,ido,2,:)+cc(1,ido,2,:))
+            ch(1,1,:,1) = (cc(1,1,1,:)+cc(1,ido,4,:)) &
+                +(cc(1,ido,2,:)+cc(1,ido,2,:))
+            ch(1,1,:,4) = (cc(1,1,1,:)-cc(1,ido,4,:)) &
+                +(cc(1,1,3,:)+cc(1,1,3,:))
+            ch(1,1,:,2) = (cc(1,1,1,:)-cc(1,ido,4,:)) &
+                -(cc(1,1,3,:)+cc(1,1,3,:))
+
+            if (ido < 2) then
+                return
+            else
+                select case (ido)
+                    case (2)
+                        ch(1,ido,:,1) = (cc(1,ido,1,:)+cc(1,ido,3,:)) &
+                            +(cc(1,ido,1,:)+cc(1,ido,3,:))
+                        ch(1,ido,:,2) = SQRT2*((cc(1,ido,1,:)-cc(1,ido,3,:)) &
+                            -(cc(1,1,2,:)+cc(1,1,4,:)))
+                        ch(1,ido,:,3) = (cc(1,1,4,:)-cc(1,1,2,:)) &
+                            +(cc(1,1,4,:)-cc(1,1,2,:))
+                        ch(1,ido,:,4) = -SQRT2*((cc(1,ido,1,:)-cc(1,ido,3,:)) &
+                            +(cc(1,1,2,:)+cc(1,1,4,:)))
+                    case default
+                        idp2 = ido+2
+                        do i=3,ido,2
+                            ic = idp2-i
+                            ch(1,i-1,:,1) = (cc(1,i-1,1,:)+cc(1,ic-1,4,:)) &
+                                +(cc(1,i-1,3,:)+cc(1,ic-1,2,:))
+                            ch(1,i,:,1) = (cc(1,i,1,:)-cc(1,ic,4,:)) &
+                                +(cc(1,i,3,:)-cc(1,ic,2,:))
+                            ch(1,i-1,:,2)=wa1(i-2)*((cc(1,i-1,1,:)-cc(1,ic-1,4,:)) &
+                                -(cc(1,i,3,:)+cc(1,ic,2,:)))-wa1(i-1) &
+                                *((cc(1,i,1,:)+cc(1,ic,4,:))+(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))
+                            ch(1,i,:,2)=wa1(i-2)*((cc(1,i,1,:)+cc(1,ic,4,:)) &
+                                +(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))+wa1(i-1) &
+                                *((cc(1,i-1,1,:)-cc(1,ic-1,4,:))-(cc(1,i,3,:)+cc(1,ic,2,:)))
+                            ch(1,i-1,:,3)=wa2(i-2)*((cc(1,i-1,1,:)+cc(1,ic-1,4,:)) &
+                                -(cc(1,i-1,3,:)+cc(1,ic-1,2,:)))-wa2(i-1) &
+                                *((cc(1,i,1,:)-cc(1,ic,4,:))-(cc(1,i,3,:)-cc(1,ic,2,:)))
+                            ch(1,i,:,3)=wa2(i-2)*((cc(1,i,1,:)-cc(1,ic,4,:)) &
+                                -(cc(1,i,3,:)-cc(1,ic,2,:)))+wa2(i-1) &
+                                *((cc(1,i-1,1,:)+cc(1,ic-1,4,:))-(cc(1,i-1,3,:) &
+                                +cc(1,ic-1,2,:)))
+                            ch(1,i-1,:,4)=wa3(i-2)*((cc(1,i-1,1,:)-cc(1,ic-1,4,:)) &
+                                +(cc(1,i,3,:)+cc(1,ic,2,:)))-wa3(i-1) &
+                                *((cc(1,i,1,:)+cc(1,ic,4,:))-(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))
+                            ch(1,i,:,4)=wa3(i-2)*((cc(1,i,1,:)+cc(1,ic,4,:)) &
+                                -(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))+wa3(i-1) &
+                                *((cc(1,i-1,1,:)-cc(1,ic-1,4,:))+(cc(1,i,3,:)+cc(1,ic,2,:)))
+                        end do
+
+                        if (mod(ido,2) /= 1) then
+                            ch(1,ido,:,1) = (cc(1,ido,1,:)+cc(1,ido,3,:)) &
+                                +(cc(1,ido,1,:)+cc(1,ido,3,:))
+                            ch(1,ido,:,2) = SQRT2*((cc(1,ido,1,:)-cc(1,ido,3,:)) &
+                                -(cc(1,1,2,:)+cc(1,1,4,:)))
+                            ch(1,ido,:,3) = (cc(1,1,4,:)-cc(1,1,2,:)) &
+                                +(cc(1,1,4,:)-cc(1,1,2,:))
+                            ch(1,ido,:,4) = -SQRT2*((cc(1,ido,1,:)-cc(1,ido,3,:)) &
+                                +(cc(1,1,2,:)+cc(1,1,4,:)))
+                        end if
+                end select
+            end if
+
+        end subroutine r1f4kb
 
 
     end subroutine rfft1b
