@@ -572,73 +572,71 @@ contains
             deallocate( real_copy )
         end if
 
-
-    end subroutine cfft1b
-
-
-    subroutine c1fm1b(n, inc, c, ch, wa, fnf, fac)
-        !----------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !----------------------------------------------------------------------
-        integer (ip), intent (in)     :: n
-        integer (ip), intent (in)     :: inc
-        real (wp),    intent (in out) :: c(2, *)
-        real (wp),    intent (in out) :: ch(*)
-        real (wp),    intent (in out) :: wa(*)
-        real (wp),    intent (in out) :: fnf
-        real (wp),    intent (in out) :: fac(*)
-        !----------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !----------------------------------------------------------------------
-        integer (ip) :: ido, inc2, iip, iw
-        integer (ip) :: k1, l1, l2, lid
-        integer (ip) :: na, nbr, nf
-        !----------------------------------------------------------------------
-
-        inc2 = 2*inc
-        nf = int(fnf, kind=ip)
-        na = 0
-        l1 = 1
-        iw = 1
-
-        do k1=1, nf
-            iip = int(fac(k1), kind=ip)
-            l2 = iip*l1
-            ido = n/l2
-            lid = l1*ido
-            nbr = 1+na+2*min(iip-2, 4)
-            select case (nbr)
-                case (1)
-                    call c1f2kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
-                case (2)
-                    call c1f2kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
-                case (3)
-                    call c1f3kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
-                case (4)
-                    call c1f3kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
-                case (5)
-                    call c1f4kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
-                case (6)
-                    call c1f4kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
-                case (7)
-                    call c1f5kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
-                case (8)
-                    call c1f5kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
-                case (9)
-                    call c1fgkb(ido, iip, l1, lid, na, c, c, inc2, ch, ch, 2, wa(iw))
-                case (10)
-                    call c1fgkb(ido, iip, l1, lid, na, ch, ch, 2, c, c, inc2, wa(iw))
-            end select
-
-            l1 = l2
-            iw = iw+(iip-1)*(2*ido)
-
-            if (iip <= 5) then
-                na = 1-na
-            end if
-        end do
-
     contains
+
+        subroutine c1fm1b(n, inc, c, ch, wa, fnf, fac)
+            !----------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------------------
+            integer (ip), intent (in)     :: n
+            integer (ip), intent (in)     :: inc
+            real (wp),    intent (in out) :: c(2, *)
+            real (wp),    intent (in out) :: ch(*)
+            real (wp),    intent (in out) :: wa(*)
+            real (wp),    intent (in out) :: fnf
+            real (wp),    intent (in out) :: fac(*)
+            !----------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------------------
+            integer (ip) :: ido, inc2, iip, iw
+            integer (ip) :: k1, l1, l2, lid
+            integer (ip) :: na, nbr, nf
+            !----------------------------------------------------------------------
+
+            inc2 = 2*inc
+            nf = int(fnf, kind=ip)
+            na = 0
+            l1 = 1
+            iw = 1
+
+            do k1=1, nf
+                iip = int(fac(k1), kind=ip)
+                l2 = iip*l1
+                ido = n/l2
+                lid = l1*ido
+                nbr = 1+na+2*min(iip-2, 4)
+                select case (nbr)
+                    case (1)
+                        call c1f2kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
+                    case (2)
+                        call c1f2kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
+                    case (3)
+                        call c1f3kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
+                    case (4)
+                        call c1f3kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
+                    case (5)
+                        call c1f4kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
+                    case (6)
+                        call c1f4kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
+                    case (7)
+                        call c1f5kb(ido, l1, na, c, inc2, ch, 2, wa(iw))
+                    case (8)
+                        call c1f5kb(ido, l1, na, ch, 2, c, inc2, wa(iw))
+                    case (9)
+                        call c1fgkb(ido, iip, l1, lid, na, c, c, inc2, ch, ch, 2, wa(iw))
+                    case (10)
+                        call c1fgkb(ido, iip, l1, lid, na, ch, ch, 2, c, c, inc2, wa(iw))
+                end select
+
+                l1 = l2
+                iw = iw+(iip-1)*(2*ido)
+
+                if (iip <= 5) then
+                    na = 1-na
+                end if
+            end do
+
+        end subroutine c1fm1b
 
         subroutine c1f2kb(ido, l1, na, cc, in1, ch, in2, wa)
             !----------------------------------------------------------------------
@@ -942,13 +940,12 @@ contains
             real (wp), allocatable :: dr2(:), dr3(:), dr4(:), dr5(:)
             real (wp), allocatable :: ti2(:), ti3(:), ti4(:), ti5(:)
             real (wp), allocatable :: tr2(:), tr3(:), tr4(:), tr5(:)
-            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
-            real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
-            real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
-            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
-
+            real (wp), parameter   :: SQRT5 = sqrt(5.0_wp)
+            real (wp), parameter   :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter   :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
+            real (wp), parameter   :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+            real (wp), parameter   :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter   :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
             !------------------------------------------------------------------
 
             !
@@ -1079,34 +1076,29 @@ contains
 
 
         subroutine c1fgkb(ido, iip, l1, lid, na, cc, cc1, in1, ch, ch1, in2, wa)
-
-            integer (ip) ido
-            integer (ip) in1
-            integer (ip) in2
-            integer (ip) iip
-            integer (ip) l1
-            integer (ip) lid
-
-            real (wp) cc(in1,l1,iip,ido)
-            real (wp) cc1(in1,lid,iip)
-            real (wp) ch(in2,l1,ido,iip)
-            real (wp) ch1(in2,lid,iip)
-            real (wp) chold1
-            real (wp) chold2
-            integer (ip) i
-            integer (ip) idlj
-            integer (ip) iipp2
-            integer (ip) iipph
-            integer (ip) j
-            integer (ip) jc
-            integer (ip) k
-            integer (ip) ki
-            integer (ip) l
-            integer (ip) lc
-            integer (ip) na
-            real (wp) wa(ido,iip-1,2)
-            real (wp) wai
-            real (wp) war
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: iip
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: lid
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,iip,ido)
+            real (wp),    intent (in out) :: cc1(in1,lid,iip)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,ido,iip)
+            real (wp),    intent (in out) :: ch1(in2,lid,iip)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,iip-1,2)
+            !------------------------------------------------------------------
+            ! Dictionary: local variables
+            !------------------------------------------------------------------
+            integer (ip)           :: i, idlj, iipp2, iipph
+            integer (ip)           :: j, jc, l, lc
+            real (wp)              :: wai, war
+            real (wp), allocatable :: chold1(:), chold2(:)
+            !------------------------------------------------------------------
 
             iipp2 = iip+2
             iipph = (iip+1)/2
@@ -1128,79 +1120,69 @@ contains
             end do
 
             do l=2,iipph
+
                 lc = iipp2-l
-                do ki=1,lid
-                    cc1(1,ki,l) = ch1(1,ki,1)+wa(1,l-1,1)*ch1(1,ki,2)
-                    cc1(1,ki,lc) = wa(1,l-1,2)*ch1(1,ki,iip)
-                    cc1(2,ki,l) = ch1(2,ki,1)+wa(1,l-1,1)*ch1(2,ki,2)
-                    cc1(2,ki,lc) = wa(1,l-1,2)*ch1(2,ki,iip)
-                end do
+                cc1(1,:,l) = ch1(1,:,1)+wa(1,l-1,1)*ch1(1,:,2)
+                cc1(1,:,lc) = wa(1,l-1,2)*ch1(1,:,iip)
+                cc1(2,:,l) = ch1(2,:,1)+wa(1,l-1,1)*ch1(2,:,2)
+                cc1(2,:,lc) = wa(1,l-1,2)*ch1(2,:,iip)
+
                 do j=3,iipph
                     jc = iipp2-j
                     idlj = mod((l-1)*(j-1),iip)
                     war = wa(1,idlj,1)
                     wai = wa(1,idlj,2)
-                    do ki=1,lid
-                        cc1(1,ki,l) = cc1(1,ki,l)+war*ch1(1,ki,j)
-                        cc1(1,ki,lc) = cc1(1,ki,lc)+wai*ch1(1,ki,jc)
-                        cc1(2,ki,l) = cc1(2,ki,l)+war*ch1(2,ki,j)
-                        cc1(2,ki,lc) = cc1(2,ki,lc)+wai*ch1(2,ki,jc)
-                    end do
+                    cc1(1,:,l) = cc1(1,:,l)+war*ch1(1,:,j)
+                    cc1(1,:,lc) = cc1(1,:,lc)+wai*ch1(1,:,jc)
+                    cc1(2,:,l) = cc1(2,:,l)+war*ch1(2,:,j)
+                    cc1(2,:,lc) = cc1(2,:,lc)+wai*ch1(2,:,jc)
                 end do
             end do
 
             if (1 >= ido .and. na /= 1) then
+                !
+                !==> Allocate memory
+                !
+                allocate( chold1(lid), chold2(lid) )
 
                 do j=2,iipph
                     jc = iipp2-j
-                    do ki=1,lid
-                        chold1 = cc1(1,ki,j)-cc1(2,ki,jc)
-                        chold2 = cc1(1,ki,j)+cc1(2,ki,jc)
-                        cc1(1,ki,j) = chold1
-                        cc1(2,ki,jc) = cc1(2,ki,j)-cc1(1,ki,jc)
-                        cc1(2,ki,j) = cc1(2,ki,j)+cc1(1,ki,jc)
-                        cc1(1,ki,jc) = chold2
-                    end do
+                    chold1 = cc1(1,:,j)-cc1(2,:,jc)
+                    chold2 = cc1(1,:,j)+cc1(2,:,jc)
+                    cc1(1,:,j) = chold1
+                    cc1(2,:,jc) = cc1(2,:,j)-cc1(1,:,jc)
+                    cc1(2,:,j) = cc1(2,:,j)+cc1(1,:,jc)
+                    cc1(1,:,jc) = chold2
                 end do
+                !
+                !==> Release memory
+                !
+                deallocate( chold1, chold2 )
             else
-                do ki=1,lid
-                    ch1(1,ki,1) = cc1(1,ki,1)
-                    ch1(2,ki,1) = cc1(2,ki,1)
-                end do
+                ch1(1,:,1) = cc1(1,:,1)
+                ch1(2,:,1) = cc1(2,:,1)
 
                 do j=2,iipph
                     jc = iipp2-j
-                    do ki=1,lid
-                        ch1(1,ki,j) = cc1(1,ki,j)-cc1(2,ki,jc)
-                        ch1(1,ki,jc) = cc1(1,ki,j)+cc1(2,ki,jc)
-                        ch1(2,ki,jc) = cc1(2,ki,j)-cc1(1,ki,jc)
-                        ch1(2,ki,j) = cc1(2,ki,j)+cc1(1,ki,jc)
-                    end do
+                    ch1(1,:,j) = cc1(1,:,j)-cc1(2,:,jc)
+                    ch1(1,:,jc) = cc1(1,:,j)+cc1(2,:,jc)
+                    ch1(2,:,jc) = cc1(2,:,j)-cc1(1,:,jc)
+                    ch1(2,:,j) = cc1(2,:,j)+cc1(1,:,jc)
                 end do
 
                 if (ido /= 1) then
-                    do i=1,ido
-                        do k=1,l1
-                            cc(1,k,1,i) = ch(1,k,i,1)
-                            cc(2,k,1,i) = ch(2,k,i,1)
-                        end do
-                    end do
+                    cc(1,:,1,:) = ch(1,:,:,1)
+                    cc(2,:,1,:) = ch(2,:,:,1)
 
-                    do j=2,iip
-                        do k=1,l1
-                            cc(1,k,j,1) = ch(1,k,1,j)
-                            cc(2,k,j,1) = ch(2,k,1,j)
-                        end do
-                    end do
+                    cc(1,:,2:iip,1) = ch(1,:,1,2:iip)
+                    cc(2,:,2:iip,1) = ch(2,:,1,2:iip)
 
                     do j=2,iip
                         do i=2,ido
-                            do k=1,l1
-                                cc(1,k,j,i) = wa(i,j-1,1)*ch(1,k,i,j) &
-                                    -wa(i,j-1,2)*ch(2,k,i,j)
-                                cc(2,k,j,i) = wa(i,j-1,1)*ch(2,k,i,j) &
-                                    +wa(i,j-1,2)*ch(1,k,i,j)
-                            end do
+                            cc(1,:,j,i) = wa(i,j-1,1)*ch(1,:,i,j) &
+                                -wa(i,j-1,2)*ch(2,:,i,j)
+                            cc(2,:,j,i) = wa(i,j-1,1)*ch(2,:,i,j) &
+                                +wa(i,j-1,2)*ch(1,:,i,j)
                         end do
                     end do
                 end if
@@ -1208,74 +1190,188 @@ contains
 
         end subroutine c1fgkb
 
-    end subroutine c1fm1b
+    end subroutine cfft1b
 
 
 
-    subroutine c1fm1f(n, inc, c, ch, wa, fnf, fac)
+    subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+        !
+        ! cfft1f: complex 64-bit precision forward fast fourier transform, 1d.
+        !
+        !  Purpose:
+        !
+        !  cfft1f computes the one-dimensional fourier transform of a single
+        !  periodic sequence within a complex array. This transform is referred
+        !  to as the forward transform or fourier analysis, transforming the
+        !  sequence from physical to spectral space.
+        !
+        !  This transform is normalized since a call to cfft1f followed
+        !  by a call to cfft1b (or vice-versa) reproduces the original
+        !  array within roundoff error.
+        !
+        !  INPUT
+        !
+        !  integer n, the length of the sequence to be
+        !  transformed. the transform is most efficient when
+        !  n is a product of small primes.
+        !
+        !  integer inc, the increment between the locations, in
+        !  array c, of two consecutive elements within the sequence to be transformed.
+        !
+        !  real wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cfft1i before the first call to routine cfft1f
+        !  or cfft1b for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cfft1f and cfft1b with the same n.
+        !
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
+        !
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*n.
+        !
+        !  INPUT/OUTPUT
+        !  complex c(lenc) containing the sequence to be transformed.
+        !
+        !  real work(lenwrk), workspace array
+        !  integer lenc, the dimension of the c array.
+        !  lenc must be at least inc*(n-1) + 1.
+        !
+        !  OUTPUT
+        !  integer ier, error flag.
+        !  0, successful exit;
+        !  1, input parameter lenc not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  20, input error returned by lower level routine.
+        !
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in)     :: n
+        integer (ip), intent (in)     :: inc
+        complex (wp), intent (in out) :: c(lenc)
+        integer (ip), intent (in)     :: lenc
+        real (wp),    intent (in)     :: wsave(lensav)
+        integer (ip), intent (in)     :: lensav
+        real (wp),    intent (out)    :: work(lenwrk)
+        integer (ip), intent (in)     :: lenwrk
+        integer (ip), intent (out)    :: ier
+        !------------------------------------------------------------------
+        ! Dictionary: local variables
+        !------------------------------------------------------------------
+        real (wp), allocatable :: real_copy(:,:)
+        !------------------------------------------------------------------
 
-        real (wp) c(2,*)
-        real (wp) ch(*)
-        real (wp) fac(*)
-        real (wp) fnf
-        integer (ip) ido
-        integer (ip) inc
-        integer (ip) inc2
-        integer (ip) iip
-        integer (ip) iw
-        integer (ip) k1
-        integer (ip) l1
-        integer (ip) l2
-        integer (ip) lid
-        integer (ip) n
-        integer (ip) na
-        integer (ip) nbr
-        integer (ip) nf
-        real (wp) wa(*)
+        !
+        !==> Check validity of input arguments
+        !
+        if (lenc < inc*(n-1) + 1) then
+            ier = 1
+            call xerfft('cfft1f ', 4)
+        else if (lensav < get_1d_saved_workspace_size(n) ) then
+            ier = 2
+            call xerfft('cfft1f ', 6)
+        else if (lenwrk < 2*n) then
+            ier = 3
+            call xerfft('cfft1f ', 8)
+        else
+            ier = 0
+        end if
 
-        inc2 = inc+inc
-        nf = int(fnf, kind=ip)
-        na = 0
-        l1 = 1
-        iw = 1
+        !
+        !==> Perform transform
+        !
+        if (n /= 1) then
 
-        do k1=1,nf
-            iip = int(fac(k1), kind=ip)
-            l2 = iip*l1
-            ido = n/l2
-            lid = l1*ido
-            nbr = 1+na+2*min(iip-2,4)
-            select case (nbr)
-                case (1)
-                    call c1f2kf(ido,l1,na,c,inc2,ch,2,wa(iw))
-                case (2)
-                    call c1f2kf(ido,l1,na,ch,2,c,inc2,wa(iw))
-                case (3)
-                    call c1f3kf(ido,l1,na,c,inc2,ch,2,wa(iw))
-                case (4)
-                    call c1f3kf(ido,l1,na,ch,2,c,inc2,wa(iw))
-                case (5)
-                    call c1f4kf(ido,l1,na,c,inc2,ch,2,wa(iw))
-                case (6)
-                    call c1f4kf(ido,l1,na,ch,2,c,inc2,wa(iw))
-                case (7)
-                    call c1f5kf(ido,l1,na,c,inc2,ch,2,wa(iw))
-                case (8)
-                    call c1f5kf(ido,l1,na,ch,2,c,inc2,wa(iw))
-                case (9)
-                    call c1fgkf(ido,iip,l1,lid,na,c,c,inc2,ch,ch,2,wa(iw))
-                case (10)
-                    call c1fgkf(ido,iip,l1,lid,na,ch,ch,2,c,c,inc2,wa(iw))
-            end select
+            !
+            !==> Allocate memory
+            !
+            allocate( real_copy(2,size(c)) )
 
-            l1 = l2
-            iw = iw+(iip-1)*(2*ido)
-            if (iip <= 5) then
-                na = 1-na
-            end if
-        end do
+            ! Make copy
+            real_copy(1,:) = real(c)
+            real_copy(2,:) = aimag(c)
+
+            associate( iw1 => 2 * n+1 )
+
+                call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1:))
+
+            end associate
+
+            ! Make copy
+            c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
+
+            !
+            !==> Release memory
+            !
+            deallocate( real_copy )
+        end if
 
     contains
+
+        subroutine c1fm1f(n, inc, c, ch, wa, fnf, fac)
+            !----------------------------------------------------------
+            ! Dictionary: calling arguments
+            !----------------------------------------------------------
+            integer (ip), intent (in)     :: n
+            integer (ip), intent (in)     :: inc
+            real (wp),    intent (in out) :: c(:,:)
+            real (wp),    intent (out)    :: ch(:)
+            real (wp),    intent (in)     :: wa(*)
+            real (wp),    intent (in)     :: fnf
+            real (wp),    intent (in)     :: fac(:)
+            !----------------------------------------------------------
+            ! Dictionary: local variables
+            !----------------------------------------------------------
+            integer (ip) :: ido, inc2, iip, iw
+            integer (ip) :: k1, l1, l2, lid
+            integer (ip) :: na, nbr, nf
+            !----------------------------------------------------------
+
+            inc2 = 2*inc
+            nf = int(fnf, kind=ip)
+            na = 0
+            l1 = 1
+            iw = 1
+
+            do k1=1,nf
+                iip = int(fac(k1), kind=ip)
+                l2 = iip*l1
+                ido = n/l2
+                lid = l1*ido
+                nbr = 1+na+2*min(iip-2,4)
+                select case (nbr)
+                    case (1)
+                        call c1f2kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    case (2)
+                        call c1f2kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    case (3)
+                        call c1f3kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    case (4)
+                        call c1f3kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    case (5)
+                        call c1f4kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    case (6)
+                        call c1f4kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    case (7)
+                        call c1f5kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    case (8)
+                        call c1f5kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    case (9)
+                        call c1fgkf(ido,iip,l1,lid,na,c,c,inc2,ch,ch,2,wa(iw))
+                    case (10)
+                        call c1fgkf(ido,iip,l1,lid,na,ch,ch,2,c,c,inc2,wa(iw))
+                end select
+
+                l1 = l2
+                iw = iw+(iip-1)*(2*ido)
+                if (iip <= 5) then
+                    na = 1-na
+                end if
+            end do
+
+        end subroutine c1fm1f
+
 
         subroutine c1f2kf(ido, l1, na, cc, in1, ch, in2, wa)
             !----------------------------------------------------------------------
@@ -1886,122 +1982,6 @@ contains
 
         end subroutine c1fgkf
 
-    end subroutine c1fm1f
-
-
-    subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
-        !
-        ! cfft1f: complex 64-bit precision forward fast fourier transform, 1d.
-        !
-        !  Purpose:
-        !
-        !  cfft1f computes the one-dimensional fourier transform of a single
-        !  periodic sequence within a complex array. This transform is referred
-        !  to as the forward transform or fourier analysis, transforming the
-        !  sequence from physical to spectral space.
-        !
-        !  This transform is normalized since a call to cfft1f followed
-        !  by a call to cfft1b (or vice-versa) reproduces the original
-        !  array within roundoff error.
-        !
-        !  INPUT
-        !
-        !  integer n, the length of the sequence to be
-        !  transformed. the transform is most efficient when
-        !  n is a product of small primes.
-        !
-        !  integer inc, the increment between the locations, in
-        !  array c, of two consecutive elements within the sequence to be transformed.
-        !
-        !  real wsave(lensav).  wsave's contents must be
-        !  initialized with a call to cfft1i before the first call to routine cfft1f
-        !  or cfft1b for a given transform length n.  wsave's contents may be re-used
-        !  for subsequent calls to cfft1f and cfft1b with the same n.
-        !
-        !  integer lensav, the dimension of the wsave array.
-        !  lensav must be at least 2*n + int(log(real(n))) + 4.
-        !
-        !  integer lenwrk, the dimension of the work array.
-        !  lenwrk must be at least 2*n.
-        !
-        !  INPUT/OUTPUT
-        !  complex c(lenc) containing the sequence to be transformed.
-        !
-        !  real work(lenwrk), workspace array
-        !  integer lenc, the dimension of the c array.
-        !  lenc must be at least inc*(n-1) + 1.
-        !
-        !  OUTPUT
-        !  integer ier, error flag.
-        !  0, successful exit;
-        !  1, input parameter lenc not big enough;
-        !  2, input parameter lensav not big enough;
-        !  3, input parameter lenwrk not big enough;
-        !  20, input error returned by lower level routine.
-        !
-        !------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !------------------------------------------------------------------
-        integer (ip), intent (in)     :: n
-        integer (ip), intent (in)     :: inc
-        complex (wp), intent (in out) :: c(lenc)
-        integer (ip), intent (in)     :: lenc
-        real (wp),    intent (in)     :: wsave(lensav)
-        integer (ip), intent (in)     :: lensav
-        real (wp),    intent (out)    :: work(lenwrk)
-        integer (ip), intent (in)     :: lenwrk
-        integer (ip), intent (out)    :: ier
-        !------------------------------------------------------------------
-        ! Dictionary: local variables
-        !------------------------------------------------------------------
-        real (wp), allocatable :: real_copy(:,:)
-        !------------------------------------------------------------------
-
-        !
-        !==> Check validity of input arguments
-        !
-        if (lenc < inc*(n-1) + 1) then
-            ier = 1
-            call xerfft('cfft1f ', 4)
-        else if (lensav < get_1d_saved_workspace_size(n) ) then
-            ier = 2
-            call xerfft('cfft1f ', 6)
-        else if (lenwrk < 2*n) then
-            ier = 3
-            call xerfft('cfft1f ', 8)
-        else
-            ier = 0
-        end if
-
-        !
-        !==> Perform transform
-        !
-        if (n /= 1) then
-
-            !
-            !==> Allocate memory
-            !
-            allocate( real_copy(2,size(c)) )
-
-            ! Make copy
-            real_copy(1,:) = real(c)
-            real_copy(2,:) = aimag(c)
-
-            associate( iw1 => 2 * n+1 )
-
-                call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1))
-
-            end associate
-
-            ! Make copy
-            c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
-
-            !
-            !==> Release memory
-            !
-            deallocate( real_copy )
-
-        end if
 
     end subroutine cfft1f
 
