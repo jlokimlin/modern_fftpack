@@ -1,4 +1,4 @@
-# **modern\_fftpack - a Fortran library of fast Fourier transforms**
+# **fftpack - a Fortran library of fast Fourier transforms**
 
 An object-oriented modernization of NCAR's FFTPACK5.1.
 
@@ -6,7 +6,7 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant, entirely free of **go to**, and employs the instrinsic module *iso\_fortran\_env* to maintain 64-bit floating-point precision. 
 
 
-Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the modern\_fttpack library, and as a demonstration that you can correctly produce the executables. 
+Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the fttpack library, and as a demonstration that you can correctly produce the executables. 
 
 -----------------------------------------------------------------------------
 
@@ -24,9 +24,9 @@ Type the following command line arguments
 
 ```bash
 
-	git clone https://github.com/jlokimlin/modern_fftpack.git
+	git clone https://github.com/jlokimlin/fftpack.git
 	
-	cd modern_fftpack; make all
+	cd fftpack; make all
 ```
 
 -----------------------------------------------------------------------------
