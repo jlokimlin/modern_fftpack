@@ -450,7 +450,7 @@ contains
         !
         if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cfftmi ', 3)
+            call fft_error_handler('cfftmi ', 3)
         else
             ier = 0
         end if
@@ -531,13 +531,13 @@ contains
         !
         if (lenc < inc * (n - 1) + 1) then
             ier = 1
-            call xerfft( 'cfft1b ', 4)
+            call fft_error_handler('cfft1b ', 4)
         else if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cfft1b ', 6)
+            call fft_error_handler('cfft1b ', 6)
         else if ( size(work) < 2 * n) then
             ier = 3
-            call xerfft('cfft1b ', 8)
+            call fft_error_handler('cfft1b ', 8)
         else
             ier = 0
         end if
@@ -1269,13 +1269,13 @@ contains
         !
         if (lenc < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cfft1f ', 4)
+            call fft_error_handler('cfft1f ', 4)
         else if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cfft1f ', 6)
+            call fft_error_handler('cfft1f ', 6)
         else if (lenwrk < 2*n) then
             ier = 3
-            call xerfft('cfft1f ', 8)
+            call fft_error_handler('cfft1f ', 8)
         else
             ier = 0
         end if
@@ -2084,15 +2084,15 @@ contains
         !
         if ( ldim < l ) then
             ier = 5
-            call xerfft('cfft2b', -2)
+            call fft_error_handler('cfft2b', -2)
             return
         else if (lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
-            call xerfft('cfft2b', 6)
+            call fft_error_handler('cfft2b', 6)
             return
         else if (lenwrk < get_2d_workspace_size(l, m)) then
             ier = 3
-            call xerfft('cfft2b', 8)
+            call fft_error_handler('cfft2b', 8)
             return
         else
             ier = 0
@@ -2127,7 +2127,7 @@ contains
         ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2b',-5)
+            call fft_error_handler('cfft2b',-5)
             return
         end if
         !
@@ -2149,7 +2149,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2b',-5)
+            call fft_error_handler('cfft2b',-5)
         end if
 
         ! Make copy: real to complex
@@ -2245,15 +2245,15 @@ contains
         !
         if ( ldim < l ) then
             ier = 5
-            call xerfft('cfft2f', -2)
+            call fft_error_handler('cfft2f', -2)
             return
         else if (lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
-            call xerfft('cfft2f', 6)
+            call fft_error_handler('cfft2f', 6)
             return
         else if (lenwrk < get_2d_workspace_size(l, m)) then
             ier = 3
-            call xerfft('cfft2f', 8)
+            call fft_error_handler('cfft2f', 8)
             return
         else
             ier = 0
@@ -2286,7 +2286,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2f',-5)
+            call fft_error_handler('cfft2f',-5)
             return
         end if
         !
@@ -2307,7 +2307,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2f',-5)
+            call fft_error_handler('cfft2f',-5)
         end if
 
         ! Make copy: real to complex
@@ -2379,7 +2379,7 @@ contains
         !
         if ( lensav < get_2d_saved_workspace_size(l, m)) then
             ier = 2
-            call xerfft('cfft2i', 4)
+            call fft_error_handler('cfft2i', 4)
             return
         else
             ier = 0
@@ -2394,7 +2394,7 @@ contains
         ! Check error flag
         if ( local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2i',-5)
+            call fft_error_handler('cfft2i',-5)
             return
         end if
 
@@ -2410,7 +2410,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cfft2i',-5)
+            call fft_error_handler('cfft2i',-5)
         end if
 
     end subroutine cfft2i
@@ -2501,16 +2501,16 @@ contains
         !
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cfftmb ', 6)
+            call fft_error_handler('cfftmb ', 6)
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cfftmb ', 8)
+            call fft_error_handler('cfftmb ', 8)
         else if (lenwrk < 2*lot*n) then
             ier = 3
-            call xerfft('cfftmb ', 10)
-        else if (.not. xercon(inc,jump,n,lot)) then
+            call fft_error_handler('cfftmb ', 10)
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('cfftmb ', -1)
+            call fft_error_handler('cfftmb ', -1)
         else
             ier = 0
         end if
@@ -2613,16 +2613,16 @@ contains
         !
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cfftmf ', 6)
+            call fft_error_handler('cfftmf ', 6)
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cfftmf ', 8)
+            call fft_error_handler('cfftmf ', 8)
         else if (lenwrk < 2*lot*n) then
             ier = 3
-            call xerfft('cfftmf ', 10)
-        else if (.not. xercon(inc,jump,n,lot)) then
+            call fft_error_handler('cfftmf ', 10)
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('cfftmf ', -1)
+            call fft_error_handler('cfftmf ', -1)
         else
             ier = 0
         end if
@@ -2680,7 +2680,7 @@ contains
 
         if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cfftmi ', 3)
+            call fft_error_handler('cfftmi ', 3)
         end if
 
         if (n /= 1) then
@@ -4320,15 +4320,15 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cosq1b', 6)
+            call fft_error_handler('cosq1b', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cosq1b', 8)
+            call fft_error_handler('cosq1b', 8)
             return
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('cosq1b', 10)
+            call fft_error_handler('cosq1b', 10)
             return
         else
             ier = 0
@@ -4349,7 +4349,7 @@ contains
             ! check error flag
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('cosq1b',-5)
+                call fft_error_handler('cosq1b',-5)
             end if
         end if
 
@@ -4426,15 +4426,15 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cosq1f', 6)
+            call fft_error_handler('cosq1f', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cosq1f', 8)
+            call fft_error_handler('cosq1f', 8)
             return
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('cosq1f', 10)
+            call fft_error_handler('cosq1f', 10)
             return
         else
             ier = 0
@@ -4456,7 +4456,7 @@ contains
             ! Check error flag
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('cosq1f',-5)
+                call fft_error_handler('cosq1f',-5)
             end if
         end if
 
@@ -4515,7 +4515,7 @@ contains
         !
         if (lensav < get_1d_saved_workspace_size(n) ) then
             ier = 2
-            call xerfft('cosq1i', 3)
+            call fft_error_handler('cosq1i', 3)
             return
         else
             ier = 0
@@ -4540,7 +4540,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cosq1i',-5)
+            call fft_error_handler('cosq1i',-5)
         end if
 
     end subroutine cosq1i
@@ -4593,7 +4593,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cosqb1',-5)
+            call fft_error_handler('cosqb1',-5)
             return
         end if
 
@@ -4674,7 +4674,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('cosqf1',-5)
+            call fft_error_handler('cosqf1',-5)
             return
         end if
 
@@ -4770,19 +4770,19 @@ contains
         !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cosqmb', 6)
+            call fft_error_handler('cosqmb', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cosqmb', 8)
+            call fft_error_handler('cosqmb', 8)
             return
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('cosqmb', 10)
+            call fft_error_handler('cosqmb', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('cosqmb', -1)
+            call fft_error_handler('cosqmb', -1)
             return
         else
             ier = 0
@@ -4808,7 +4808,7 @@ contains
             ! Check error flag
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('cosqmb',-5)
+                call fft_error_handler('cosqmb',-5)
             end if
         end if
 
@@ -4901,19 +4901,19 @@ contains
         !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cosqmf', 6)
+            call fft_error_handler('cosqmf', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cosqmf', 8)
+            call fft_error_handler('cosqmf', 8)
             return
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('cosqmf', 10)
+            call fft_error_handler('cosqmf', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('cosqmf', -1)
+            call fft_error_handler('cosqmf', -1)
             return
         else
             ier = 0
@@ -4938,7 +4938,7 @@ contains
             ! Check error flag
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('cosqmf',-5)
+                call fft_error_handler('cosqmf',-5)
             end if
         end if
 
@@ -4993,7 +4993,7 @@ contains
 
         if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cosqmi', 3)
+            call fft_error_handler('cosqmi', 3)
             return
         else
             ier = 0
@@ -5013,7 +5013,7 @@ contains
 
         if (ier1 /= 0) then
             ier = 20
-            call xerfft('cosqmi',-5)
+            call fft_error_handler('cosqmi',-5)
         end if
 
     end subroutine cosqmi
@@ -5091,15 +5091,15 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cost1b', 6)
+            call fft_error_handler('cost1b', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cost1b', 8)
+            call fft_error_handler('cost1b', 8)
             return
         else if (lenwrk < n-1) then
             ier = 3
-            call xerfft('cost1b', 10)
+            call fft_error_handler('cost1b', 10)
             return
         else
             ier = 0
@@ -5114,7 +5114,7 @@ contains
 
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('cost1b',-5)
+                call fft_error_handler('cost1b',-5)
             end if
         end if
 
@@ -5192,15 +5192,15 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('cost1f', 6)
+            call fft_error_handler('cost1f', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cost1f', 8)
+            call fft_error_handler('cost1f', 8)
             return
         else if (lenwrk < n-1) then
             ier = 3
-            call xerfft('cost1f', 10)
+            call fft_error_handler('cost1f', 10)
             return
         else
             ier = 0
@@ -5215,7 +5215,7 @@ contains
 
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('cost1f',-5)
+                call fft_error_handler('cost1f',-5)
             end if
         end if
 
@@ -5277,7 +5277,7 @@ contains
         !
         if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('cost1i', 3)
+            call fft_error_handler('cost1i', 3)
             return
         else
             ier = 0
@@ -5307,7 +5307,7 @@ contains
 
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('cost1i',-5)
+                call fft_error_handler('cost1i',-5)
             end if
         end if
 
@@ -5393,7 +5393,7 @@ contains
 
                 if (local_error_flag /= 0) then
                     ier = 20
-                    call xerfft('costb1',-5)
+                    call fft_error_handler('costb1',-5)
                     return
                 end if
 
@@ -5496,7 +5496,7 @@ contains
 
                 if (ier1 /= 0) then
                     ier = 20
-                    call xerfft('costf1',-5)
+                    call fft_error_handler('costf1',-5)
                     return
                 end if
 
@@ -5610,19 +5610,19 @@ contains
         !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('costmb', 6)
+            call fft_error_handler('costmb', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('costmb', 8)
+            call fft_error_handler('costmb', 8)
             return
         else if (lenwrk < lot*(n+1)) then
             ier = 3
-            call xerfft('costmb', 10)
+            call fft_error_handler('costmb', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('costmb', -1)
+            call fft_error_handler('costmb', -1)
             return
         else
             ier = 0
@@ -5633,7 +5633,7 @@ contains
 
         if (ier1 /= 0) then
             ier = 20
-            call xerfft('costmb',-5)
+            call fft_error_handler('costmb',-5)
         end if
 
     end subroutine costmb
@@ -5725,19 +5725,19 @@ contains
         !
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('costmf', 6)
+            call fft_error_handler('costmf', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('costmf', 8)
+            call fft_error_handler('costmf', 8)
             return
         else if (lenwrk < lot*(n+1)) then
             ier = 3
-            call xerfft('costmf', 10)
+            call fft_error_handler('costmf', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('costmf', -1)
+            call fft_error_handler('costmf', -1)
             return
         else
             ier = 0
@@ -5752,7 +5752,7 @@ contains
         ! Check error flag
         if (ier1 /= 0) then
             ier = 20
-            call xerfft('costmf',-5)
+            call fft_error_handler('costmf',-5)
         end if
 
     end subroutine costmf
@@ -5814,7 +5814,7 @@ contains
         !
         if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('costmi', 3)
+            call fft_error_handler('costmi', 3)
             return
         else
             ier = 0
@@ -5844,7 +5844,7 @@ contains
 
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('costmi',-5)
+                call fft_error_handler('costmi',-5)
             end if
         end if
 
@@ -5909,7 +5909,7 @@ contains
 
         if (ier1 /= 0) then
             ier = 20
-            call xerfft('mcsqb1',-5)
+            call fft_error_handler('mcsqb1',-5)
             return
         end if
 
@@ -6024,7 +6024,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('mcsqf1',-5)
+            call fft_error_handler('mcsqf1',-5)
             return
         end if
 
@@ -6142,7 +6142,7 @@ contains
 
                 if (ier1 /= 0) then
                     ier = 20
-                    call xerfft('mcstb1',-5)
+                    call fft_error_handler('mcstb1',-5)
                     return
                 end if
 
@@ -6279,7 +6279,7 @@ contains
 
                 if (ier1 /= 0) then
                     ier = 20
-                    call xerfft('mcstf1',-5)
+                    call fft_error_handler('mcstf1',-5)
                     return
                 end if
 
@@ -8277,7 +8277,7 @@ contains
 
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('msntb1',-5)
+                call fft_error_handler('msntb1',-5)
                 return
             end if
 
@@ -8396,7 +8396,7 @@ contains
             ! Check error flag
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('msntf1',-5)
+                call fft_error_handler('msntf1',-5)
                 return
             end if
 
@@ -9028,7 +9028,7 @@ contains
         !
         !==> Get the factorization of n.
         !
-        call factor(n, nf, fac)
+        call get_factorization(n, nf, fac)
         fnf = real(nf, kind=wp)
         iw = 1
         l1 = 1
@@ -9039,14 +9039,14 @@ contains
             iip = int(fac(k1), kind=ip)
             l2 = l1 * iip
             ido = n / l2
-            call tables(ido, iip, wa(iw))
+            call compute_trigonometic_tables(ido, iip, wa(iw))
             iw = iw + (iip - 1) * (2*ido)
             l1 = l2
         end do
 
     contains
 
-        pure subroutine factor(n, nf, fac)
+        pure subroutine get_factorization(n, nf, fac)
             !
             ! Purpose:
             !
@@ -9072,6 +9072,7 @@ contains
             integer (ip) :: j, nl, nq, nr, ntry
             !--------------------------------------------------
 
+            ntry = 0
             nl = n
             nf = 0
             j = 0
@@ -9104,9 +9105,9 @@ contains
                 end do inner_loop
             end do
 
-        end subroutine factor
+        end subroutine get_factorization
 
-        pure subroutine tables(ido, iip, wa)
+        pure subroutine compute_trigonometic_tables(ido, iip, wa)
             !
             ! Purpose:
             !
@@ -9143,7 +9144,7 @@ contains
                 end if
             end do
 
-        end subroutine tables
+        end subroutine compute_trigonometic_tables
 
     end subroutine mcfti1
 
@@ -9210,14 +9211,14 @@ contains
         !
         if (lenr < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('rfft1b ', 6)
+            call fft_error_handler('rfft1b ', 6)
         else if (lensav < &
             n + int(log(real(n, kind=wp) )/log(2.0_wp))+4) then
             ier = 2
-            call xerfft('rfft1b ', 8)
+            call fft_error_handler('rfft1b ', 8)
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('rfft1b ', 10)
+            call fft_error_handler('rfft1b ', 10)
         else
             ier = 0
         end if
@@ -9946,13 +9947,13 @@ contains
         !
         if (lenr < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('rfft1f ', 6)
+            call fft_error_handler('rfft1f ', 6)
         else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('rfft1f ', 8)
+            call fft_error_handler('rfft1f ', 8)
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('rfft1f ', 10)
+            call fft_error_handler('rfft1f ', 10)
         else
             ier = 0
         end if
@@ -10141,7 +10142,7 @@ contains
 
         if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('rfft1i ', 3)
+            call fft_error_handler('rfft1i ', 3)
         end if
 
         if (n /= 1) then
@@ -10239,7 +10240,7 @@ contains
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
-            call xerfft('rfft2f', 6)
+            call fft_error_handler('rfft2f', 6)
             return
         end if
         !
@@ -10247,7 +10248,7 @@ contains
         !
         if (lenwrk < (l+1)*m) then
             ier = 3
-            call xerfft('rfft2f', 8)
+            call fft_error_handler('rfft2f', 8)
             return
         end if
         !
@@ -10255,7 +10256,7 @@ contains
         !
         if (ldim < l) then
             ier = 5
-            call xerfft('rfft2f', -6)
+            call fft_error_handler('rfft2f', -6)
             return
         end if
         !
@@ -10286,7 +10287,7 @@ contains
 
             if (ier1/=0) then
                 ier=20
-                call xerfft('rfft2b',-5)
+                call fft_error_handler('rfft2b',-5)
                 return
             end if
 
@@ -10325,7 +10326,7 @@ contains
 
         if (ier1 /= 0) then
             ier=20
-            call xerfft('rfft2f',-5)
+            call fft_error_handler('rfft2f',-5)
         end if
 
     end subroutine rfft2b
@@ -10418,7 +10419,7 @@ contains
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
-            call xerfft('rfft2f', 6)
+            call fft_error_handler('rfft2f', 6)
             return
         end if
         !
@@ -10426,7 +10427,7 @@ contains
         !
         if (lenwrk < (l+1)*m) then
             ier = 3
-            call xerfft('rfft2f', 8)
+            call fft_error_handler('rfft2f', 8)
             return
         end if
         !
@@ -10434,7 +10435,7 @@ contains
         !
         if (ldim < l) then
             ier = 5
-            call xerfft('rfft2f', -6)
+            call fft_error_handler('rfft2f', -6)
             return
         end if
         !
@@ -10451,7 +10452,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier=20
-            call xerfft('rfft2f',-5)
+            call fft_error_handler('rfft2f',-5)
             return
         end if
 
@@ -10493,7 +10494,7 @@ contains
 
             if (local_error_flag /= 0) then
                 ier=20
-                call xerfft('rfft2f',-5)
+                call fft_error_handler('rfft2f',-5)
                 return
             end if
 
@@ -10517,7 +10518,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier=20
-            call xerfft('rfft2f',-5)
+            call fft_error_handler('rfft2f',-5)
         end if
 
     end subroutine rfft2f
@@ -10583,7 +10584,7 @@ contains
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
-            call xerfft('rfft2i', 4)
+            call fft_error_handler('rfft2i', 4)
             return
         end if
 
@@ -10591,7 +10592,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('rfft2i',-5)
+            call fft_error_handler('rfft2i',-5)
             return
         end if
 
@@ -10599,7 +10600,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('rfft2i',-5)
+            call fft_error_handler('rfft2i',-5)
             return
         end if
 
@@ -10607,7 +10608,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('rfft2i',-5)
+            call fft_error_handler('rfft2i',-5)
             return
         end if
 
@@ -10807,19 +10808,19 @@ contains
         !
         if (lenr < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('rfftmb ', 6)
+            call fft_error_handler('rfftmb ', 6)
             return
         else if (lensav < n+int(log(real(n, kind=wp))/log(2.0_wp))+4) then
             ier = 2
-            call xerfft('rfftmb ', 8)
+            call fft_error_handler('rfftmb ', 8)
             return
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('rfftmb ', 10)
+            call fft_error_handler('rfftmb ', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('rfftmb ', -1)
+            call fft_error_handler('rfftmb ', -1)
             return
         else
             ier = 0
@@ -10914,19 +10915,19 @@ contains
         !
         if (lenr < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('rfftmf ', 6)
+            call fft_error_handler('rfftmf ', 6)
             return
         else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('rfftmf ', 8)
+            call fft_error_handler('rfftmf ', 8)
             return
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('rfftmf ', 10)
+            call fft_error_handler('rfftmf ', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('rfftmf ', -1)
+            call fft_error_handler('rfftmf ', -1)
             return
         else
             ier = 0
@@ -10984,7 +10985,7 @@ contains
         !
         if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('rfftmi ', 3)
+            call fft_error_handler('rfftmi ', 3)
             return
         else
             ier = 0
@@ -11069,13 +11070,13 @@ contains
 
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sinq1b', 6)
+            call fft_error_handler('sinq1b', 6)
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinq1b', 8)
+            call fft_error_handler('sinq1b', 8)
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('sinq1b', 10)
+            call fft_error_handler('sinq1b', 10)
         else
             ier = 0
         end if
@@ -11093,7 +11094,7 @@ contains
 
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('sinq1b',-5)
+                call fft_error_handler('sinq1b',-5)
                 return
             end if
 
@@ -11176,15 +11177,15 @@ contains
 
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sinq1f', 6)
+            call fft_error_handler('sinq1f', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinq1f', 8)
+            call fft_error_handler('sinq1f', 8)
             return
         else if (lenwrk < n) then
             ier = 3
-            call xerfft('sinq1f', 10)
+            call fft_error_handler('sinq1f', 10)
             return
         else
             ier = 0
@@ -11204,7 +11205,7 @@ contains
             ! check error flag
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('sinq1f',-5)
+                call fft_error_handler('sinq1f',-5)
                 return
             end if
 
@@ -11253,7 +11254,7 @@ contains
 
         if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinq1i', 3)
+            call fft_error_handler('sinq1i', 3)
             return
         else
             ier = 0
@@ -11263,7 +11264,7 @@ contains
 
         if (ier1 /= 0) then
             ier = 20
-            call xerfft('sinq1i',-5)
+            call fft_error_handler('sinq1i',-5)
         end if
 
     end subroutine sinq1i
@@ -11353,16 +11354,16 @@ contains
 
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sinqmb', 6)
+            call fft_error_handler('sinqmb', 6)
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinqmb', 8)
+            call fft_error_handler('sinqmb', 8)
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('sinqmb', 10)
-        else if (.not. xercon(inc,jump,n,lot)) then
+            call fft_error_handler('sinqmb', 10)
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('sinqmb', -1)
+            call fft_error_handler('sinqmb', -1)
         else
             ier = 0
         end if
@@ -11380,7 +11381,7 @@ contains
             ! Check error flag
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('sinqmb',-5)
+                call fft_error_handler('sinqmb',-5)
                 return
             end if
 
@@ -11483,19 +11484,19 @@ contains
 
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sinqmf', 6)
+            call fft_error_handler('sinqmf', 6)
             return
         else if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinqmf', 8)
+            call fft_error_handler('sinqmf', 8)
             return
         else if (lenwrk < lot*n) then
             ier = 3
-            call xerfft('sinqmf', 10)
+            call fft_error_handler('sinqmf', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('sinqmf', -1)
+            call fft_error_handler('sinqmf', -1)
             return
         else
             ier = 0
@@ -11519,7 +11520,7 @@ contains
 
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('sinqmf',-5)
+                call fft_error_handler('sinqmf',-5)
                 return
             end if
 
@@ -11574,7 +11575,7 @@ contains
 
         if (lensav < get_1d_saved_workspace_size(n)) then
             ier = 2
-            call xerfft('sinqmi', 3)
+            call fft_error_handler('sinqmi', 3)
             return
         end if
 
@@ -11583,7 +11584,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('sinqmi',-5)
+            call fft_error_handler('sinqmi',-5)
         end if
 
     end subroutine sinqmi
@@ -11658,16 +11659,16 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sint1b', 6)
+            call fft_error_handler('sint1b', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
-            call xerfft('sint1b', 8)
+            call fft_error_handler('sint1b', 8)
             return
         else if (lenwrk < (2*n+2)) then
             ier = 3
-            call xerfft('sint1b', 10)
+            call fft_error_handler('sint1b', 10)
             return
         else
             ier = 0
@@ -11681,7 +11682,7 @@ contains
         ! Check error flag
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('sint1b',-5)
+            call fft_error_handler('sint1b',-5)
         end if
 
     end subroutine sint1b
@@ -11756,16 +11757,16 @@ contains
         !
         if (lenx < inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sint1f', 6)
+            call fft_error_handler('sint1f', 6)
             return
         else if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('sint1f', 8)
+            call fft_error_handler('sint1f', 8)
             return
         else if (lenwrk < (2*n+2)) then
             ier = 3
-            call xerfft('sint1f', 10)
+            call fft_error_handler('sint1f', 10)
             return
         else
             ier = 0
@@ -11778,7 +11779,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('sint1f',-5)
+            call fft_error_handler('sint1f',-5)
         end if
 
     end subroutine sint1f
@@ -11836,7 +11837,7 @@ contains
         if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('sint1i', 3)
+            call fft_error_handler('sint1i', 3)
             return
         else
             ier = 0
@@ -11862,7 +11863,7 @@ contains
             ! Check error flag
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('sint1i',-5)
+                call fft_error_handler('sint1i',-5)
             end if
         end if
 
@@ -11930,7 +11931,7 @@ contains
 
             if (local_error_flag /= 0) then
                 ier = 20
-                call xerfft('sintb1',-5)
+                call fft_error_handler('sintb1',-5)
                 return
             end if
 
@@ -12017,7 +12018,7 @@ contains
 
             if (ier1 /= 0) then
                 ier = 20
-                call xerfft('sintf1',-5)
+                call fft_error_handler('sintf1',-5)
                 return
             end if
 
@@ -12123,20 +12124,20 @@ contains
 
         if (lenx < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
-            call xerfft('sintmb', 6)
+            call fft_error_handler('sintmb', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             /log(2.0_wp)) +4) then
             ier = 2
-            call xerfft('sintmb', 8)
+            call fft_error_handler('sintmb', 8)
             return
         else if (lenwrk < lot*(2*n+4)) then
             ier = 3
-            call xerfft('sintmb', 10)
+            call fft_error_handler('sintmb', 10)
             return
-        else if (.not. xercon(inc,jump,n,lot)) then
+        else if (.not. fft_consistent(inc,jump,n,lot)) then
             ier = 4
-            call xerfft('sintmb', -1)
+            call fft_error_handler('sintmb', -1)
             return
         else
             ier = 0
@@ -12149,7 +12150,7 @@ contains
 
         if (local_error_flag /= 0) then
             ier = 20
-            call xerfft('sintmb',-5)
+            call fft_error_handler('sintmb',-5)
             return
         end if
 
@@ -12159,65 +12160,66 @@ contains
     subroutine sintmf(lot, jump, n, inc, x, lenx, wsave, lensav, &
         work, lenwrk, ier)
         !
-        !! SINTMF: 64-bit float precision forward sine transform, multiple vectors.
+        !  sintmf: forward sine transform, multiple vectors.
         !
         !  Purpose:
         !
-        !  SINTMF computes the one-dimensional Fourier transform of multiple
-        !  odd sequences within a real array.  This transform is referred to as
-        !  the forward transform or Fourier analysis, transforming the sequences
+        !  Computes the 1-dimensional fourier transform of multiple
+        !  odd sequences within a real array. This transform is referred to as
+        !  the forward transform or fourier analysis, transforming the sequences
         !  from physical to spectral space.
         !
-        !  This transform is normalized since a call to SINTMF followed
-        !  by a call to SINTMB (or vice-versa) reproduces the original
+        !  This transform is normalized since a call to sintmf followed
+        !  by a call to sintmb (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer LOT, the number of sequences to be
+        !  integer lot, the number of sequences to be
         !  transformed within.
         !
-        !  integer JUMP, the increment between the locations,
-        !  in array R, of the first elements of two consecutive sequences.
+        !  integer jump, the increment between the locations,
+        !  in array r, of the first elements of two consecutive sequences.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N+1 is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n+1 is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array R, of two consecutive elements within the same sequence.
+        !  integer inc, the increment between the locations, in
+        !  array r, of two consecutive elements within the same sequence.
         !
-        !  Input/real R(LENR), containing LOT sequences, each
-        !  having length N.  R can have any number of dimensions, but the total
-        !  number of locations must be at least LENR.  On input, R contains the data
+        !  input/real r(lenr), containing lot sequences, each
+        !  having length n.  r can have any number of dimensions, but the total
+        !  number of locations must be at least lenr.  on input, r contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least (lot-1)*jump + inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to SINTMI before the first call to routine SINTMF
-        !  or SINTMB for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to SINTMF and SINTMB with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to sintmi before the first call to routine sintmf
+        !  or sintmb for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to sintmf and sintmb with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least n/2 + n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least LOT*(2*N+4).
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least lot*(2*n+4).
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  4, input parameters INC,JUMP,N,LOT are not consistent;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  4, input parameters inc,jump,n,lot are not consistent;
         !  20, input error returned by lower level routine.
         !
-
-
+        !--------------------------------------------------------------
+        ! Dictionary: Calling arguments
+        !--------------------------------------------------------------
         integer (ip) inc
         integer (ip) lensav
         integer (ip) lenwrk
@@ -12239,20 +12241,20 @@ contains
         !
         if ( lenx < ( lot - 1) * jump + inc * ( n - 1 ) + 1 ) then
             ier = 1
-            call xerfft( 'sintmf', 6 )
+            call fft_error_handler('sintmf', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
-            call xerfft( 'sintmf', 8 )
+            call fft_error_handler('sintmf', 8)
             return
         else if ( lenwrk < lot * ( 2 * n + 4 ) ) then
             ier = 3
-            call xerfft( 'sintmf', 10 )
+            call fft_error_handler('sintmf', 10)
             return
-        else if ( .not. xercon ( inc, jump, n, lot ) ) then
+        else if (.not. fft_consistent(inc, jump, n, lot)) then
             ier = 4
-            call xerfft( 'sintmf', -1 )
+            call fft_error_handler('sintmf', -1)
             return
         else
             ier = 0
@@ -12262,14 +12264,14 @@ contains
         !==> Perform transform
         !
         iw1 = 2 * lot + 1
-        iw2 = iw1 + lot * ( n + 1 )
+        iw2 = iw1 + lot * (n + 1)
 
         call msntf1(lot, jump, n, inc, x, wsave, work, work(iw1), work(iw2), ier1 )
 
         ! Check error flag
         if ( ier1 /= 0 ) then
             ier = 20
-            call xerfft( 'sintmf', -5 )
+            call fft_error_handler('sintmf', -5)
         end if
 
     end subroutine sintmf
@@ -12305,10 +12307,10 @@ contains
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
+        !--------------------------------------------------------------
+        ! Dictionary: Calling arguments
+        !--------------------------------------------------------------
         integer (ip) lensav
-
         real (wp) dt
         integer (ip) ier
         integer (ip) local_error_flag
@@ -12326,7 +12328,7 @@ contains
         if (lensav < n / 2 + n + int(log(real(n, kind=wp)) &
             / log(2.0_wp ) ) + 4 ) then
             ier = 2
-            call xerfft( 'sintmi', 3 )
+            call fft_error_handler('sintmi', 3 )
             return
         else
             ier = 0
@@ -12353,7 +12355,7 @@ contains
 
             if ( local_error_flag /= 0 ) then
                 ier = 20
-                call xerfft( 'sintmi', -5 )
+                call fft_error_handler('sintmi', -5)
             end if
         end if
 
@@ -12362,30 +12364,32 @@ contains
 
     subroutine w2r(ldr, ldw, l, m, r, w)
         !
-        !
         ! Purpose:
         !
         ! Copies a 2D array, allowing for different leading dimensions.
         !
+        !--------------------------------------------------------------
+        ! Dictionary: Calling arguments
+        !--------------------------------------------------------------
         integer (ip), intent (in)     :: ldr
         integer (ip), intent (in)     :: ldw
         integer (ip), intent (in)     :: m
         integer (ip), intent (in)     :: l
         real (wp),    intent (in out) :: r(ldr,m)
         real (wp),    intent (in)     :: w(ldw,m)
+        !--------------------------------------------------------------
 
         r(1:l,:) = w(1:l,:)
 
     end subroutine w2r
 
 
-    function xercon(inc, jump, n, lot) result (return_value)
-        !
-        ! xercon checks inc, jump, n and lot for consistency.
+    pure function fft_consistent(inc, jump, n, lot) result (return_value)
         !
         !  Purpose:
         !
-        !  Positive integers inc, jump, n and lot are "consistent" if,
+        !  Checks integer arguments inc, jump, n and lot for consistency.
+        !  More specifically, inc, jump, n and lot are "consistent" if,
         !  for any values i1 and i2 < n, and j1 and j2 < lot,
         !
         !  i1 * inc + j1 * jump = i2 * inc + j2 * jump
@@ -12396,96 +12400,141 @@ contains
         !  be consistent, or else at least one array element will be
         !  transformed more than once.
         !
-        !  Parameters:
+        !  INPUTS
         !
-        !  integer INC, JUMP, N, LOT, the parameters to check.
+        !  integer inc, jump, n, lot, the parameters to check.
         !
-        !  Output, logical xercon, is TRUE if the parameters are consistent.
+        !  OUTPUT
         !
+        !  logical return_value is .true. if the parameters are consistent and
+        ! .false. otherwise
+        !
+        !--------------------------------------------------------------
+        ! Dictionary: Calling arguments
+        !--------------------------------------------------------------
+        integer (ip), intent (in) :: inc
+        integer (ip), intent (in) :: jump
+        integer (ip), intent (in) :: n
+        integer (ip), intent (in) :: lot
+        logical                   :: return_value
+        !--------------------------------------------------------------
+        ! Dictionary: Calling arguments
+        !--------------------------------------------------------------
+        integer (ip) :: lcm
+        !--------------------------------------------------------------
 
-        integer (ip) i
-        integer (ip) inc
-        integer (ip) j
-        integer (ip) jnew
-        integer (ip) jump
-        integer (ip) lcm
-        integer (ip) lot
-        integer (ip) n
-        logical return_value
-
-        i = inc
-        j = jump
-
-        do while (j /= 0)
-            jnew = mod(i, j)
-            i = j
-            j = jnew
-        end do
         !
-        !=> least common multiple of inc and jump.
+        !==> Set least common multiple of inc and jump.
         !
-        lcm = (inc * jump) / i
+        lcm = get_least_common_multiple(inc, jump)
 
+        !
+        !==> Check consistency
+        !
         if ( lcm <= (n - 1) * inc .and. lcm <= (lot - 1) * jump ) then
             return_value = .false.
         else
             return_value = .true.
         end if
 
-    end function xercon
+    contains
+
+        pure function get_least_common_multiple(a, b) result (return_value)
+            !--------------------------------------------------------------
+            ! Dictionary: Calling arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in) :: a
+            integer (ip), intent (in) :: b
+            integer (ip)              :: return_value
+            !--------------------------------------------------------------
+            ! Dictionary: local variables
+            !--------------------------------------------------------------
+            integer (ip) :: i, j, jnew !! Counters
+            !--------------------------------------------------------------
+
+            i = a
+            j = b
+
+            do while (j /= 0)
+                jnew = mod(i, j)
+                i = j
+                j = jnew
+            end do
+
+            ! Return least common multiple of a and b
+            return_value = (a * b) / i
+
+        end function get_least_common_multiple
+
+    end function fft_consistent
 
 
-    subroutine xerfft(srname, info)
-        !
-        ! XERFFT is an error handler for the FFTPACK routines.
+    subroutine fft_error_handler(subroutine_name, info)
         !
         !  Purpose:
         !
-        !  XERFFT is an error handler for FFTPACK version 5.1 routines.
-        !  It is called by an FFTPACK 5.1 routine if an input parameter has an
-        !  invalid value.  A message is printed and execution stops.
+        !  An error handler for fftpack routines.
+        !
+        !  It is called by an routine if an input parameter has an
+        !  invalid value. A message is printed to standard output
+        !  and execution stops.
         !
         !  Installers may consider modifying the stop statement in order to
         !  call system-specific exception-handling facilities.
         !
         !  Parameters:
         !
-        !  Input, character (len=*) SRNAME, the name of the calling routine.
+        !  INPUT
         !
-        !  integer INFO, an error code.  When a single invalid
+        !  character (len=*) subroutine_name, the name of the calling routine.
+        !
+        !  integer info, an error code.  When a single invalid
         !  parameter in the parameter list of the calling routine has been detected,
-        !  INFO is the position of that parameter.  In the case when an illegal
-        !  combination of LOT, JUMP, N, and INC has been detected, the calling
-        !  subprogram calls XERFFT with INFO = -1.
+        !  info is the position of that parameter.
         !
-
+        !  In the case when an illegal
+        !  combination of lot, jump, n, and inc has been detected, the calling
+        !  subprogram calls this routine with info = -1.
+        !
+        !
+        !--------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !--------------------------------------------------------------
         integer (ip),      intent (in) :: info
-        character (len=*), intent (in) :: srname
+        character (len=*), intent (in) :: subroutine_name
+        !--------------------------------------------------------------
 
         write ( stderr, '(A)' ) ''
         write ( stderr, '(A)' ) ' Object of class (FFTpack): '
-        write ( stderr, '(A)' ) ' xerfft - fatal error'
+        write ( stderr, '(A)' ) ' FATAL ERROR '
 
-        if ( 1 <= info ) then
-            write ( stderr, '(3(A),I3,A)') '  On entry to ',trim(srname),&
-                ' parameter number ', info, ' had an illegal value.'
-        else if ( info == -1 ) then
-            write( stderr, '(4(A))') '  On entry to ',trim(srname), &
-                ' parameters lot, jump, n and inc are inconsistent.'
-        else if ( info == -2 ) then
-            write( stderr, '(4(A))')  '  On ntry to ', trim(srname), &
-                ' parameter l is greater than ldim.'
-        else if ( info == -3 ) then
-            write( stderr, '(4(A))')  '  On entry to ', trim(srname), &
-                ' parameter m is greater than mdim.'
-        else if ( info == -5 ) then
-            write( stderr, '(4(A))')  '  Within ', trim(srname), &
-                ' input error returned by lower level routine.'
-        else if ( info == -6 ) then
-            write( stderr, '(4(A))')  '  On entry to ', trim(srname), &
-                ' parameter ldim is less than 2*(l/2+1).'
-        end if
+        select case (info)
+            case (-1)
+                write( stderr, '(4(A))') '  On entry to ', &
+                    trim(subroutine_name), &
+                    ' parameters lot, jump, n and inc are inconsistent.'
+            case (-2)
+                write( stderr, '(4(A))')  '  On ntry to ', &
+                    trim(subroutine_name), &
+                    ' parameter l is greater than ldim.'
+            case (-3)
+                write( stderr, '(4(A))')  '  On entry to ', &
+                    trim(subroutine_name), &
+                    ' parameter m is greater than mdim.'
+            case (-5)
+                write( stderr, '(4(A))')  '  Within ', &
+                    trim(subroutine_name), &
+                    ' input error returned by lower level routine.'
+            case (-6)
+                write( stderr, '(4(A))')  '  On entry to ', &
+                    trim(subroutine_name), &
+                    ' parameter ldim is less than 2*(l/2+1).'
+            case default
+                write ( stderr, '(3(A),I3,A)') '  On entry to ',&
+                    trim(subroutine_name),&
+                    ' parameter number ', info, ' had an illegal value.'
+        end select
 
-    end subroutine xerfft
+    end subroutine fft_error_handler
 
 end module type_FFTpack
