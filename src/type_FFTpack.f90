@@ -8479,74 +8479,7 @@ contains
 
     end subroutine r1f2kf
 
-    subroutine r1f3kb(ido,l1,cc,in1,ch,in2,wa1,wa2)
 
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(in1,ido,3,l1)
-        real (wp) ch(in2,ido,l1,3)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-        real (wp) wa2(ido)
-        real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
-        real (wp), parameter :: ARG =TWO_PI/3
-        real (wp), parameter :: TAUR = cos(ARG)
-        real (wp), parameter :: TAUI = sin(ARG)
-
-        do k = 1, l1
-            ch(1,1,k,1) = cc(1,1,1,k) + 2.0_wp * cc(1,ido,2,k)
-            ch(1,1,k,2) = cc(1,1,1,k) + ( 2.0_wp * TAUR ) * cc(1,ido,2,k) &
-                - ( 2.0_wp *TAUI)*cc(1,1,3,k)
-            ch(1,1,k,3) = cc(1,1,1,k) + ( 2.0_wp *TAUR)*cc(1,ido,2,k) &
-                + 2.0_wp *TAUI*cc(1,1,3,k)
-        end do
-
-        if (ido /= 1) then
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-                    ch(1,i-1,k,1) = cc(1,i-1,1,k)+(cc(1,i-1,3,k)+cc(1,ic-1,2,k))
-                    ch(1,i,k,1) = cc(1,i,1,k)+(cc(1,i,3,k)-cc(1,ic,2,k))
-
-                    ch(1,i-1,k,2) = wa1(i-2)* &
-                        ((cc(1,i-1,1,k)+TAUR*(cc(1,i-1,3,k)+cc(1,ic-1,2,k)))- &
-                        (TAUI*(cc(1,i,3,k)+cc(1,ic,2,k)))) &
-                        -wa1(i-1)* &
-                        ((cc(1,i,1,k)+TAUR*(cc(1,i,3,k)-cc(1,ic,2,k)))+ &
-                        (TAUI*(cc(1,i-1,3,k)-cc(1,ic-1,2,k))))
-
-                    ch(1,i,k,2) = wa1(i-2)* &
-                        ((cc(1,i,1,k)+TAUR*(cc(1,i,3,k)-cc(1,ic,2,k)))+ &
-                        (TAUI*(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))) &
-                        +wa1(i-1)* &
-                        ((cc(1,i-1,1,k)+TAUR*(cc(1,i-1,3,k)+cc(1,ic-1,2,k)))- &
-                        (TAUI*(cc(1,i,3,k)+cc(1,ic,2,k))))
-
-                    ch(1,i-1,k,3) = wa2(i-2)* &
-                        ((cc(1,i-1,1,k)+TAUR*(cc(1,i-1,3,k)+cc(1,ic-1,2,k)))+ &
-                        (TAUI*(cc(1,i,3,k)+cc(1,ic,2,k)))) &
-                        -wa2(i-1)* &
-                        ((cc(1,i,1,k)+TAUR*(cc(1,i,3,k)-cc(1,ic,2,k)))- &
-                        (TAUI*(cc(1,i-1,3,k)-cc(1,ic-1,2,k))))
-
-                    ch(1,i,k,3) = wa2(i-2)* &
-                        ((cc(1,i,1,k)+TAUR*(cc(1,i,3,k)-cc(1,ic,2,k)))- &
-                        (TAUI*(cc(1,i-1,3,k)-cc(1,ic-1,2,k)))) &
-                        +wa2(i-1)* &
-                        ((cc(1,i-1,1,k)+TAUR*(cc(1,i-1,3,k)+cc(1,ic-1,2,k)))+ &
-                        (TAUI*(cc(1,i,3,k)+cc(1,ic,2,k))))
-                end do
-            end do
-        end if
-
-    end subroutine r1f3kb
 
     subroutine r1f3kf(ido,l1,cc,in1,ch,in2,wa1,wa2)
 
@@ -9894,6 +9827,78 @@ contains
             end if
 
         end subroutine r1f2kb
+
+
+        subroutine r1f3kb(ido,l1,cc,in1,ch,in2,wa1,wa2)
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,3,l1)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,3)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: ARG =TWO_PI/3
+            real (wp), parameter :: TAUR = cos(ARG)
+            real (wp), parameter :: TAUI = sin(ARG)
+            !------------------------------------------------------------------
+
+            ch(1,1,:,1) = cc(1,1,1,:) + 2.0_wp * cc(1,ido,2,:)
+            ch(1,1,:,2) = cc(1,1,1,:) + ( 2.0_wp * TAUR ) * cc(1,ido,2,:) &
+                - ( 2.0_wp *TAUI)*cc(1,1,3,:)
+            ch(1,1,:,3) = cc(1,1,1,:) + ( 2.0_wp *TAUR)*cc(1,ido,2,:) &
+                + 2.0_wp *TAUI*cc(1,1,3,:)
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+                        ch(1,i-1,:,1) = cc(1,i-1,1,:)+(cc(1,i-1,3,:)+cc(1,ic-1,2,:))
+                        ch(1,i,:,1) = cc(1,i,1,:)+(cc(1,i,3,:)-cc(1,ic,2,:))
+
+                        ch(1,i-1,:,2) = wa1(i-2)* &
+                            ((cc(1,i-1,1,:)+TAUR*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)))- &
+                            (TAUI*(cc(1,i,3,:)+cc(1,ic,2,:)))) &
+                            -wa1(i-1)* &
+                            ((cc(1,i,1,:)+TAUR*(cc(1,i,3,:)-cc(1,ic,2,:)))+ &
+                            (TAUI*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))))
+
+                        ch(1,i,:,2) = wa1(i-2)* &
+                            ((cc(1,i,1,:)+TAUR*(cc(1,i,3,:)-cc(1,ic,2,:)))+ &
+                            (TAUI*(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))) &
+                            +wa1(i-1)* &
+                            ((cc(1,i-1,1,:)+TAUR*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)))- &
+                            (TAUI*(cc(1,i,3,:)+cc(1,ic,2,:))))
+
+                        ch(1,i-1,:,3) = wa2(i-2)* &
+                            ((cc(1,i-1,1,:)+TAUR*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)))+ &
+                            (TAUI*(cc(1,i,3,:)+cc(1,ic,2,:)))) &
+                            -wa2(i-1)* &
+                            ((cc(1,i,1,:)+TAUR*(cc(1,i,3,:)-cc(1,ic,2,:)))- &
+                            (TAUI*(cc(1,i-1,3,:)-cc(1,ic-1,2,:))))
+
+                        ch(1,i,:,3) = wa2(i-2)* &
+                            ((cc(1,i,1,:)+TAUR*(cc(1,i,3,:)-cc(1,ic,2,:)))- &
+                            (TAUI*(cc(1,i-1,3,:)-cc(1,ic-1,2,:)))) &
+                            +wa2(i-1)* &
+                            ((cc(1,i-1,1,:)+TAUR*(cc(1,i-1,3,:)+cc(1,ic-1,2,:)))+ &
+                            (TAUI*(cc(1,i,3,:)+cc(1,ic,2,:))))
+                    end do
+            end select
+
+        end subroutine r1f3kb
+
 
     end subroutine rfft1b
 
