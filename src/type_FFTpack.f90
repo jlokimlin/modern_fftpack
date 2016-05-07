@@ -8773,226 +8773,6 @@ contains
     end subroutine r1f5kf
 
 
-
-    subroutine r1fgkb(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
-        ! Dictionary: calling arguments
-        integer (ip), intent (in)     :: ido
-        integer (ip), intent (in)     :: iip
-        integer (ip), intent (in)     :: l1
-        integer (ip), intent (in)     :: idl1
-        real (wp),    intent (in out) :: c1(in1,ido,l1,iip)
-        real (wp),    intent (in out) :: c2(in1,idl1,iip)
-        real (wp),    intent (in out) :: cc(in1,ido,iip,l1)
-        integer (ip), intent (in)     :: in1
-        real (wp),    intent (in out) :: ch(in2,ido,l1,iip)
-        real (wp),    intent (in out) :: ch2(in2,idl1,iip)
-        integer (ip), intent (in)     :: in2
-        real (wp),    intent (in) :: wa(ido)
-        ! Dictionary: local variables
-        real (wp) ai1
-        real (wp) ai2
-        real (wp) ar1
-        real (wp) ar1h
-        real (wp) ar2
-        real (wp) ar2h
-        real (wp) arg
-        real (wp) dc2
-        real (wp) dcp
-        real (wp) ds2
-        real (wp) dsp
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idij
-        integer (ip) idp2
-        integer (ip) ik
-        integer (ip) iipp2
-        integer (ip) iipph
-        integer (ip) is
-        integer (ip) j
-        integer (ip) j2
-        integer (ip) jc
-        integer (ip) k
-        integer (ip) l
-        integer (ip) lc
-        integer (ip) nbd
-        real (wp), parameter :: TWO_PI = acos(-1.0_wp)
-
-        arg = TWO_PI /iip
-        dcp = cos(arg)
-        dsp = sin(arg)
-        idp2 = ido+2
-        nbd = (ido-1)/2
-        iipp2 = iip+2
-        iipph = (iip+1)/2
-
-        if (ido >= l1) then
-            do k=1,l1
-                do i=1,ido
-                    ch(1,i,k,1) = cc(1,i,1,k)
-                end do
-            end do
-        else
-            do i=1,ido
-                do k=1,l1
-                    ch(1,i,k,1) = cc(1,i,1,k)
-                end do
-            end do
-        end if
-
-        do j=2,iipph
-            jc = iipp2-j
-            j2 = j+j
-            do k=1,l1
-                ch(1,1,k,j) = cc(1,ido,j2-2,k)+cc(1,ido,j2-2,k)
-                ch(1,1,k,jc) = cc(1,1,j2-1,k)+cc(1,1,j2-1,k)
-            end do
-        end do
-
-        if (ido /= 1) then
-            if (nbd >= l1) then
-                do j=2,iipph
-                    jc = iipp2-j
-                    do k=1,l1
-                        do i=3,ido,2
-                            ic = idp2-i
-                            ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
-                            ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
-                            ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
-                            ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
-                        end do
-                    end do
-                end do
-            else
-                do j=2,iipph
-                    jc = iipp2-j
-                    do i=3,ido,2
-                        ic = idp2-i
-                        do k=1,l1
-                            ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
-                            ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
-                            ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
-                            ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
-                        end do
-                    end do
-                end do
-            end if
-        end if
-
-        ar1 = 1.0_wp
-        ai1 = 0.0_wp
-
-        do l=2,iipph
-            lc = iipp2-l
-            ar1h = dcp*ar1-dsp*ai1
-            ai1 = dcp*ai1+dsp*ar1
-            ar1 = ar1h
-            do ik=1,idl1
-                c2(1,ik,l) = ch2(1,ik,1)+ar1*ch2(1,ik,2)
-                c2(1,ik,lc) = ai1*ch2(1,ik,iip)
-            end do
-            dc2 = ar1
-            ds2 = ai1
-            ar2 = ar1
-            ai2 = ai1
-            do j=3,iipph
-                jc = iipp2-j
-                ar2h = dc2*ar2-ds2*ai2
-                ai2 = dc2*ai2+ds2*ar2
-                ar2 = ar2h
-                do ik=1,idl1
-                    c2(1,ik,l) = c2(1,ik,l)+ar2*ch2(1,ik,j)
-                    c2(1,ik,lc) = c2(1,ik,lc)+ai2*ch2(1,ik,jc)
-                end do
-            end do
-        end do
-
-        do j=2,iipph
-            do ik=1,idl1
-                ch2(1,ik,1) = ch2(1,ik,1)+ch2(1,ik,j)
-            end do
-        end do
-
-        do j=2,iipph
-            jc = iipp2-j
-            do k=1,l1
-                ch(1,1,k,j) = c1(1,1,k,j)-c1(1,1,k,jc)
-                ch(1,1,k,jc) = c1(1,1,k,j)+c1(1,1,k,jc)
-            end do
-        end do
-
-        if (ido /= 1) then
-            if (nbd >= l1) then
-                do j=2,iipph
-                    jc = iipp2-j
-                    do k=1,l1
-                        do i=3,ido,2
-                            ch(1,i-1,k,j) = c1(1,i-1,k,j)-c1(1,i,k,jc)
-                            ch(1,i-1,k,jc) = c1(1,i-1,k,j)+c1(1,i,k,jc)
-                            ch(1,i,k,j) = c1(1,i,k,j)+c1(1,i-1,k,jc)
-                            ch(1,i,k,jc) = c1(1,i,k,j)-c1(1,i-1,k,jc)
-                        end do
-                    end do
-                end do
-            else
-                do j=2,iipph
-                    jc = iipp2-j
-                    do i=3,ido,2
-                        do k=1,l1
-                            ch(1,i-1,k,j) = c1(1,i-1,k,j)-c1(1,i,k,jc)
-                            ch(1,i-1,k,jc) = c1(1,i-1,k,j)+c1(1,i,k,jc)
-                            ch(1,i,k,j) = c1(1,i,k,j)+c1(1,i-1,k,jc)
-                            ch(1,i,k,jc) = c1(1,i,k,j)-c1(1,i-1,k,jc)
-                        end do
-                    end do
-                end do
-            end if
-        end if
-
-        if (ido /= 1) then
-
-            do ik=1,idl1
-                c2(1,ik,1) = ch2(1,ik,1)
-            end do
-
-            do j=2,iip
-                do k=1,l1
-                    c1(1,1,k,j) = ch(1,1,k,j)
-                end do
-            end do
-
-            if ( l1 >= nbd ) then
-                is = -ido
-                do j=2,iip
-                    is = is+ido
-                    idij = is
-                    do i=3,ido,2
-                        idij = idij+2
-                        do k=1,l1
-                            c1(1,i-1,k,j) = wa(idij-1)*ch(1,i-1,k,j)-wa(idij)*ch(1,i,k,j)
-                            c1(1,i,k,j) = wa(idij-1)*ch(1,i,k,j)+wa(idij)*ch(1,i-1,k,j)
-                        end do
-                    end do
-                end do
-            else
-                is = -ido
-                do j=2,iip
-                    is = is+ido
-                    do k=1,l1
-                        idij = is
-                        do i=3,ido,2
-                            idij = idij+2
-                            c1(1,i-1,k,j) = &
-                                wa(idij-1)*ch(1,i-1,k,j) - wa(idij)*ch(1,i,k,j)
-                            c1(1,i,k,j) = &
-                                wa(idij-1)*ch(1,i,k,j) + wa(idij)*ch(1,i-1,k,j)
-                        end do
-                    end do
-                end do
-            end if
-        end if
-
-    end subroutine r1fgkb
-
     subroutine r1fgkf(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
 
         integer (ip) idl1
@@ -9906,6 +9686,185 @@ contains
 
         end subroutine r1f5kb
 
+
+        subroutine r1fgkb(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: iip
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: idl1
+            real (wp),    intent (in out) :: c1(in1,ido,l1,iip)
+            real (wp),    intent (in out) :: c2(in1,idl1,iip)
+            real (wp),    intent (in out) :: cc(in1,ido,iip,l1)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,iip)
+            real (wp),    intent (in out) :: ch2(in2,idl1,iip)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido)
+            !------------------------------------------------------------------
+            ! Dictionary: local variables
+            !------------------------------------------------------------------
+            real (wp)            :: ai1, ai2, ar1, ar1h, ar2, ar2h, arg
+            real (wp)            :: dc2, dcp, ds2, dsp
+            integer (ip)         :: i, ic, idij, idp2, iipp2, iipph
+            integer (ip)         :: is, j, j2, jc, k, l, lc, nbd
+            real (wp), parameter :: TWO_PI = acos(-1.0_wp)
+            !------------------------------------------------------------------
+
+            arg = TWO_PI /iip
+            dcp = cos(arg)
+            dsp = sin(arg)
+            idp2 = ido+2
+            nbd = (ido-1)/2
+            iipp2 = iip+2
+            iipph = (iip+1)/2
+
+            ch(1,:,:,1) = cc(1,:,1,:)
+
+            do j=2,iipph
+                jc = iipp2-j
+                j2 = 2*j
+                ch(1,1,:,j) = 2.0_wp * cc(1,ido,j2-2,:)
+                ch(1,1,:,jc) = 2.0_wp * cc(1,1,j2-1,:)
+            end do
+
+            if (ido /= 1) then
+                if (nbd >= l1) then
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do k=1,l1
+                            do i=3,ido,2
+                                ic = idp2-i
+                                ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
+                                ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
+                                ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
+                                ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
+                            end do
+                        end do
+                    end do
+                else
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do i=3,ido,2
+                            ic = idp2-i
+                            do k=1,l1
+                                ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
+                                ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
+                                ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
+                                ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
+                            end do
+                        end do
+                    end do
+                end if
+            end if
+
+            ar1 = 1.0_wp
+            ai1 = 0.0_wp
+
+            do l=2,iipph
+                lc = iipp2-l
+                ar1h = dcp*ar1-dsp*ai1
+                ai1 = dcp*ai1+dsp*ar1
+                ar1 = ar1h
+                c2(1,:,l) = ch2(1,:,1)+ar1*ch2(1,:,2)
+                c2(1,:,lc) = ai1*ch2(1,:,iip)
+                dc2 = ar1
+                ds2 = ai1
+                ar2 = ar1
+                ai2 = ai1
+
+                do j=3,iipph
+                    jc = iipp2-j
+                    ar2h = dc2*ar2-ds2*ai2
+                    ai2 = dc2*ai2+ds2*ar2
+                    ar2 = ar2h
+                    c2(1,:,l) = c2(1,:,l)+ar2*ch2(1,:,j)
+                    c2(1,:,lc) = c2(1,:,lc)+ai2*ch2(1,:,jc)
+                end do
+            end do
+
+            do j=2,iipph
+                ch2(1,:,1) = ch2(1,:,1)+ch2(1,:,j)
+            end do
+
+            do j=2,iipph
+                jc = iipp2-j
+                ch(1,1,:,j) = c1(1,1,:,j)-c1(1,1,:,jc)
+                ch(1,1,:,jc) = c1(1,1,:,j)+c1(1,1,:,jc)
+            end do
+
+            if (ido /= 1) then
+                if (nbd >= l1) then
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do i=3,ido,2
+                            ch(1,i-1,:,j) = c1(1,i-1,:,j)-c1(1,i,:,jc)
+                            ch(1,i-1,:,jc) = c1(1,i-1,:,j)+c1(1,i,:,jc)
+                            ch(1,i,:,j) = c1(1,i,:,j)+c1(1,i-1,:,jc)
+                            ch(1,i,:,jc) = c1(1,i,:,j)-c1(1,i-1,:,jc)
+                        end do
+                    end do
+                else
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do i=3,ido,2
+                            ch(1,i-1,:,j) = c1(1,i-1,:,j)-c1(1,i,:,jc)
+                            ch(1,i-1,:,jc) = c1(1,i-1,:,j)+c1(1,i,:,jc)
+                            ch(1,i,:,j) = c1(1,i,:,j)+c1(1,i-1,:,jc)
+                            ch(1,i,:,jc) = c1(1,i,:,j)-c1(1,i-1,:,jc)
+                        end do
+                    end do
+                end if
+            end if
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+
+                    c2(1,:,1) = ch2(1,:,1)
+                    c1(1,1,:,2:iip) = ch(1,1,:,2:iip)
+
+                    if ( l1 >= nbd ) then
+                        is = -ido
+                        do j=2,iip
+                            is = is+ido
+                            idij = is
+                            do i=3,ido,2
+                                idij = idij+2
+                                do k=1,l1
+                                    c1(1,i-1,k,j) = &
+                                        wa(idij-1)*ch(1,i-1,k,j) &
+                                        -wa(idij)*ch(1,i,k,j)
+                                    c1(1,i,k,j) = &
+                                        wa(idij-1)*ch(1,i,k,j) &
+                                        +wa(idij)*ch(1,i-1,k,j)
+                                end do
+                            end do
+                        end do
+                    else
+                        is = -ido
+                        do j=2,iip
+                            is = is+ido
+                            do k=1,l1
+                                idij = is
+                                do i=3,ido,2
+                                    idij = idij+2
+                                    c1(1,i-1,k,j) = &
+                                        wa(idij-1)*ch(1,i-1,k,j) &
+                                        - wa(idij)*ch(1,i,k,j)
+                                    c1(1,i,k,j) = &
+                                        wa(idij-1)*ch(1,i,k,j) &
+                                        + wa(idij)*ch(1,i-1,k,j)
+                                end do
+                            end do
+                        end do
+                    end if
+            end select
+
+        end subroutine r1fgkb
 
 
     end subroutine rfft1b
