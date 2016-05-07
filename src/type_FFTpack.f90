@@ -1,34 +1,3 @@
-!     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-!     *                                                               *
-!     *                  copyright (c) 2011 by UCAR                   *
-!     *                                                               *
-!     *       University Corporation for Atmospheric Research         *
-!     *                                                               *
-!     *                      all rights reserved                      *
-!     *                                                               *
-!     *                     FFTPACK  version 5.1                      *
-!     *                                                               *
-!     *                 A Fortran Package of Fast Fourier             *
-!     *                                                               *
-!     *                Subroutines and Example Programs               *
-!     *                                                               *
-!     *                             by                                *
-!     *                                                               *
-!     *               Paul Swarztrauber and Dick Valent               *
-!     *                                                               *
-!     *                             of                                *
-!     *                                                               *
-!     *         the National Center for Atmospheric Research          *
-!     *                                                               *
-!     *                Boulder, Colorado  (80307)  U.S.A.             *
-!     *                                                               *
-!     *                   which is sponsored by                       *
-!     *                                                               *
-!     *              the National Science Foundation                  *
-!     *                                                               *
-!     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-!
-!
 module type_FFTpack
 
     use, intrinsic :: iso_fortran_env, only: &
@@ -545,7 +514,7 @@ contains
         !
         !==> Perform transform
         !
-        if ( n /= 1 ) then
+        if (n /= 1) then
             !
             !==> Allocate memory
             !
@@ -2116,11 +2085,11 @@ contains
             iw1 => (l-1) + ldim*(m-1)+1, &
             iw2 => get_1d_saved_workspace_size(m), &
             iw3 => get_2d_workspace_size(l, m), &
-            ier1 => local_error_flag &
+            local_error_flag => local_error_flag &
             )
 
             ! Perform transform
-            call cfftmb(l, 1, m, ldim, real_copy, iw1 , wsave(iw), iw2, work, iw3, ier1)
+            call cfftmb(l, 1, m, ldim, real_copy, iw1 , wsave(iw), iw2, work, iw3, local_error_flag)
 
         end associate
 
@@ -2138,11 +2107,11 @@ contains
             iw1 => (m-1)*ldim + l, &
             iw2 => get_1d_saved_workspace_size(l), &
             iw3 => get_2d_workspace_size(l, m), &
-            ier1 => local_error_flag &
+            local_error_flag => local_error_flag &
             )
 
             ! Perform transform
-            call cfftmb(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, ier1)
+            call cfftmb(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, local_error_flag)
 
         end associate
 
@@ -2276,10 +2245,10 @@ contains
             iw1 => (l-1) + ldim*(m-1) +1, &
             iw2 => get_1d_saved_workspace_size(m), &
             iw3 => get_2d_workspace_size(l, m), &
-            ier1 => local_error_flag &
+            local_error_flag => local_error_flag &
             )
 
-            call cfftmf(l, 1, m, ldim, real_copy, iw1, wsave(iw), iw2 , work, iw3, ier1)
+            call cfftmf(l, 1, m, ldim, real_copy, iw1, wsave(iw), iw2 , work, iw3, local_error_flag)
 
         end associate
 
@@ -2297,10 +2266,10 @@ contains
             iw1 => (m-1)*ldim + l, &
             iw2 => get_1d_saved_workspace_size(l), &
             iw3 => 2*m*l, &
-            ier1 => local_error_flag &
+            local_error_flag => local_error_flag &
             )
 
-            call cfftmf(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, ier1)
+            call cfftmf(m, ldim, l, 1, real_copy, iw1, wsave(iw), iw2, work, iw3, local_error_flag)
 
         end associate
 
@@ -2387,7 +2356,7 @@ contains
 
         associate( temp => get_1d_saved_workspace_size(l) )
 
-            call cfftmi(l, wsave(1), temp, local_error_flag )
+            call cfftmi(l, wsave(1), temp, local_error_flag)
 
         end associate
 
@@ -4753,7 +4722,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) lenx
         integer (ip) lj
@@ -4803,10 +4772,10 @@ contains
                 x(m,1) = x1
             end do
         else
-            call mcsqb1(lot,jump,n,inc,x,wsave,work,ier1)
+            call mcsqb1(lot,jump,n,inc,x,wsave,work,local_error_flag)
 
             ! Check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosqmb',-5)
             end if
@@ -4884,7 +4853,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) lenx
         integer (ip) lj
@@ -4933,10 +4902,10 @@ contains
                 x(m,1) = 0.5_wp * x(m,1)+tsqx
             end do
         else
-            call mcsqf1(lot,jump,n,inc,x,wsave,work,ier1)
+            call mcsqf1(lot,jump,n,inc,x,wsave,work,local_error_flag)
 
             ! Check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosqmf',-5)
             end if
@@ -4984,7 +4953,7 @@ contains
         real (wp) dt
         real (wp) fk
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) lnsv
         integer (ip) n
@@ -5009,9 +4978,9 @@ contains
 
         lnsv = get_1d_saved_workspace_size(n) - n
 
-        call rfftmi(n, wsave(n+1), lnsv, ier1)
+        call rfftmi(n, wsave(n+1), lnsv, local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cosqmi',-5)
         end if
@@ -5079,7 +5048,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) lenx
         integer (ip) n
         real (wp) work(lenwrk)
@@ -5110,9 +5079,9 @@ contains
         !
         if (n /= 1) then
 
-            call costb1(n,inc,x,wsave,work,ier1)
+            call costb1(n,inc,x,wsave,work,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cost1b',-5)
             end if
@@ -5428,7 +5397,7 @@ contains
         real (wp) dsum
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lenx
@@ -5492,9 +5461,9 @@ contains
                 lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
                 lnwk = nm1
 
-                call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+                call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-                if (ier1 /= 0) then
+                if (local_error_flag /= 0) then
                     ier = 20
                     call fft_error_handler('costf1',-5)
                     return
@@ -5595,7 +5564,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) iw1
         integer (ip) jump
         integer (ip) lenx
@@ -5629,9 +5598,9 @@ contains
         end if
 
         iw1 = 2*lot+1
-        call mcstb1(lot,jump,n,inc,x,wsave,work,work(iw1),ier1)
+        call mcstb1(lot,jump,n,inc,x,wsave,work,work(iw1),local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('costmb',-5)
         end if
@@ -5710,7 +5679,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) iw1
         integer (ip) jump
         integer (ip) lenx
@@ -5747,10 +5716,10 @@ contains
         !==> Perform transform
         !
         iw1 = 2*lot+1
-        call mcstf1(lot,jump,n,inc,x,wsave,work,work(iw1),ier1)
+        call mcstf1(lot,jump,n,inc,x,wsave,work,work(iw1),local_error_flag)
 
         ! Check error flag
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('costmf',-5)
         end if
@@ -5798,7 +5767,7 @@ contains
         real (wp) dt
         real (wp) fk
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lnsv
@@ -5840,9 +5809,9 @@ contains
 
             lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
 
-            call rfftmi(nm1, wsave(n+1), lnsv, ier1)
+            call rfftmi(nm1, wsave(n+1), lnsv, local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('costmi',-5)
             end if
@@ -5858,7 +5827,7 @@ contains
 
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -5905,9 +5874,9 @@ contains
         lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
         lnwk = lot*n
 
-        call rfftmb(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+        call rfftmb(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('mcsqb1',-5)
             return
@@ -6048,7 +6017,7 @@ contains
         real (wp) fnm1s4
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -6138,9 +6107,9 @@ contains
                 lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp)) + 4
                 lnwk = lot*nm1
 
-                call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+                call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-                if (ier1 /= 0) then
+                if (local_error_flag /= 0) then
                     ier = 20
                     call fft_error_handler('mcstb1',-5)
                     return
@@ -6191,7 +6160,7 @@ contains
         real (wp) dsum(*)
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -6275,9 +6244,9 @@ contains
                 lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp)) + 4
                 lnwk = lot*nm1
 
-                call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,ier1)
+                call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
 
-                if (ier1 /= 0) then
+                if (local_error_flag /= 0) then
                     ier = 20
                     call fft_error_handler('mcstf1',-5)
                     return
@@ -8208,7 +8177,7 @@ contains
         real (wp) fnp1s4
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -8273,9 +8242,9 @@ contains
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
             lnwk = lot*np1
 
-            call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,ier1)
+            call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('msntb1',-5)
                 return
@@ -8324,7 +8293,7 @@ contains
         real (wp) dsum(*)
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) jump
         integer (ip) k
         integer (ip) kc
@@ -8391,10 +8360,10 @@ contains
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
             lnwk = lot*np1
 
-            call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,ier1)
+            call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
 
             ! Check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('msntf1',-5)
                 return
@@ -10213,7 +10182,7 @@ contains
 
         
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         
         integer (ip) l
         integer (ip) ldh
@@ -10270,7 +10239,7 @@ contains
 
         r(1,3:m:2) = -r(1,3:m:2)
 
-        call rfftmb(1,1,m,ldim,r,m*ldim, wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
+        call rfftmb(1,1,m,ldim,r,m*ldim, wsave(lwsav+mwsav+1),mmsav,work,lenwrk,local_error_flag)
 
         ldh = int((l+1)/2)
 
@@ -10283,9 +10252,9 @@ contains
             call r2w(ldim,ldw,l,m,r,work)
 
             call cfftmb(ldh-1,1,m,ldh,work(2),ldh*m, &
-                wsave(lwsav+1),mwsav,r,l*m, ier1)
+                wsave(lwsav+1),mwsav,r,l*m, local_error_flag)
 
-            if (ier1/=0) then
+            if (local_error_flag/=0) then
                 ier=20
                 call fft_error_handler('rfft2b',-5)
                 return
@@ -10305,7 +10274,7 @@ contains
             r(l,3:m:2) = -r(l,3:m:2)
 
             call rfftmb(1,1,m,ldim,r(l,1),m*ldim, &
-                wsave(lwsav+mwsav+1),mmsav,work,lenwrk,ier1)
+                wsave(lwsav+mwsav+1),mmsav,work,lenwrk,local_error_flag)
         end if
         !
         !==> Transform first dimension of array
@@ -10320,11 +10289,11 @@ contains
             arg_2 => l+int(log(real(l, kind=wp) )/log(2.0_wp))+4 &
             )
 
-            call rfftmb(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,ier1)
+            call rfftmb(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,local_error_flag)
 
         end associate
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier=20
             call fft_error_handler('rfft2f',-5)
         end if
@@ -11057,7 +11026,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lenx
@@ -11090,9 +11059,9 @@ contains
             ns2 = n/2
             x(1,2:n:2) = -x(1,2:n:2)
 
-            call cosq1b(n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
+            call cosq1b(n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sinq1b',-5)
                 return
@@ -11164,7 +11133,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lenx
@@ -11200,10 +11169,10 @@ contains
                 x(1,kc+1) = xhold
             end do
 
-            call cosq1f(n,inc,x,lenx,wsave,lensav,work,lenwrk,ier1)
+            call cosq1f(n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
             ! check error flag
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sinq1f',-5)
                 return
@@ -11248,7 +11217,7 @@ contains
 
         integer (ip) lensav
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) n
         real (wp) wsave(lensav)
 
@@ -11260,9 +11229,9 @@ contains
             ier = 0
         end if
 
-        call cosq1i(n, wsave, lensav, ier1)
+        call cosq1i(n, wsave, lensav, local_error_flag)
 
-        if (ier1 /= 0) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('sinq1i',-5)
         end if
@@ -11965,7 +11934,7 @@ contains
         real (wp) dsum
         integer (ip) i
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) k
         integer (ip) kc
         integer (ip) lnsv
@@ -12014,9 +11983,9 @@ contains
             lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
             lnwk = np1
 
-            call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work, lnwk,ier1)
+            call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work, lnwk,local_error_flag)
 
-            if (ier1 /= 0) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sintf1',-5)
                 return
@@ -12225,7 +12194,7 @@ contains
         integer (ip) lenwrk
 
         integer (ip) ier
-        integer (ip) ier1
+        integer (ip) local_error_flag
         integer (ip) iw1
         integer (ip) iw2
         integer (ip) jump
@@ -12266,10 +12235,10 @@ contains
         iw1 = 2 * lot + 1
         iw2 = iw1 + lot * (n + 1)
 
-        call msntf1(lot, jump, n, inc, x, wsave, work, work(iw1), work(iw2), ier1 )
+        call msntf1(lot, jump, n, inc, x, wsave, work, work(iw1), work(iw2), local_error_flag)
 
         ! Check error flag
-        if ( ier1 /= 0 ) then
+        if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('sintmf', -5)
         end if
@@ -12353,7 +12322,7 @@ contains
 
             end associate
 
-            if ( local_error_flag /= 0 ) then
+            if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sintmi', -5)
             end if
