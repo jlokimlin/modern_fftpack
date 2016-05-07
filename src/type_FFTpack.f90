@@ -818,7 +818,7 @@ contains
             real (wp) tr4
             real (wp) wa(ido,3,2)
 
-            if (.not.(1 < ido .or. na == 1)) then
+            if (1 >= ido .and. na /= 1) then
                 do k=1,l1
                     ti1 = cc(2,k,1,1)-cc(2,k,1,3)
                     ti2 = cc(2,k,1,1)+cc(2,k,1,3)
@@ -888,154 +888,161 @@ contains
         end subroutine c1f4kb
 
 
-
         subroutine c1f5kb(ido, l1, na, cc, in1, ch, in2, wa)
+            !------------------------------------------------------------------
+            ! Dictionary: calling arguments
+            !------------------------------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,ido,5)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,5,ido)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,4,2)
+            !------------------------------------------------------------------
+            ! Dictionary: local variables
+            !------------------------------------------------------------------
+            integer (ip)           :: i !! Counter
+            real (wp), allocatable :: chold1(:), chold2(:)
+            real (wp), allocatable :: ci2(:), ci3(:), ci4(:), ci5(:)
+            real (wp), allocatable :: cr2(:), cr3(:), cr4(:), cr5(:)
+            real (wp), allocatable :: di2(:), di3(:), di4(:), di5(:)
+            real (wp), allocatable :: dr2(:), dr3(:), dr4(:), dr5(:)
+            real (wp), allocatable :: ti2(:), ti3(:), ti4(:), ti5(:)
+            real (wp), allocatable :: tr2(:), tr3(:), tr4(:), tr5(:)
+            real (wp), parameter   :: TI11 =  0.9510565162951536_wp
+            real (wp), parameter   :: TI12 =  0.5877852522924731_wp
+            real (wp), parameter   :: TR11 =  0.3090169943749474_wp
+            real (wp), parameter   :: TR12 = -0.8090169943749474_wp
+            !------------------------------------------------------------------
 
-            integer (ip) ido
-            integer (ip) in1
-            integer (ip) in2
-            integer (ip) l1
+            !
+            !==> Allocate memory
+            !
+            allocate( ti2(l1), ti3(l1), ti4(l1), ti5(l1) )
+            allocate( tr2(l1),  tr3(l1), tr4(l1), tr5(l1) )
+            allocate( chold1(l1), chold2(l1) )
+            allocate( cr2(l1), cr3(l1), cr4(l1), cr5(l1) )
+            allocate( ci2(l1), ci3(l1), ci4(l1), ci5(l1) )
 
-            real (wp) cc(in1,l1,ido,5)
-            real (wp) ch(in2,l1,5,ido)
-            real (wp) chold1
-            real (wp) chold2
-            real (wp) ci2
-            real (wp) ci3
-            real (wp) ci4
-            real (wp) ci5
-            real (wp) cr2
-            real (wp) cr3
-            real (wp) cr4
-            real (wp) cr5
-            real (wp) di2
-            real (wp) di3
-            real (wp) di4
-            real (wp) di5
-            real (wp) dr2
-            real (wp) dr3
-            real (wp) dr4
-            real (wp) dr5
-            integer (ip) i
-            integer (ip) k
-            integer (ip) na
-            real (wp) ti2
-            real (wp) ti3
-            real (wp) ti4
-            real (wp) ti5
-            real (wp), parameter :: ti11 =  0.9510565162951536_wp
-            real (wp), parameter :: ti12 =  0.5877852522924731_wp
-            real (wp) tr2
-            real (wp) tr3
-            real (wp) tr4
-            real (wp) tr5
-            real (wp), parameter :: tr11 =  0.3090169943749474_wp
-            real (wp), parameter :: tr12 = -0.8090169943749474_wp
-            real (wp) wa(ido,4,2)
-
-            if (.not.(1 < ido .or. na == 1)) then
-
-                do k=1,l1
-                    ti5 = cc(2,k,1,2)-cc(2,k,1,5)
-                    ti2 = cc(2,k,1,2)+cc(2,k,1,5)
-                    ti4 = cc(2,k,1,3)-cc(2,k,1,4)
-                    ti3 = cc(2,k,1,3)+cc(2,k,1,4)
-                    tr5 = cc(1,k,1,2)-cc(1,k,1,5)
-                    tr2 = cc(1,k,1,2)+cc(1,k,1,5)
-                    tr4 = cc(1,k,1,3)-cc(1,k,1,4)
-                    tr3 = cc(1,k,1,3)+cc(1,k,1,4)
-                    chold1 = cc(1,k,1,1)+tr2+tr3
-                    chold2 = cc(2,k,1,1)+ti2+ti3
-                    cr2 = cc(1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,k,1,1)+tr12*ti2+tr11*ti3
-                    cc(1,k,1,1) = chold1
-                    cc(2,k,1,1) = chold2
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
-                    cc(1,k,1,2) = cr2-ci5
-                    cc(1,k,1,5) = cr2+ci5
-                    cc(2,k,1,2) = ci2+cr5
-                    cc(2,k,1,3) = ci3+cr4
-                    cc(1,k,1,3) = cr3-ci4
-                    cc(1,k,1,4) = cr3+ci4
-                    cc(2,k,1,4) = ci3-cr4
-                    cc(2,k,1,5) = ci2-cr5
-                end do
+            if (1 >= ido .and. na /= 1) then
+                ti5 = cc(2,:,1,2)-cc(2,:,1,5)
+                ti2 = cc(2,:,1,2)+cc(2,:,1,5)
+                ti4 = cc(2,:,1,3)-cc(2,:,1,4)
+                ti3 = cc(2,:,1,3)+cc(2,:,1,4)
+                tr5 = cc(1,:,1,2)-cc(1,:,1,5)
+                tr2 = cc(1,:,1,2)+cc(1,:,1,5)
+                tr4 = cc(1,:,1,3)-cc(1,:,1,4)
+                tr3 = cc(1,:,1,3)+cc(1,:,1,4)
+                chold1 = cc(1,:,1,1)+tr2+tr3
+                chold2 = cc(2,:,1,1)+ti2+ti3
+                cr2 = cc(1,:,1,1)+TR11*tr2+TR12*tr3
+                ci2 = cc(2,:,1,1)+TR11*ti2+TR12*ti3
+                cr3 = cc(1,:,1,1)+TR12*tr2+TR11*tr3
+                ci3 = cc(2,:,1,1)+TR12*ti2+TR11*ti3
+                cc(1,:,1,1) = chold1
+                cc(2,:,1,1) = chold2
+                cr5 = TI11*tr5+TI12*tr4
+                ci5 = TI11*ti5+TI12*ti4
+                cr4 = TI12*tr5-TI11*tr4
+                ci4 = TI12*ti5-TI11*ti4
+                cc(1,:,1,2) = cr2-ci5
+                cc(1,:,1,5) = cr2+ci5
+                cc(2,:,1,2) = ci2+cr5
+                cc(2,:,1,3) = ci3+cr4
+                cc(1,:,1,3) = cr3-ci4
+                cc(1,:,1,4) = cr3+ci4
+                cc(2,:,1,4) = ci3-cr4
+                cc(2,:,1,5) = ci2-cr5
             else
-                do k=1,l1
-                    ti5 = cc(2,k,1,2)-cc(2,k,1,5)
-                    ti2 = cc(2,k,1,2)+cc(2,k,1,5)
-                    ti4 = cc(2,k,1,3)-cc(2,k,1,4)
-                    ti3 = cc(2,k,1,3)+cc(2,k,1,4)
-                    tr5 = cc(1,k,1,2)-cc(1,k,1,5)
-                    tr2 = cc(1,k,1,2)+cc(1,k,1,5)
-                    tr4 = cc(1,k,1,3)-cc(1,k,1,4)
-                    tr3 = cc(1,k,1,3)+cc(1,k,1,4)
-                    ch(1,k,1,1) = cc(1,k,1,1)+tr2+tr3
-                    ch(2,k,1,1) = cc(2,k,1,1)+ti2+ti3
-                    cr2 = cc(1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,k,1,1)+tr12*ti2+tr11*ti3
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
-                    ch(1,k,2,1) = cr2-ci5
-                    ch(1,k,5,1) = cr2+ci5
-                    ch(2,k,2,1) = ci2+cr5
-                    ch(2,k,3,1) = ci3+cr4
-                    ch(1,k,3,1) = cr3-ci4
-                    ch(1,k,4,1) = cr3+ci4
-                    ch(2,k,4,1) = ci3-cr4
-                    ch(2,k,5,1) = ci2-cr5
-                end do
+                ti5 = cc(2,:,1,2)-cc(2,:,1,5)
+                ti2 = cc(2,:,1,2)+cc(2,:,1,5)
+                ti4 = cc(2,:,1,3)-cc(2,:,1,4)
+                ti3 = cc(2,:,1,3)+cc(2,:,1,4)
+                tr5 = cc(1,:,1,2)-cc(1,:,1,5)
+                tr2 = cc(1,:,1,2)+cc(1,:,1,5)
+                tr4 = cc(1,:,1,3)-cc(1,:,1,4)
+                tr3 = cc(1,:,1,3)+cc(1,:,1,4)
+                ch(1,:,1,1) = cc(1,:,1,1)+tr2+tr3
+                ch(2,:,1,1) = cc(2,:,1,1)+ti2+ti3
+                cr2 = cc(1,:,1,1)+TR11*tr2+TR12*tr3
+                ci2 = cc(2,:,1,1)+TR11*ti2+TR12*ti3
+                cr3 = cc(1,:,1,1)+TR12*tr2+TR11*tr3
+                ci3 = cc(2,:,1,1)+TR12*ti2+TR11*ti3
+                cr5 = TI11*tr5+TI12*tr4
+                ci5 = TI11*ti5+TI12*ti4
+                cr4 = TI12*tr5-TI11*tr4
+                ci4 = TI12*ti5-TI11*ti4
+                ch(1,:,2,1) = cr2-ci5
+                ch(1,:,5,1) = cr2+ci5
+                ch(2,:,2,1) = ci2+cr5
+                ch(2,:,3,1) = ci3+cr4
+                ch(1,:,3,1) = cr3-ci4
+                ch(1,:,4,1) = cr3+ci4
+                ch(2,:,4,1) = ci3-cr4
+                ch(2,:,5,1) = ci2-cr5
+
+                !
+                !==> Allocate memory
+                !
+                allocate( di2(l1), di3(l1), di4(l1), di5(l1) )
+                allocate( dr2(l1), dr3(l1), dr4(l1), dr5(l1) )
 
                 do i=2,ido
-                    do k=1,l1
-                        ti5 = cc(2,k,i,2)-cc(2,k,i,5)
-                        ti2 = cc(2,k,i,2)+cc(2,k,i,5)
-                        ti4 = cc(2,k,i,3)-cc(2,k,i,4)
-                        ti3 = cc(2,k,i,3)+cc(2,k,i,4)
-                        tr5 = cc(1,k,i,2)-cc(1,k,i,5)
-                        tr2 = cc(1,k,i,2)+cc(1,k,i,5)
-                        tr4 = cc(1,k,i,3)-cc(1,k,i,4)
-                        tr3 = cc(1,k,i,3)+cc(1,k,i,4)
-                        ch(1,k,1,i) = cc(1,k,i,1)+tr2+tr3
-                        ch(2,k,1,i) = cc(2,k,i,1)+ti2+ti3
-                        cr2 = cc(1,k,i,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,k,i,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,k,i,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,k,i,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
-                        dr3 = cr3-ci4
-                        dr4 = cr3+ci4
-                        di3 = ci3+cr4
-                        di4 = ci3-cr4
-                        dr5 = cr2+ci5
-                        dr2 = cr2-ci5
-                        di5 = ci2-cr5
-                        di2 = ci2+cr5
-                        ch(1,k,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
-                        ch(2,k,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
-                        ch(1,k,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
-                        ch(2,k,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
-                        ch(1,k,4,i) = wa(i,3,1)*dr4-wa(i,3,2)*di4
-                        ch(2,k,4,i) = wa(i,3,1)*di4+wa(i,3,2)*dr4
-                        ch(1,k,5,i) = wa(i,4,1)*dr5-wa(i,4,2)*di5
-                        ch(2,k,5,i) = wa(i,4,1)*di5+wa(i,4,2)*dr5
-                    end do
+                    ti5 = cc(2,:,i,2)-cc(2,:,i,5)
+                    ti2 = cc(2,:,i,2)+cc(2,:,i,5)
+                    ti4 = cc(2,:,i,3)-cc(2,:,i,4)
+                    ti3 = cc(2,:,i,3)+cc(2,:,i,4)
+                    tr5 = cc(1,:,i,2)-cc(1,:,i,5)
+                    tr2 = cc(1,:,i,2)+cc(1,:,i,5)
+                    tr4 = cc(1,:,i,3)-cc(1,:,i,4)
+                    tr3 = cc(1,:,i,3)+cc(1,:,i,4)
+                    ch(1,:,1,i) = cc(1,:,i,1)+tr2+tr3
+                    ch(2,:,1,i) = cc(2,:,i,1)+ti2+ti3
+                    cr2 = cc(1,:,i,1)+TR11*tr2+TR12*tr3
+                    ci2 = cc(2,:,i,1)+TR11*ti2+TR12*ti3
+                    cr3 = cc(1,:,i,1)+TR12*tr2+TR11*tr3
+                    ci3 = cc(2,:,i,1)+TR12*ti2+TR11*ti3
+                    cr5 = TI11*tr5+TI12*tr4
+                    ci5 = TI11*ti5+TI12*ti4
+                    cr4 = TI12*tr5-TI11*tr4
+                    ci4 = TI12*ti5-TI11*ti4
+                    dr3 = cr3-ci4
+                    dr4 = cr3+ci4
+                    di3 = ci3+cr4
+                    di4 = ci3-cr4
+                    dr5 = cr2+ci5
+                    dr2 = cr2-ci5
+                    di5 = ci2-cr5
+                    di2 = ci2+cr5
+                    ch(1,:,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
+                    ch(2,:,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
+                    ch(1,:,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
+                    ch(2,:,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
+                    ch(1,:,4,i) = wa(i,3,1)*dr4-wa(i,3,2)*di4
+                    ch(2,:,4,i) = wa(i,3,1)*di4+wa(i,3,2)*dr4
+                    ch(1,:,5,i) = wa(i,4,1)*dr5-wa(i,4,2)*di5
+                    ch(2,:,5,i) = wa(i,4,1)*di5+wa(i,4,2)*dr5
                 end do
+                !
+                !==> Release memory
+                !
+                deallocate( di2, di3, di4, di5 )
+                deallocate( dr2, dr3, dr4, dr5 )
             end if
 
+            !
+            !==> Release memory
+            !
+            deallocate( ti2, ti3, ti4, ti5 )
+            deallocate( tr2,  tr3, tr4, tr5 )
+            deallocate( chold1, chold2 )
+            deallocate( cr2, cr3, cr4, cr5 )
+            deallocate( ci2, ci3, ci4, ci5 )
+
         end subroutine c1f5kb
+
 
         subroutine c1fgkb(ido, iip, l1, lid, na, cc, cc1, in1, ch, ch1, in2, wa)
 
@@ -1108,7 +1115,7 @@ contains
                 end do
             end do
 
-            if (.not.(1 < ido .or. na == 1)) then
+            if (1 >= ido .and. na /= 1) then
 
                 do j=2,iipph
                     jc = iipp2-j
@@ -1168,6 +1175,8 @@ contains
         end subroutine c1fgkb
 
     end subroutine c1fm1b
+
+
 
     subroutine c1fm1f(n, inc, c, ch, wa, fnf, fac)
 
@@ -1238,19 +1247,19 @@ contains
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
-            integer (ip), intent (in)   :: ido
-            integer (ip), intent (in)   :: l1
-            integer (ip), intent (in)   :: na
-            real (wp),  intent (in out) :: cc(in1,l1,ido,2)
-            integer (ip), intent (in)   :: in1
-            real (wp),  intent (in out) :: ch(in2,l1,2,ido)
-            integer (ip), intent (in)   :: in2
-            real (wp),  intent (in)   :: wa(ido,1,2)
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: na
+            real (wp),    intent (in out) :: cc(in1,l1,ido,2)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,l1,2,ido)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido,1,2)
             !----------------------------------------------------------------------
             ! Dictionary: local variables
             !----------------------------------------------------------------------
-            integer (ip) :: i !! counter
-            real (wp)  :: sn
+            integer (ip)           :: i !! counter
+            real (wp)              :: sn
             real (wp), allocatable :: temp1(:), temp2(:)
             real (wp), allocatable :: ti2(:), tr2(:)
             !----------------------------------------------------------------------
@@ -1325,13 +1334,13 @@ contains
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
-            integer (ip) :: i !! Counter
+            integer (ip)           :: i !! Counter
             real (wp), allocatable :: ci2(:), ci3(:)
             real (wp), allocatable :: cr2(:), cr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
-            real (wp), parameter :: TAUI = -sqrt(3.0)/2!-0.866025403784439_wp
-            real (wp), parameter :: TAUR = -0.5_wp
-            real (wp)  :: sn
+            real (wp), parameter   :: TAUI = -sqrt(3.0)/2!-0.866025403784439_wp
+            real (wp), parameter   :: TAUR = -0.5_wp
+            real (wp)              :: sn
             !----------------------------------------------------------------------
 
             !
@@ -1570,14 +1579,14 @@ contains
             real (wp) ti3
             real (wp) ti4
             real (wp) ti5
-            real (wp), parameter :: ti11 = -0.9510565162951536_wp
-            real (wp), parameter :: ti12 = -0.5877852522924731_wp
+            real (wp), parameter :: TI11 = -0.9510565162951536_wp
+            real (wp), parameter :: TI12 = -0.5877852522924731_wp
             real (wp) tr2
             real (wp) tr3
             real (wp) tr4
             real (wp) tr5
-            real (wp), parameter :: tr11 =  0.3090169943749474_wp
-            real (wp), parameter :: tr12 = -0.8090169943749474_wp
+            real (wp), parameter :: TR11 =  0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -0.8090169943749474_wp
             real (wp) wa(ido,4,2)
 
             if ( 1 >= ido ) then
@@ -1594,16 +1603,16 @@ contains
                         tr3 = cc(1,k,1,3)+cc(1,k,1,4)
                         chold1 = sn*(cc(1,k,1,1)+tr2+tr3)
                         chold2 = sn*(cc(2,k,1,1)+ti2+ti3)
-                        cr2 = cc(1,k,1,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,k,1,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,k,1,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,k,1,1)+tr12*ti2+tr11*ti3
+                        cr2 = cc(1,k,1,1)+TR11*tr2+TR12*tr3
+                        ci2 = cc(2,k,1,1)+TR11*ti2+TR12*ti3
+                        cr3 = cc(1,k,1,1)+TR12*tr2+TR11*tr3
+                        ci3 = cc(2,k,1,1)+TR12*ti2+TR11*ti3
                         cc(1,k,1,1) = chold1
                         cc(2,k,1,1) = chold2
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
+                        cr5 = TI11*tr5+TI12*tr4
+                        ci5 = TI11*ti5+TI12*ti4
+                        cr4 = TI12*tr5-TI11*tr4
+                        ci4 = TI12*ti5-TI11*ti4
                         cc(1,k,1,2) = sn*(cr2-ci5)
                         cc(1,k,1,5) = sn*(cr2+ci5)
                         cc(2,k,1,2) = sn*(ci2+cr5)
@@ -1625,14 +1634,14 @@ contains
                         tr3 = cc(1,k,1,3)+cc(1,k,1,4)
                         ch(1,k,1,1) = sn*(cc(1,k,1,1)+tr2+tr3)
                         ch(2,k,1,1) = sn*(cc(2,k,1,1)+ti2+ti3)
-                        cr2 = cc(1,k,1,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,k,1,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,k,1,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,k,1,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
+                        cr2 = cc(1,k,1,1)+TR11*tr2+TR12*tr3
+                        ci2 = cc(2,k,1,1)+TR11*ti2+TR12*ti3
+                        cr3 = cc(1,k,1,1)+TR12*tr2+TR11*tr3
+                        ci3 = cc(2,k,1,1)+TR12*ti2+TR11*ti3
+                        cr5 = TI11*tr5+TI12*tr4
+                        ci5 = TI11*ti5+TI12*ti4
+                        cr4 = TI12*tr5-TI11*tr4
+                        ci4 = TI12*ti5-TI11*ti4
                         ch(1,k,2,1) = sn*(cr2-ci5)
                         ch(1,k,5,1) = sn*(cr2+ci5)
                         ch(2,k,2,1) = sn*(ci2+cr5)
@@ -1655,14 +1664,14 @@ contains
                     tr3 = cc(1,k,1,3)+cc(1,k,1,4)
                     ch(1,k,1,1) = cc(1,k,1,1)+tr2+tr3
                     ch(2,k,1,1) = cc(2,k,1,1)+ti2+ti3
-                    cr2 = cc(1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,k,1,1)+tr12*ti2+tr11*ti3
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
+                    cr2 = cc(1,k,1,1)+TR11*tr2+TR12*tr3
+                    ci2 = cc(2,k,1,1)+TR11*ti2+TR12*ti3
+                    cr3 = cc(1,k,1,1)+TR12*tr2+TR11*tr3
+                    ci3 = cc(2,k,1,1)+TR12*ti2+TR11*ti3
+                    cr5 = TI11*tr5+TI12*tr4
+                    ci5 = TI11*ti5+TI12*ti4
+                    cr4 = TI12*tr5-TI11*tr4
+                    ci4 = TI12*ti5-TI11*ti4
                     ch(1,k,2,1) = cr2-ci5
                     ch(1,k,5,1) = cr2+ci5
                     ch(2,k,2,1) = ci2+cr5
@@ -1684,14 +1693,14 @@ contains
                         tr3 = cc(1,k,i,3)+cc(1,k,i,4)
                         ch(1,k,1,i) = cc(1,k,i,1)+tr2+tr3
                         ch(2,k,1,i) = cc(2,k,i,1)+ti2+ti3
-                        cr2 = cc(1,k,i,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,k,i,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,k,i,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,k,i,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
+                        cr2 = cc(1,k,i,1)+TR11*tr2+TR12*tr3
+                        ci2 = cc(2,k,i,1)+TR11*ti2+TR12*ti3
+                        cr3 = cc(1,k,i,1)+TR12*tr2+TR11*tr3
+                        ci3 = cc(2,k,i,1)+TR12*ti2+TR11*ti3
+                        cr5 = TI11*tr5+TI12*tr4
+                        ci5 = TI11*ti5+TI12*ti4
+                        cr4 = TI12*tr5-TI11*tr4
+                        ci4 = TI12*ti5-TI11*ti4
                         dr3 = cr3-ci4
                         dr4 = cr3+ci4
                         di3 = ci3+cr4
@@ -1736,7 +1745,6 @@ contains
             integer (ip) iipph
             integer (ip) j
             integer (ip) jc
-            integer (ip) k
             integer (ip) ki
             integer (ip) l
             integer (ip) lc
@@ -1840,25 +1848,17 @@ contains
                     end do
                 end do
                 do i=1,ido
-                    do k=1,l1
-                        cc(1,k,1,i) = ch(1,k,i,1)
-                        cc(2,k,1,i) = ch(2,k,i,1)
-                    end do
+                    cc(1,:,1,i) = ch(1,:,i,1)
+                    cc(2,:,1,i) = ch(2,:,i,1)
                 end do
                 do j=2,iip
-                    do k=1,l1
-                        cc(1,k,j,1) = ch(1,k,1,j)
-                        cc(2,k,j,1) = ch(2,k,1,j)
-                    end do
+                    cc(1,:,j,1) = ch(1,:,1,j)
+                    cc(2,:,j,1) = ch(2,:,1,j)
                 end do
                 do j=2,iip
                     do i=2,ido
-                        do k=1,l1
-                            cc(1,k,j,i) = wa(i,j-1,1)*ch(1,k,i,j) &
-                                +wa(i,j-1,2)*ch(2,k,i,j)
-                            cc(2,k,j,i) = wa(i,j-1,1)*ch(2,k,i,j) &
-                                -wa(i,j-1,2)*ch(1,k,i,j)
-                        end do
+                        cc(1,:,j,i) = wa(i,j-1,1)*ch(1,:,i,j)+wa(i,j-1,2)*ch(2,:,i,j)
+                        cc(2,:,j,i) = wa(i,j-1,1)*ch(2,:,i,j)-wa(i,j-1,2)*ch(1,:,i,j)
                     end do
                 end do
             end if
@@ -2311,51 +2311,56 @@ contains
 
     subroutine cfft2i(l, m, wsave, lensav, ier)
         !
-        !! CFFT2I: initialization for CFFT2B and CFFT2F.
+        ! cfft2i: initialization for cfft2b and cfft2f.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  CFFT2I initializes real array WSAVE for use in its companion
-        !  routines CFFT2F and CFFT2B for computing two-dimensional fast
-        !  Fourier transforms of complex data.  Prime factorizations of L and M,
+        !  cfft2i initializes real array wsave for use in its companion
+        !  routines cfft2f and cfft2b for computing two-dimensional fast
+        !  fourier transforms of complex data.  prime factorizations of l and m,
         !  together with tabulations of the trigonometric functions, are
-        !  computed and stored in array WSAVE.
+        !  computed and stored in array wsave.
         !
-        !  On 10 May 2010, this code was modified by changing the value
-        !  of an index into the WSAVE array.
+        !  on 10 may 2010, this code was modified by changing the value
+        !  of an index into the wsave array.
         !
-        !  Parameters:
-        !
-        !  input, integer L, the number of elements to be transformed
-        !  in the first dimension.  The transform is most efficient when L is a
+        !  INPUT
+        !  integer l, the number of elements to be transformed
+        !  in the first dimension. The transform is most efficient when l is a
         !  product of small primes.
         !
-        !  input, integer M, the number of elements to be transformed
-        !  in the second dimension.  The transform is most efficient when M is a
+        !  integer m, the number of elements to be transformed
+        !  in the second dimension. The transform is most efficient when m is a
         !  product of small primes.
         !
-        !  input, integer LENSAV, the dimension of the WSAVE array.
-        !  LENSAV must be at least 2*(L+M) + INT(LOG(REAL(L)))
-        !  + INT(LOG(REAL(M))) + 8.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least
         !
-        !  Output, real (wp) WSAVE(LENSAV), contains the prime factors of L
-        !  and M, and also certain trigonometric values which will be used in
-        !  routines CFFT2B or CFFT2F.
+        !  2*(l+m) + int(log(real(l)))+ int(log(real(m))) + 8.
         !
-        !  Output, integer (ip) IER, error flag.
+        !  OUTPUT
+        !  real wsave(lensav), contains the prime factors of l
+        !  and m, and also certain trigonometric values which will be used in
+        !  routines cfft2b or cfft2f.
+        !
+        !  integer  ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
-        integer (ip) lensav
-        integer (ip) ier
+        !--------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !--------------------------------------------------------------
+        integer (ip), intent (in)  :: l
+        integer (ip), intent (in)  :: m
+        real (wp),    intent (out) :: wsave(lensav)
+        integer (ip), intent (in)  :: lensav
+        integer (ip), intent (out) :: ier
+        !--------------------------------------------------------------
+        ! Dictionary: local variables
+        !--------------------------------------------------------------
         integer (ip) local_error_flag
-        integer (ip) l
-        integer (ip) m
-        real (wp) wsave(lensav)
-
+        !--------------------------------------------------------------
 
         !
         !==> Check validity of input arguments
@@ -2615,12 +2620,10 @@ contains
         !==> Perform transform
         !
         if (n /= 1) then
-
             iw1 = 2*n+1
-
             call cmfm1f(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
-
         end if
+
     end subroutine cfftmf
 
 
@@ -2704,7 +2707,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if (.not.(1 < ido .or. na == 1)) then
+        if (1 >= ido .and. na /= 1) then
             do k=1,l1
                 do m1=1,m1d,im1
                     chold1 = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
@@ -2864,8 +2867,8 @@ contains
         integer (ip) m2
         integer (ip) m2s
         integer (ip) na
-        real (wp), parameter :: taui =  0.866025403784439_wp
-        real (wp), parameter :: taur = -0.5_wp
+        real (wp), parameter :: TAUI =  0.866025403784439_wp
+        real (wp), parameter :: TAUR = -0.5_wp
         real (wp) ti2
         real (wp) tr2
         real (wp) wa(ido,2,2)
@@ -2873,17 +2876,17 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if (.not.(1 < ido .or. na == 1)) then
+        if (1 >= ido .and. na /= 1) then
             do k=1,l1
                 do m1=1,m1d,im1
                     tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                    cr2 = cc(1,m1,k,1,1)+taur*tr2
+                    cr2 = cc(1,m1,k,1,1)+TAUR*tr2
                     cc(1,m1,k,1,1) = cc(1,m1,k,1,1)+tr2
                     ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                    ci2 = cc(2,m1,k,1,1)+taur*ti2
+                    ci2 = cc(2,m1,k,1,1)+TAUR*ti2
                     cc(2,m1,k,1,1) = cc(2,m1,k,1,1)+ti2
-                    cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                    ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                    cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                    ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
                     cc(1,m1,k,1,2) = cr2-ci3
                     cc(1,m1,k,1,3) = cr2+ci3
                     cc(2,m1,k,1,2) = ci2+cr3
@@ -2896,13 +2899,13 @@ contains
                 do m1=1,m1d,im1
                     m2 = m2+im2
                     tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                    cr2 = cc(1,m1,k,1,1)+taur*tr2
+                    cr2 = cc(1,m1,k,1,1)+TAUR*tr2
                     ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2
                     ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                    ci2 = cc(2,m1,k,1,1)+taur*ti2
+                    ci2 = cc(2,m1,k,1,1)+TAUR*ti2
                     ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2
-                    cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                    ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                    cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                    ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
                     ch(1,m2,k,2,1) = cr2-ci3
                     ch(1,m2,k,3,1) = cr2+ci3
                     ch(2,m2,k,2,1) = ci2+cr3
@@ -2916,13 +2919,13 @@ contains
                     do m1=1,m1d,im1
                         m2 = m2+im2
                         tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,3)
-                        cr2 = cc(1,m1,k,i,1)+taur*tr2
+                        cr2 = cc(1,m1,k,i,1)+TAUR*tr2
                         ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2
                         ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,3)
-                        ci2 = cc(2,m1,k,i,1)+taur*ti2
+                        ci2 = cc(2,m1,k,i,1)+TAUR*ti2
                         ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2
-                        cr3 = taui*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
-                        ci3 = taui*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
+                        cr3 = TAUI*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
+                        ci3 = TAUI*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
                         dr2 = cr2-ci3
                         dr3 = cr2+ci3
                         di2 = ci2+cr3
@@ -3098,7 +3101,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if (.not.(1 < ido .or. na == 1)) then
+        if (1 >= ido .and. na /= 1) then
             do k=1,l1
                 do m1=1,m1d,im1
                     ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
@@ -3374,7 +3377,7 @@ contains
         m1d = (lot-1)*im1+1
         m2s = 1-im2
 
-        if (.not.(1 < ido .or. na == 1)) then
+        if (1 >= ido .and. na /= 1) then
             do k=1,l1
                 do m1=1,m1d,im1
                     ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
@@ -3797,7 +3800,7 @@ contains
             end do
         end do
 
-        if (.not.(1 < ido .or. na == 1)) then
+        if (1 >= ido .and. na /= 1) then
             do j=2,iipph
                 jc = iipp2-j
                 do ki=1,lid
