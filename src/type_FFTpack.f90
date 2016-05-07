@@ -557,9 +557,10 @@ contains
             real_copy(1,:) = real(complex_data)
             real_copy(2,:) = aimag(complex_data)
 
+            ! Set workspace index pointer
             iw1 = 2 * n + 1
 
-            call c1fm1b(n, inc, real_copy, work, wsave, wsave(iw1), wsave(iw1+1:) )
+            call c1fm1b(n, inc, real_copy, work, wsave, wsave(iw1), wsave(iw1+1:))
 
             !
             !==> Make copy: real to complex
@@ -1260,6 +1261,7 @@ contains
         ! Dictionary: local variables
         !------------------------------------------------------------------
         real (wp), allocatable :: real_copy(:,:)
+        integer (ip)           :: iw1
         !------------------------------------------------------------------
 
         !
@@ -1292,11 +1294,10 @@ contains
             real_copy(1,:) = real(c)
             real_copy(2,:) = aimag(c)
 
-            associate( iw1 => 2 * n+1 )
+            ! Set workspace index pointer
+            iw1 = 2 * n+1
 
-                call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1:))
-
-            end associate
+            call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1:))
 
             ! Make copy
             c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
@@ -1467,6 +1468,8 @@ contains
             integer (ip)           :: i !! Counter
             real (wp), allocatable :: ci2(:), ci3(:)
             real (wp), allocatable :: cr2(:), cr3(:)
+            real (wp), allocatable :: di2(:), di3(:)
+            real (wp), allocatable :: dr2(:), dr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
             real (wp), parameter   :: TAUI = -sqrt(3.0)/2!-0.866025403784439_wp
             real (wp), parameter   :: TAUR = -0.5_wp
@@ -1523,6 +1526,12 @@ contains
                 ch(2,:,2,1) = ci2+cr3
                 ch(2,:,3,1) = ci2-cr3
 
+                !
+                !==> Allocate memory
+                !
+                allocate( di2(l1), di3(l1) )
+                allocate( dr2(l1), dr3(l1) )
+
                 do i=2,ido
                     tr2 = cc(1,:,i,2)+cc(1,:,i,3)
                     cr2 = cc(1,:,i,1)+TAUR*tr2
@@ -1532,18 +1541,20 @@ contains
                     ch(2,:,1,i) = cc(2,:,i,1)+ti2
                     cr3 = TAUI*(cc(1,:,i,2)-cc(1,:,i,3))
                     ci3 = TAUI*(cc(2,:,i,2)-cc(2,:,i,3))
-                    associate( &
-                        dr2 => cr2-ci3, &
-                        dr3 => cr2+ci3, &
-                        di2 => ci2+cr3, &
-                        di3 => ci2-cr3 &
-                        )
-                        ch(2,:,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
-                        ch(1,:,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
-                        ch(2,:,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
-                        ch(1,:,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
-                    end associate
+                    dr2 = cr2-ci3
+                    dr3 = cr2+ci3
+                    di2 = ci2+cr3
+                    di3 = ci2-cr3
+                    ch(2,:,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
+                    ch(1,:,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
+                    ch(2,:,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
+                    ch(1,:,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
                 end do
+                !
+                !==> Release memory
+                !
+                deallocate( di2, di3 )
+                deallocate( dr2, dr3 )
             end if
 
             !
