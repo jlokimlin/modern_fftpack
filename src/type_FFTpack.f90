@@ -559,7 +559,7 @@ contains
 
             iw1 = 2 * n + 1
 
-            call c1fm1b(n, inc, real_copy, work, wsave, wsave(iw1), wsave(iw1+1) )
+            call c1fm1b(n, inc, real_copy, work, wsave, wsave(iw1), wsave(iw1+1:) )
 
             !
             !==> Make copy: real to complex
@@ -580,11 +580,11 @@ contains
             !----------------------------------------------------------------------
             integer (ip), intent (in)     :: n
             integer (ip), intent (in)     :: inc
-            real (wp),    intent (in out) :: c(2, *)
-            real (wp),    intent (in out) :: ch(*)
+            real (wp),    intent (in out) :: c(:, :)
+            real (wp),    intent (out)    :: ch(:)
             real (wp),    intent (in out) :: wa(*)
             real (wp),    intent (in out) :: fnf
-            real (wp),    intent (in out) :: fac(*)
+            real (wp),    intent (in out) :: fac(:)
             !----------------------------------------------------------------------
             ! Dictionary: calling arguments
             !----------------------------------------------------------------------
