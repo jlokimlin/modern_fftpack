@@ -20,8 +20,7 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 ```fortran
 
     use, intrinsic :: iso_fortran_env, only: &
-        wp => REAL64, &
-        ip => INT32
+        wp => REAL64
     
     use type_FFTpack, only: &
         FFTpack
