@@ -10,6 +10,7 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 * Potentially large automatic arrays are replaced with **allocatable** arrays for heap access. 
 * Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the fttpack library, and as a demonstration that you can correctly produce the executables. 
 * Ideally, **type**(FFTpack)'s functionality and usage will evolve into something similar to scipy.fftpack
+* For legacy support, all the original procedural solvers' signatures (calling arguments) remain unchanged. That is, call by keyword with older FFTPACK5.1 codes is safe. 
 
 
 -----------------------------------------------------------------------------
