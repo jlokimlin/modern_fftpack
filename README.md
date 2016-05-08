@@ -29,7 +29,7 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
     ! Explicit typing only
     implicit none
     
-    type (FFTpack)  	         :: foo
+    type (FFTpack)  	      :: foo
     complex (wp), allocatable :: my_data(:)
     
     
