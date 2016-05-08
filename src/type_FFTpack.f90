@@ -223,8 +223,8 @@ contains
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
         !------------------------------------------------------------------
-        integer (ip),           intent (in) :: n
-        real (wp), allocatable              :: return_value(:)
+        integer (ip), intent (in) :: n
+        real (wp), allocatable    :: return_value(:)
         !------------------------------------------------------------------
         ! Dictionary: local variables
         !------------------------------------------------------------------
@@ -2389,69 +2389,67 @@ contains
     subroutine cfftmb(lot, jump, n, inc, c, lenc, wsave, lensav, work, &
         lenwrk, ier)
         !
-        !! CFFTMB: complex 64-bit precision backward FFT, 1D, multiple vectors.
+        ! cfftmb: complex 64-bit precision backward fft, 1d, multiple vectors.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  CFFTMB computes the one-dimensional Fourier transform of multiple
-        !  periodic sequences within a complex array.  This transform is referred
-        !  to as the backward transform or Fourier synthesis, transforming the
-        !  sequences from spectral to physical space.  This transform is
-        !  normalized since a call to CFFTMF followed by a call to CFFTMB (or
+        !  cfftmb computes the one-dimensional fourier transform of multiple
+        !  periodic sequences within a complex array.  this transform is referred
+        !  to as the backward transform or fourier synthesis, transforming the
+        !  sequences from spectral to physical space.  this transform is
+        !  normalized since a call to cfftmf followed by a call to cfftmb (or
         !  vice-versa) reproduces the original array within roundoff error.
         !
-        !  The parameters INC, JUMP, N and LOT are consistent if equality
-        !  I1*INC + J1*JUMP = I2*INC + J2*JUMP for I1,I2 < N and J1,J2 < LOT
-        !  implies I1=I2 and J1=J2.  For multiple FFTs to execute correctly,
-        !  input variables INC, JUMP, N and LOT must be consistent, otherwise
+        !  the parameters inc, jump, n and lot are consistent if equality
+        !  i1*inc + j1*jump = i2*inc + j2*jump for i1,i2 < n and j1,j2 < lot
+        !  implies i1=i2 and j1=j2.  for multiple ffts to execute correctly,
+        !  input variables inc, jump, n and lot must be consistent, otherwise
         !  at least one array element mistakenly is transformed more than once.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer LOT, the number of sequences to be transformed
-        !  within array C.
+        !  integer lot, the number of sequences to be transformed
+        !  within array c.
         !
-        !  integer JUMP, the increment between the locations, in
-        !  array C, of the first elements of two consecutive sequences to be
+        !  integer jump, the increment between the locations, in
+        !  array c, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array C, of two consecutive elements within the same sequence to be
+        !  integer inc, the increment between the locations, in
+        !  array c, of two consecutive elements within the same sequence to be
         !  transformed.
         !
-        !  Input/output, complex (wp) C(LENC), an array containing LOT
-        !  sequences, each having length N, to be transformed.  C can have any
+        !  input/output, complex (wp) c(lenc), an array containing lot
+        !  sequences, each having length n, to be transformed.  c can have any
         !  number of dimensions, but the total number of locations must be at least
-        !  LENC.  On output, C contains the transformed sequences.
+        !  lenc.  on output, c contains the transformed sequences.
         !
-        !  integer LENC, the dimension of the C array.
-        !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
+        !  integer lenc, the dimension of the c array.
+        !  lenc must be at least (lot-1)*jump + inc*(n-1) + 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to CFFTMI before the first call to routine CFFTMF
-        !  or CFFTMB for a given transform length N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cfftmi before the first call to routine cfftmf
+        !  or cfftmb for a given transform length n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*LOT*N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*lot*n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit
-        !  1, input parameter LENC not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  4, input parameters INC, JUMP, N, LOT are not consistent.
+        !  1, input parameter lenc not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  4, input parameters inc, jump, n, lot are not consistent.
         !
-
-
         integer (ip) lenc
         integer (ip) lensav
         integer (ip) lenwrk
@@ -2488,6 +2486,8 @@ contains
         !==> Perform transform
         !
         if (n /= 1) then
+
+            ! Set workspace pointer
             iw1 = 2*n+1
 
             call cmfm1b(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
@@ -2501,65 +2501,65 @@ contains
     subroutine cfftmf(lot, jump, n, inc, c, lenc, wsave, lensav, work, &
         lenwrk, ier)
         !
-        !! CFFTMF: complex 64-bit precision forward FFT, 1D, multiple vectors.
+        ! cfftmf: complex 64-bit precision forward fft, 1d, multiple vectors.
         !
         !  Purpose:
         !
-        !  CFFTMF computes the one-dimensional Fourier transform of multiple
-        !  periodic sequences within a complex array. This transform is referred
-        !  to as the forward transform or Fourier analysis, transforming the
-        !  sequences from physical to spectral space. This transform is
-        !  normalized since a call to CFFTMF followed by a call to CFFTMB
+        !  cfftmf computes the one-dimensional fourier transform of multiple
+        !  periodic sequences within a complex array. this transform is referred
+        !  to as the forward transform or fourier analysis, transforming the
+        !  sequences from physical to spectral space. this transform is
+        !  normalized since a call to cfftmf followed by a call to cfftmb
         !  (or vice-versa) reproduces the original array within roundoff error.
         !
-        !  The parameters integers INC, JUMP, N and LOT are consistent if equality
-        !  I1*INC + J1*JUMP = I2*INC + J2*JUMP for I1,I2 < N and J1,J2 < LOT
-        !  implies I1=I2 and J1=J2. For multiple FFTs to execute correctly,
-        !  input variables INC, JUMP, N and LOT must be consistent, otherwise
+        !  the parameters integers inc, jump, n and lot are consistent if equality
+        !  i1*inc + j1*jump = i2*inc + j2*jump for i1,i2 < n and j1,j2 < lot
+        !  implies i1=i2 and j1=j2. for multiple ffts to execute correctly,
+        !  input variables inc, jump, n and lot must be consistent, otherwise
         !  at least one array element mistakenly is transformed more than once.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer LOT, the number of sequences to be
-        !  transformed within array C.
+        !  integer lot, the number of sequences to be
+        !  transformed within array c.
         !
-        !  integer JUMP, the increment between the locations,
-        !  in array C, of the first elements of two consecutive sequences to be
+        !  integer jump, the increment between the locations,
+        !  in array c, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array C, of two consecutive elements within the same sequence to be
+        !  integer inc, the increment between the locations, in
+        !  array c, of two consecutive elements within the same sequence to be
         !  transformed.
         !
-        !  Input/output, complex (wp) C(LENC), array containing LOT sequences,
-        !  each having length N, to be transformed.  C can have any number of
-        !  dimensions, but the total number of locations must be at least LENC.
+        !  input/output, complex (wp) c(lenc), array containing lot sequences,
+        !  each having length n, to be transformed.  c can have any number of
+        !  dimensions, but the total number of locations must be at least lenc.
         !
-        !  integer LENC, the dimension of the C array.
-        !  LENC must be at least (LOT-1)*JUMP + INC*(N-1) + 1.
+        !  integer lenc, the dimension of the c array.
+        !  lenc must be at least (lot-1)*jump + inc*(n-1) + 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to CFFTMI before the first call to routine CFFTMF
-        !  or CFFTMB for a given transform length N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cfftmi before the first call to routine cfftmf
+        !  or cfftmb for a given transform length n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*LOT*N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*lot*n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0 successful exit;
-        !  1 input parameter LENC not big enough;
-        !  2 input parameter LENSAV not big enough;
-        !  3 input parameter LENWRK not big enough;
-        !  4 input parameters INC, JUMP, N, LOT are not consistent.
+        !  1 input parameter lenc not big enough;
+        !  2 input parameter lensav not big enough;
+        !  3 input parameter lenwrk not big enough;
+        !  4 input parameters inc, jump, n, lot are not consistent.
         !
 
 
@@ -2600,6 +2600,8 @@ contains
         !==> Perform transform
         !
         if (n /= 1) then
+
+            ! Set workspace index pointer
             iw1 = 2*n+1
             call cmfm1f(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
         end if
@@ -2611,30 +2613,30 @@ contains
 
 
         !
-        !! CFFTMI: initialization for CFFTMB and CFFTMF.
+        !! cfftmi: initialization for cfftmb and cfftmf.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  CFFTMI initializes array wsave for use in its companion routines
-        !  CFFTMB and CFFTMF.  CFFTMI must be called before the first call
-        !  to CFFTMB or CFFTMF, and after whenever the value of integer N changes.
+        !  cfftmi initializes array wsave for use in its companion routines
+        !  cfftmb and cfftmf.  cfftmi must be called before the first call
+        !  to cfftmb or cfftmf, and after whenever the value of integer n changes.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  real wsave(LENSAV), containing the prime factors
-        !  of N and also containing certain trigonometric values which will be used in
-        !  routines CFFTMB or CFFTMF.
+        !  real wsave(lensav), containing the prime factors
+        !  of n and also containing certain trigonometric values which will be used in
+        !  routines cfftmb or cfftmf.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough.
+        !  2, input parameter lensav not big enough.
         !
 
 
@@ -4221,56 +4223,52 @@ contains
 
     subroutine cosq1b(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
         !
-        ! Purpose:
-        !
-        ! COSQ1B: 64-bit float precision backward cosine quarter wave transform, 1D.
+        ! cosq1b: 64-bit float precision backward cosine quarter wave transform, 1d.
         !
         !  Purpose:
         !
-        !  COSQ1B computes the one-dimensional Fourier transform of a sequence
-        !  which is a cosine series with odd wave numbers.  This transform is
-        !  referred to as the backward transform or Fourier synthesis, transforming
+        !  cosq1b computes the one-dimensional fourier transform of a sequence
+        !  which is a cosine series with odd wave numbers.  this transform is
+        !  referred to as the backward transform or fourier synthesis, transforming
         !  the sequence from spectral to physical space.
         !
-        !  This transform is normalized since a call to COSQ1B followed
-        !  by a call to COSQ1F (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to cosq1b followed
+        !  by a call to cosq1f (or vice-versa) reproduces the original
         !  array  within roundoff error.
         !
-        !  integer N, the number of elements to be transformed
-        !  in the sequence.  The transform is most efficient when N is a
+        !  integer n, the number of elements to be transformed
+        !  in the sequence.  the transform is most efficient when n is a
         !  product of small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR); on input, containing the sequence
+        !  input/real r(lenr); on input, containing the sequence
         !  to be transformed, and on output, containing the transformed sequence.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COSQ1I before the first call to routine COSQ1F
-        !  or COSQ1B for a given transform length N.  wsave's contents may be
-        !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cosq1i before the first call to routine cosq1f
+        !  or cosq1b for a given transform length n.  wsave's contents may be
+        !  re-used for subsequent calls to cosq1f and cosq1b with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
         integer (ip) inc
         integer (ip) lensav
         integer (ip) lenwrk
@@ -4327,56 +4325,54 @@ contains
 
     subroutine cosq1f(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
         !
-        !! COSQ1F: 64-bit float precision forward cosine quarter wave transform, 1D.
+        ! cosq1f: 64-bit float precision forward cosine quarter wave transform, 1d.
         !
         !  Purpose:
         !
-        !  COSQ1F computes the one-dimensional Fourier transform of a sequence
-        !  which is a cosine series with odd wave numbers.  This transform is
-        !  referred to as the forward transform or Fourier analysis, transforming
+        !  cosq1f computes the one-dimensional fourier transform of a sequence
+        !  which is a cosine series with odd wave numbers.  this transform is
+        !  referred to as the forward transform or fourier analysis, transforming
         !  the sequence from physical to spectral space.
         !
-        !  This transform is normalized since a call to COSQ1F followed
-        !  by a call to COSQ1B (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to cosq1f followed
+        !  by a call to cosq1b (or vice-versa) reproduces the original
         !  array  within roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the number of elements to be transformed
-        !  in the sequence.  The transform is most efficient when N is a
+        !  integer n, the number of elements to be transformed
+        !  in the sequence.  the transform is most efficient when n is a
         !  product of small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR); on input, containing the sequence
+        !  input/real r(lenr); on input, containing the sequence
         !  to be transformed, and on output, containing the transformed sequence.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COSQ1I before the first call to routine COSQ1F
-        !  or COSQ1B for a given transform length N.  wsave's contents may be
-        !  re-used for subsequent calls to COSQ1F and COSQ1B with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cosq1i before the first call to routine cosq1f
+        !  or cosq1b for a given transform length n.  wsave's contents may be
+        !  re-used for subsequent calls to cosq1f and cosq1b with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
         integer (ip) inc
         integer (ip) lensav
         integer (ip) lenwrk
@@ -4435,41 +4431,36 @@ contains
 
 
     subroutine cosq1i(n, wsave, lensav, ier)
-
-
         !
-        !! COSQ1I: initialization for COSQ1B and COSQ1F.
+        ! cosq1i: initialization for cosq1b and cosq1f.
         !
         !  Purpose:
         !
-        !  COSQ1I initializes array wsave for use in its companion routines
-        !  COSQ1F and COSQ1B.  The prime factorization of N together with a
+        !  cosq1i initializes array wsave for use in its companion routines
+        !  cosq1f and cosq1b.  the prime factorization of n together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  Separate wsave arrays are required for different
-        !  values of N.
+        !  in array wsave.  separate wsave arrays are required for different
+        !  values of n.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N is a product
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n is a product
         !  of small primes.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  real wsave(LENSAV), containing the prime factors of N
+        !  real wsave(lensav), containing the prime factors of n
         !  and also containing certain trigonometric values which will be used
-        !  in routines COSQ1B or COSQ1F.
+        !  in routines cosq1b or cosq1f.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
         integer (ip) lensav
-
         real (wp) dt
         real (wp) fk
         integer (ip) ier
@@ -4659,60 +4650,60 @@ contains
 
     subroutine cosqmb(lot, jump, n, inc, x, lenx, wsave, lensav, work, lenwrk, &
         ier)
-        ! COSQMB: 64-bit float precision backward cosine quarter wave, multiple vectors.
+        ! cosqmb: 64-bit float precision backward cosine quarter wave, multiple vectors.
         !
         !  Purpose:
         !
-        !  COSQMB computes the one-dimensional Fourier transform of multiple
+        !  cosqmb computes the one-dimensional fourier transform of multiple
         !  sequences, each of which is a cosine series with odd wave numbers.
-        !  This transform is referred to as the backward transform or Fourier
+        !  this transform is referred to as the backward transform or fourier
         !  synthesis, transforming the sequences from spectral to physical space.
         !
-        !  This transform is normalized since a call to COSQMB followed
-        !  by a call to COSQMF (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to cosqmb followed
+        !  by a call to cosqmf (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  integer LOT, the number of sequences to be transformed
-        !  within array R.
+        !  integer lot, the number of sequences to be transformed
+        !  within array r.
         !
-        !  integer JUMP, the increment between the locations,
-        !  in array R, of the first elements of two consecutive sequences to be
+        !  integer jump, the increment between the locations,
+        !  in array r, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the same sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the same sequence.
         !
-        !  Input/real R(LENR), array containing LOT sequences,
-        !  each having length N.  R can have any number of dimensions, but the total
-        !  number of locations must be at least LENR.  On input, R contains the data
+        !  input/real r(lenr), array containing lot sequences,
+        !  each having length n.  r can have any number of dimensions, but the total
+        !  number of locations must be at least lenr.  on input, r contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least (lot-1)*jump + inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COSQMI before the first call to routine COSQMF
-        !  or COSQMB for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to COSQMF and COSQMB with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cosqmi before the first call to routine cosqmf
+        !  or cosqmb for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cosqmf and cosqmb with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least LOT*N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least lot*n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  4, input parameters INC,JUMP,N,LOT are not consistent;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  4, input parameters inc,jump,n,lot are not consistent;
         !  20, input error returned by lower level routine.
         !
 
@@ -4787,63 +4778,63 @@ contains
 
     subroutine cosqmf(lot, jump, n, inc, x, lenx, wsave, lensav, work, &
         lenwrk, ier)
-        ! COSQMF: 64-bit float precision forward cosine quarter wave, multiple vectors.
+        ! cosqmf: 64-bit float precision forward cosine quarter wave, multiple vectors.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COSQMF computes the one-dimensional Fourier transform of multiple
+        !  cosqmf computes the one-dimensional fourier transform of multiple
         !  sequences within a real array, where each of the sequences is a
-        !  cosine series with odd wave numbers.  This transform is referred to
-        !  as the forward transform or Fourier synthesis, transforming the
+        !  cosine series with odd wave numbers.  this transform is referred to
+        !  as the forward transform or fourier synthesis, transforming the
         !  sequences from spectral to physical space.
         !
-        !  This transform is normalized since a call to COSQMF followed
-        !  by a call to COSQMB (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to cosqmf followed
+        !  by a call to cosqmb (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer LOT, the number of sequences to be transformed
-        !  within array R.
+        !  integer lot, the number of sequences to be transformed
+        !  within array r.
         !
-        !  integer JUMP, the increment between the locations, in
-        !  array R, of the first elements of two consecutive sequences to be
+        !  integer jump, the increment between the locations, in
+        !  array r, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the same sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the same sequence.
         !
-        !  Input/real R(LENR), array containing LOT sequences,
-        !  each having length N.  R can have any number of dimensions, but the total
-        !  number of locations must be at least LENR.  On input, R contains the data
+        !  input/real r(lenr), array containing lot sequences,
+        !  each having length n.  r can have any number of dimensions, but the total
+        !  number of locations must be at least lenr.  on input, r contains the data
         !  to be transformed, and on output, the transformed data.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least (lot-1)*jump + inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COSQMI before the first call to routine COSQMF
-        !  or COSQMB for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to COSQMF and COSQMB with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cosqmi before the first call to routine cosqmf
+        !  or cosqmb for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cosqmf and cosqmb with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least LOT*N.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least lot*n.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  4, input parameters INC,JUMP,N,LOT are not consistent;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  4, input parameters inc,jump,n,lot are not consistent;
         !  20, input error returned by lower level routine.
         !
 
@@ -4915,41 +4906,36 @@ contains
 
 
     subroutine cosqmi(n, wsave, lensav, ier)
-
-
         !
-        !! COSQMI: initialization for COSQMB and COSQMF.
+        ! cosqmi: initialization for cosqmb and cosqmf.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COSQMI initializes array wsave for use in its companion routines
-        !  COSQMF and COSQMB.  The prime factorization of N together with a
+        !  cosqmi initializes array wsave for use in its companion routines
+        !  cosqmf and cosqmb.  the prime factorization of n together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  Separate wsave arrays are required for different
-        !  values of N.
+        !  in array wsave.  separate wsave arrays are required for different
+        !  values of n.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  real wsave(LENSAV), containing the prime factors of
-        !  N and also containing certain trigonometric values which will be used
-        !  in routines COSQMB or COSQMF.
+        !  real wsave(lensav), containing the prime factors of
+        !  n and also containing certain trigonometric values which will be used
+        !  in routines cosqmb or cosqmf.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
         integer (ip) lensav
-
         real (wp) dt
         real (wp) fk
         integer (ip) ier
@@ -4989,56 +4975,54 @@ contains
 
 
     subroutine cost1b(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
-
-
         !
-        !! COST1B: 64-bit float precision backward cosine transform, 1D.
+        ! cost1b: 64-bit float precision backward cosine transform, 1d.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COST1B computes the one-dimensional Fourier transform of an even
-        !  sequence within a real array.  This transform is referred to as
-        !  the backward transform or Fourier synthesis, transforming the sequence
+        !  cost1b computes the one-dimensional fourier transform of an even
+        !  sequence within a real array.  this transform is referred to as
+        !  the backward transform or fourier synthesis, transforming the sequence
         !  from spectral to physical space.
         !
-        !  This transform is normalized since a call to COST1B followed
-        !  by a call to COST1F (or vice-versa) reproduces the original array
+        !  this transform is normalized since a call to cost1b followed
+        !  by a call to cost1f (or vice-versa) reproduces the original array
         !  within roundoff error.
         !
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N-1 is a product of
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n-1 is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR), containing the sequence to
+        !  input/real r(lenr), containing the sequence to
         !   be transformed.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COST1I before the first call to routine COST1F
-        !  or COST1B for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to COST1F and COST1B with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cost1i before the first call to routine cost1f
+        !  or cost1b for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cost1f and cost1b with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least N-1.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least n-1.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
 
@@ -5091,55 +5075,53 @@ contains
 
 
     subroutine cost1f(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
-
-
         !
-        !! COST1F: 64-bit float precision forward cosine transform, 1D.
+        ! cost1f: 64-bit float precision forward cosine transform, 1d.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COST1F computes the one-dimensional Fourier transform of an even
-        !  sequence within a real array.  This transform is referred to as the
-        !  forward transform or Fourier analysis, transforming the sequence
+        !  cost1f computes the one-dimensional fourier transform of an even
+        !  sequence within a real array.  this transform is referred to as the
+        !  forward transform or fourier analysis, transforming the sequence
         !  from  physical to spectral space.
         !
-        !  This transform is normalized since a call to COST1F followed by a call
-        !  to COST1B (or vice-versa) reproduces the original array within
+        !  this transform is normalized since a call to cost1f followed by a call
+        !  to cost1b (or vice-versa) reproduces the original array within
         !  roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N-1 is a product of
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n-1 is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations,
-        !  in array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations,
+        !  in array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR), containing the sequence to
+        !  input/real r(lenr), containing the sequence to
         !  be transformed.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COST1I before the first call to routine COST1F
-        !  or COST1B for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to COST1F and COST1B with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to cost1i before the first call to routine cost1f
+        !  or cost1b for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to cost1f and cost1b with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least N-1.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least n-1.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
 
@@ -5194,32 +5176,32 @@ contains
 
     subroutine cost1i(n, wsave, lensav, ier)
         !
-        !! COST1I: initialization for COST1B and COST1F.
+        ! cost1i: initialization for cost1b and cost1f.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COST1I initializes array wsave for use in its companion routines
-        !  COST1F and COST1B.  The prime factorization of N together with a
+        !  cost1i initializes array wsave for use in its companion routines
+        !  cost1f and cost1b.  the prime factorization of n together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  Separate wsave arrays are required for different
-        !  values of N.
+        !  in array wsave.  separate wsave arrays are required for different
+        !  values of n.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N-1 is a product
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n-1 is a product
         !  of small primes.
         !
-        !  integer LENSAV, dimension of wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, dimension of wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  real wsave(LENSAV), containing the prime factors of
-        !  N and also containing certain trigonometric values which will be used in
-        !  routines COST1B or COST1F.
+        !  real wsave(lensav), containing the prime factors of
+        !  n and also containing certain trigonometric values which will be used in
+        !  routines cost1b or cost1f.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
 
@@ -5496,65 +5478,63 @@ contains
 
     subroutine costmb(lot, jump, n, inc, x, lenx, wsave, lensav, work, &
         lenwrk, ier)
-
-
         !
-        !! COSTMB: 64-bit float precision backward cosine transform, multiple vectors.
+        ! costmb: 64-bit float precision backward cosine transform, multiple vectors.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COSTMB computes the one-dimensional Fourier transform of multiple
-        !  even sequences within a real array.  This transform is referred to
-        !  as the backward transform or Fourier synthesis, transforming the
+        !  costmb computes the one-dimensional fourier transform of multiple
+        !  even sequences within a real array.  this transform is referred to
+        !  as the backward transform or fourier synthesis, transforming the
         !  sequences from spectral to physical space.
         !
-        !  This transform is normalized since a call to COSTMB followed
-        !  by a call to COSTMF (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to costmb followed
+        !  by a call to costmf (or vice-versa) reproduces the original
         !  array  within roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer LOT, the number of sequences to be transformed
-        !  within array R.
+        !  integer lot, the number of sequences to be transformed
+        !  within array r.
         !
-        !  integer JUMP, the increment between the locations, in
-        !  array R, of the first elements of two consecutive sequences to be
+        !  integer jump, the increment between the locations, in
+        !  array r, of the first elements of two consecutive sequences to be
         !  transformed.
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N-1 is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n-1 is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array R, of two consecutive elements within the same sequence.
+        !  integer inc, the increment between the locations, in
+        !  array r, of two consecutive elements within the same sequence.
         !
-        !  Input/real R(LENR), array containing LOT sequences,
-        !  each having length N.  On input, the data to be transformed; on output,
-        !  the transormed data.  R can have any number of dimensions, but the total
-        !  number of locations must be at least LENR.
+        !  input/real r(lenr), array containing lot sequences,
+        !  each having length n.  on input, the data to be transformed; on output,
+        !  the transormed data.  r can have any number of dimensions, but the total
+        !  number of locations must be at least lenr.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least (LOT-1)*JUMP + INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least (lot-1)*jump + inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to COSTMI before the first call to routine COSTMF
-        !  or COSTMB for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to COSTMF and COSTMB with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to costmi before the first call to routine costmf
+        !  or costmb for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to costmf and costmb with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least LOT*(N+1).
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least lot*(n+1).
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
-        !  4, input parameters INC,JUMP,N,LOT are not consistent;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
+        !  4, input parameters inc,jump,n,lot are not consistent;
         !  20, input error returned by lower level routine.
         !
 
@@ -5729,41 +5709,36 @@ contains
 
 
     subroutine costmi(n, wsave, lensav, ier)
-
-
         !
-        !! COSTMI: initialization for COSTMB and COSTMF.
+        ! costmi: initialization for costmb and costmf.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  COSTMI initializes array wsave for use in its companion routines
-        !  COSTMF and COSTMB.  The prime factorization of N together with a
+        !  costmi initializes array wsave for use in its companion routines
+        !  costmf and costmb.  the prime factorization of n together with a
         !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  Separate wsave arrays are required for different
-        !  values of N.
+        !  in array wsave.  separate wsave arrays are required for different
+        !  values of n.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of each sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
+        !  integer n, the length of each sequence to be
+        !  transformed.  the transform is most efficient when n is a product of
         !  small primes.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least 2*N + INT(LOG(REAL(N))) + 4
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least 2*n + int(log(real(n))) + 4
         !
-        !  real wsave(LENSAV), containing the prime factors of N
+        !  real wsave(lensav), containing the prime factors of n
         !  and also containing certain trigonometric values which will be used
-        !  in routines COSTMB or COSTMF.
+        !  in routines costmb or costmf.
         !
-        !  integer IER, error flag.
+        !  integer ier, error flag.
         !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
+        !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
         !
-
-
         integer (ip) lensav
-
         real (wp) dt
         real (wp) fk
         integer (ip) ier
@@ -5821,10 +5796,8 @@ contains
 
 
     subroutine mcsqb1(lot,jump,n,inc,x,wsave,work,ier)
-
         integer (ip) inc
         integer (ip) lot
-
         integer (ip) i
         integer (ip) ier
         integer (ip) local_error_flag
@@ -7086,7 +7059,6 @@ contains
                     end do
                 end if
             end if
-
 
             if (ido /= 1) then
                 do ik=1,idl1
@@ -8754,79 +8726,56 @@ contains
 
 
     subroutine r1fgkf(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
-
-        integer (ip) idl1
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) iip
-        integer (ip) l1
-        real (wp) wa(ido)
-
-        real (wp) ai1
-        real (wp) ai2
-        real (wp) ar1
-        real (wp) ar1h
-        real (wp) ar2
-        real (wp) ar2h
-        real (wp) arg
-        real (wp) c1(in1,ido,l1,iip)
-        real (wp) c2(in1,idl1,iip)
-        real (wp) cc(in1,ido,iip,l1)
-        real (wp) ch(in2,ido,l1,iip)
-        real (wp) ch2(in2,idl1,iip)
-        real (wp) dc2
-        real (wp) dcp
-        real (wp) ds2
-        real (wp) dsp
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idij
-        integer (ip) idp2
-        integer (ip) ik
-        integer (ip) iipp2
-        integer (ip) iipph
-        integer (ip) is
-        integer (ip) j
-        integer (ip) j2
-        integer (ip) jc
-        integer (ip) k
-        integer (ip) l
-        integer (ip) lc
-        integer (ip) nbd
+        !-----------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------
+        integer (ip), intent (in)     :: ido
+        integer (ip), intent (in)     :: iip
+        integer (ip), intent (in)     :: l1
+        integer (ip), intent (in)     :: idl1
+        real (wp),    intent (out)    :: cc(in1,ido,iip,l1)
+        real (wp),    intent (in out) :: c1(in1,ido,l1,iip)
+        real (wp),    intent (in out) :: c2(in1,idl1,iip)
+        integer (ip), intent (in)     :: in1
+        real (wp),    intent (in out) :: ch(in2,ido,l1,iip)
+        real (wp),    intent (in out) :: ch2(in2,idl1,iip)
+        integer (ip), intent (in)     :: in2
+        real (wp),    intent (in)     :: wa(ido)
+        !-----------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------
+        real (wp)            :: ai1, ai2, ar1, ar1h
+        real (wp)            :: ar2, ar2h, arg
+        real (wp)            :: dc2, dcp, ds2, dsp
+        integer (ip)         :: i, idij, idp2
+        integer (ip)         :: ipp2, ipph, is
+        integer (ip)         :: j, jc
+        integer (ip)         :: k, l, lc, nbd
         real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+        !-----------------------------------------------
 
         arg = TWO_PI/iip
         dcp = cos(arg)
         dsp = sin(arg)
-        iipph = (iip+1)/2
-        iipp2 = iip+2
+        ipph = (iip+1)/2
+        ipp2 = iip+2
         idp2 = ido+2
         nbd = (ido-1)/2
 
         if (ido /= 1) then
 
-            do ik=1,idl1
-                ch2(1,ik,1) = c2(1,ik,1)
-            end do
+            ch2(1,:,1) = c2(1,:,1)
+            ch(1,1,:,2:iip) = c1(1,1,:,2:iip)
 
-            do j=2,iip
-                do k=1,l1
-                    ch(1,1,k,j) = c1(1,1,k,j)
-                end do
-            end do
-
-            if ( l1 >= nbd ) then
+            if ( nbd <= l1 ) then
                 is = -ido
                 do j=2,iip
                     is = is+ido
                     idij = is
                     do i=3,ido,2
                         idij = idij+2
-                        do k=1,l1
-                            ch(1,i-1,k,j) = wa(idij-1)*c1(1,i-1,k,j)+wa(idij)*c1(1,i,k,j)
-                            ch(1,i,k,j) = wa(idij-1)*c1(1,i,k,j)-wa(idij)*c1(1,i-1,k,j)
-                        end do
+                        ch(1,i-1,:,j) = wa(idij-1)*c1(1,i-1,:,j)+wa(idij)*c1(1,i,:,j)
+                        ch(1,i,:,j) = wa(idij-1)*c1(1,i,:,j)-wa(idij)*c1(1,i-1,:,j)
                     end do
                 end do
             else
@@ -8835,121 +8784,124 @@ contains
                     is = is+ido
                     do k=1,l1
                         idij = is
-                        do i=3,ido,2
-                            idij = idij+2
-                            ch(1,i-1,k,j) = wa(idij-1)*c1(1,i-1,k,j)+wa(idij)*c1(1,i,k,j)
-                            ch(1,i,k,j) = wa(idij-1)*c1(1,i,k,j)-wa(idij)*c1(1,i-1,k,j)
-                        end do
+                        ch(1,2:ido-1:2,k,j) = &
+                            wa(idij+1:ido-2+idij:2)*c1(1,2:ido-1:2,k,j)&
+                            +wa(idij+2:ido-1+idij:2)*c1(1,3:ido:2,k,j)
+                        ch(1,3:ido:2,k,j) = &
+                            wa(idij+1:ido-2+idij:2)*c1(1,3:ido:2,k,j)&
+                            -wa(idij+2:ido-1+idij:2)*c1(1,2:ido-1:2,k,j)
                     end do
                 end do
             end if
 
             if (nbd >= l1) then
-                do j=2,iipph
-                    jc = iipp2-j
-                    do k=1,l1
-                        do i=3,ido,2
-                            c1(1,i-1,k,j) = ch(1,i-1,k,j)+ch(1,i-1,k,jc)
-                            c1(1,i-1,k,jc) = ch(1,i,k,j)-ch(1,i,k,jc)
-                            c1(1,i,k,j) = ch(1,i,k,j)+ch(1,i,k,jc)
-                            c1(1,i,k,jc) = ch(1,i-1,k,jc)-ch(1,i-1,k,j)
-                        end do
-                    end do
+                do j=2,ipph
+                    jc = ipp2-j
+                    c1(1,2:ido-1:2,:, j)=ch(1,2:ido-1:2,:, j)+ch(1,2:ido-1:2,:, jc)
+                    c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
+                    c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
+                    c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
                 end do
             else
-                do j=2,iipph
-                    jc = iipp2-j
-                    do i=3,ido,2
-                        do k=1,l1
-                            c1(1,i-1,k,j) = ch(1,i-1,k,j)+ch(1,i-1,k,jc)
-                            c1(1,i-1,k,jc) = ch(1,i,k,j)-ch(1,i,k,jc)
-                            c1(1,i,k,j) = ch(1,i,k,j)+ch(1,i,k,jc)
-                            c1(1,i,k,jc) = ch(1,i-1,k,jc)-ch(1,i-1,k,j)
-                        end do
-                    end do
+                do j=2,ipph
+                    jc = ipp2-j
+                    c1(1,2:ido-1:2,:, j) = ch(1,2:ido-1:2,:, j) + ch(1,2:ido-1:2,:, jc)
+                    c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
+                    c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
+                    c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
                 end do
             end if
         else
-            do ik=1,idl1
-                c2(1,ik,1) = ch2(1,ik,1)
-            end do
+            c2(1,:,1) = ch2(1,:,1)
         end if
 
-        do j=2,iipph
-            jc = iipp2-j
-            do k=1,l1
-                c1(1,1,k,j) = ch(1,1,k,j)+ch(1,1,k,jc)
-                c1(1,1,k,jc) = ch(1,1,k,jc)-ch(1,1,k,j)
-            end do
+        do j=2,ipph
+            jc = ipp2-j
+            c1(1,1,:,j) = ch(1,1,:,j)+ch(1,1,:,jc)
+            c1(1,1,:,jc) = ch(1,1,:,jc)-ch(1,1,:,j)
         end do
 
         ar1 = 1.0_wp
         ai1 = 0.0_wp
-        do l=2,iipph
-            lc = iipp2-l
+        do l=2,ipph
+            lc = ipp2-l
             ar1h = dcp*ar1-dsp*ai1
             ai1 = dcp*ai1+dsp*ar1
             ar1 = ar1h
-            do ik=1,idl1
-                ch2(1,ik,l) = c2(1,ik,1)+ar1*c2(1,ik,2)
-                ch2(1,ik,lc) = ai1*c2(1,ik,iip)
-            end do
+            ch2(1,:,l) = c2(1,:,1)+ar1*c2(1,:,2)
+            ch2(1,:,lc) = ai1*c2(1,:,iip)
             dc2 = ar1
             ds2 = ai1
             ar2 = ar1
             ai2 = ai1
-            do j=3,iipph
-                jc = iipp2-j
+            do j=3,ipph
+                jc = ipp2-j
                 ar2h = dc2*ar2-ds2*ai2
                 ai2 = dc2*ai2+ds2*ar2
                 ar2 = ar2h
-                do ik=1,idl1
-                    ch2(1,ik,l) = ch2(1,ik,l)+ar2*c2(1,ik,j)
-                    ch2(1,ik,lc) = ch2(1,ik,lc)+ai2*c2(1,ik,jc)
-                end do
+                ch2(1,:,l) = ch2(1,:,l)+ar2*c2(1,:,j)
+                ch2(1,:,lc) = ch2(1,:,lc)+ai2*c2(1,:,jc)
             end do
         end do
 
-        do j=2,iipph
-            do ik=1,idl1
-                ch2(1,ik,1) = ch2(1,ik,1)+c2(1,ik,j)
-            end do
+        do j=2,ipph
+            ch2(1,:,1) = ch2(1,:,1)+c2(1,:,j)
         end do
 
         cc(1,:,1,:) = ch(1,:,:,1)
 
-        do j=2,iipph
-            jc = iipp2-j
-            j2 = 2*j
-            cc(1,ido,j2-2,:) = ch(1,1,:,j)
-            cc(1,1,j2-1,:) = ch(1,1,:,jc)
-        end do
+        cc(1,ido,2:(ipph-1)*2:2,:) = transpose(ch(1,1,:,2:ipph))
+
+        cc(1,1,3:ipph*2-1:2,:) = transpose(ch(1,1,:,ipp2-2:ipp2-ipph:(-1)))
 
         if (ido /= 1) then
             if (nbd >= l1) then
-                do j=2,iipph
-                    jc = iipp2-j
-                    j2 = j+j
-                    do i=3,ido,2
-                        ic = idp2-i
-                        cc(1,i-1,j2-1,:) = ch(1,i-1,:,j)+ch(1,i-1,:,jc)
-                        cc(1,ic-1,j2-2,:) = ch(1,i-1,:,j)-ch(1,i-1,:,jc)
-                        cc(1,i,j2-1,:) = ch(1,i,:,j)+ch(1,i,:,jc)
-                        cc(1,ic,j2-2,:) = ch(1,i,:,jc)-ch(1,i,:,j)
-                    end do
-                end do
+
+                cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
+                    reshape(source = &
+                    ch(1,2:ido-1:2,:,2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                    shape = [(ido -1)/2, ipph-1, l1], &
+                    order = [1, 3, 2])
+
+                cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                    reshape(source = &
+                    ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                    shape = [(ido-1)/2, ipph-1, l1], &
+                    order = [1, 3, 2])
+
+                cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
+                    reshape(source = &
+                    ch(1,3:ido:2,:,2:ipph)+ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                    shape = [(ido-1)/2, ipph-1, l1], &
+                    order = [1, 3, 2])
+
+                cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                    reshape(source = &
+                    ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:, 2:ipph), shape &
+                    = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
             else
-                do j=2,iipph
-                    jc = iipp2-j
-                    j2 = j+j
-                    do i=3,ido,2
-                        ic = idp2-i
-                        cc(1,i-1,j2-1,:) = ch(1,i-1,:,j)+ch(1,i-1,:,jc)
-                        cc(1,ic-1,j2-2,:) = ch(1,i-1,:,j)-ch(1,i-1,:,jc)
-                        cc(1,i,j2-1,:) = ch(1,i,:,j)+ch(1,i,:,jc)
-                        cc(1,ic,j2-2,:) = ch(1,i,:,jc)-ch(1,i,:,j)
-                    end do
-                end do
+                cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
+                reshape(source = &
+                ch(1,2:ido-1:2,:, 2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                shape = [(ido-1)/2, ipph-1, l1], &
+                order = [1, 3, 2])
+
+                cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                reshape(source = &
+                ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                shape = [(ido-1)/2, ipph-1, l1], &
+                    order = [1, 3, 2])
+
+                cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
+                reshape(source = &
+                ch(1,3:ido:2,:, 2:ipph) +ch(1,3:ido:2,:, ipp2-2:ipp2-ipph:(-1)), &
+                    shape = [(ido-1)/2, ipph-1, l1], &
+                    order = [1, 3, 2])
+
+                cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                reshape(source = &
+                ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:,2:ipph), &
+                shape = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
             end if
         end if
 
