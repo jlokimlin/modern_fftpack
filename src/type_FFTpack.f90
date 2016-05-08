@@ -8377,537 +8377,6 @@ contains
     end subroutine msntf1
 
 
-
-
-    subroutine r1f2kf(ido,l1,cc,in1,ch,in2,wa1)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) ch(in2,ido,2,l1)
-        real (wp) cc(in1,ido,l1,2)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-
-        do k=1,l1
-            ch(1,1,1,k) = cc(1,1,k,1)+cc(1,1,k,2)
-            ch(1,ido,2,k) = cc(1,1,k,1)-cc(1,1,k,2)
-        end do
-
-        if (ido < 2) then
-            return
-        else if (ido == 2) then
-            do k=1,l1
-                ch(1,1,2,k) = -cc(1,ido,k,2)
-                ch(1,ido,1,k) = cc(1,ido,k,1)
-            end do
-        else
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-                    ch(1,i,1,k) = cc(1,i,k,1)+(wa1(i-2)*cc(1,i,k,2) &
-                        -wa1(i-1)*cc(1,i-1,k,2))
-                    ch(1,ic,2,k) = (wa1(i-2)*cc(1,i,k,2) &
-                        -wa1(i-1)*cc(1,i-1,k,2))-cc(1,i,k,1)
-                    ch(1,i-1,1,k) = cc(1,i-1,k,1)+(wa1(i-2)*cc(1,i-1,k,2) &
-                        +wa1(i-1)*cc(1,i,k,2))
-                    ch(1,ic-1,2,k) = cc(1,i-1,k,1)-(wa1(i-2)*cc(1,i-1,k,2) &
-                        +wa1(i-1)*cc(1,i,k,2))
-                end do
-            end do
-            if (mod(ido,2) /= 1) then
-                do k=1,l1
-                    ch(1,1,2,k) = -cc(1,ido,k,2)
-                    ch(1,ido,1,k) = cc(1,ido,k,1)
-                end do
-            end if
-        end if
-
-    end subroutine r1f2kf
-
-
-
-    subroutine r1f3kf(ido,l1,cc,in1,ch,in2,wa1,wa2)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(in1,ido,l1,3)
-        real (wp) ch(in2,ido,3,l1)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-        real (wp) wa2(ido)
-        real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
-        real (wp), parameter :: ARG = TWO_PI/3
-        real (wp), parameter :: TAUR = cos(ARG)
-        real (wp), parameter :: TAUI = sin(ARG)
-
-        do k=1,l1
-            ch(1,1,1,k) = cc(1,1,k,1)+(cc(1,1,k,2)+cc(1,1,k,3))
-            ch(1,1,3,k) = TAUI*(cc(1,1,k,3)-cc(1,1,k,2))
-            ch(1,ido,2,k) = cc(1,1,k,1)+TAUR*(cc(1,1,k,2)+cc(1,1,k,3))
-        end do
-
-        if (ido /= 1) then
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-
-                    ch(1,i-1,1,k) = cc(1,i-1,k,1)+((wa1(i-2)*cc(1,i-1,k,2)+ &
-                        wa1(i-1)*cc(1,i,k,2))+(wa2(i-2)*cc(1,i-1,k,3)+wa2(i-1)* &
-                        cc(1,i,k,3)))
-
-                    ch(1,i,1,k) = cc(1,i,k,1)+((wa1(i-2)*cc(1,i,k,2)- &
-                        wa1(i-1)*cc(1,i-1,k,2))+(wa2(i-2)*cc(1,i,k,3)-wa2(i-1)* &
-                        cc(1,i-1,k,3)))
-
-                    ch(1,i-1,3,k) = (cc(1,i-1,k,1)+TAUR*((wa1(i-2)* &
-                        cc(1,i-1,k,2)+wa1(i-1)*cc(1,i,k,2))+(wa2(i-2)* &
-                        cc(1,i-1,k,3)+wa2(i-1)*cc(1,i,k,3))))+(TAUI*((wa1(i-2)* &
-                        cc(1,i,k,2)-wa1(i-1)*cc(1,i-1,k,2))-(wa2(i-2)* &
-                        cc(1,i,k,3)-wa2(i-1)*cc(1,i-1,k,3))))
-
-                    ch(1,ic-1,2,k) = (cc(1,i-1,k,1)+TAUR*((wa1(i-2)* &
-                        cc(1,i-1,k,2)+wa1(i-1)*cc(1,i,k,2))+(wa2(i-2)* &
-                        cc(1,i-1,k,3)+wa2(i-1)*cc(1,i,k,3))))-(TAUI*((wa1(i-2)* &
-                        cc(1,i,k,2)-wa1(i-1)*cc(1,i-1,k,2))-(wa2(i-2)* &
-                        cc(1,i,k,3)-wa2(i-1)*cc(1,i-1,k,3))))
-
-                    ch(1,i,3,k) = (cc(1,i,k,1)+TAUR*((wa1(i-2)*cc(1,i,k,2)- &
-                        wa1(i-1)*cc(1,i-1,k,2))+(wa2(i-2)*cc(1,i,k,3)-wa2(i-1)* &
-                        cc(1,i-1,k,3))))+(TAUI*((wa2(i-2)*cc(1,i-1,k,3)+wa2(i-1)* &
-                        cc(1,i,k,3))-(wa1(i-2)*cc(1,i-1,k,2)+wa1(i-1)* &
-                        cc(1,i,k,2))))
-
-                    ch(1,ic,2,k) = (TAUI*((wa2(i-2)*cc(1,i-1,k,3)+wa2(i-1)* &
-                        cc(1,i,k,3))-(wa1(i-2)*cc(1,i-1,k,2)+wa1(i-1)* &
-                        cc(1,i,k,2))))-(cc(1,i,k,1)+TAUR*((wa1(i-2)*cc(1,i,k,2)- &
-                        wa1(i-1)*cc(1,i-1,k,2))+(wa2(i-2)*cc(1,i,k,3)-wa2(i-1)* &
-                        cc(1,i-1,k,3))))
-                end do
-            end do
-        end if
-
-    end subroutine r1f3kf
-
-
-
-    subroutine r1f4kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(in1,ido,l1,4)
-        real (wp) ch(in2,ido,4,l1)
-        integer (ip) i
-        integer (ip) ic
-        integer (ip) idp2
-        integer (ip) k
-        real (wp) wa1(ido)
-        real (wp) wa2(ido)
-        real (wp) wa3(ido)
-        real (wp), parameter :: HALF_SQRT2=sqrt(2.0_wp)/2
-
-        do k=1,l1
-            ch(1,1,1,k) = (cc(1,1,k,2)+cc(1,1,k,4))+(cc(1,1,k,1)+cc(1,1,k,3))
-            ch(1,ido,4,k) = (cc(1,1,k,1)+cc(1,1,k,3))-(cc(1,1,k,2)+cc(1,1,k,4))
-            ch(1,ido,2,k) = cc(1,1,k,1)-cc(1,1,k,3)
-            ch(1,1,3,k) = cc(1,1,k,4)-cc(1,1,k,2)
-        end do
-
-        if (ido < 2) then
-            return
-        else if (ido == 2) then
-            do k=1,l1
-                ch(1,ido,1,k) = (HALF_SQRT2*(cc(1,ido,k,2)-cc(1,ido,k,4)))+cc(1,ido,k,1)
-                ch(1,ido,3,k) = cc(1,ido,k,1)-(HALF_SQRT2*(cc(1,ido,k,2)-cc(1,ido,k,4)))
-                ch(1,1,2,k) = (-HALF_SQRT2*(cc(1,ido,k,2)+cc(1,ido,k,4)))-cc(1,ido,k,3)
-                ch(1,1,4,k) = (-HALF_SQRT2*(cc(1,ido,k,2)+cc(1,ido,k,4)))+cc(1,ido,k,3)
-            end do
-        else
-            idp2 = ido+2
-            do k=1,l1
-                do i=3,ido,2
-                    ic = idp2-i
-                    ch(1,i-1,1,k) = ((wa1(i-2)*cc(1,i-1,k,2)+wa1(i-1)* &
-                        cc(1,i,k,2))+(wa3(i-2)*cc(1,i-1,k,4)+wa3(i-1)* &
-                        cc(1,i,k,4)))+(cc(1,i-1,k,1)+(wa2(i-2)*cc(1,i-1,k,3)+ &
-                        wa2(i-1)*cc(1,i,k,3)))
-                    ch(1,ic-1,4,k) = (cc(1,i-1,k,1)+(wa2(i-2)*cc(1,i-1,k,3)+ &
-                        wa2(i-1)*cc(1,i,k,3)))-((wa1(i-2)*cc(1,i-1,k,2)+ &
-                        wa1(i-1)*cc(1,i,k,2))+(wa3(i-2)*cc(1,i-1,k,4)+ &
-                        wa3(i-1)*cc(1,i,k,4)))
-                    ch(1,i,1,k) = ((wa1(i-2)*cc(1,i,k,2)-wa1(i-1)* &
-                        cc(1,i-1,k,2))+(wa3(i-2)*cc(1,i,k,4)-wa3(i-1)* &
-                        cc(1,i-1,k,4)))+(cc(1,i,k,1)+(wa2(i-2)*cc(1,i,k,3)- &
-                        wa2(i-1)*cc(1,i-1,k,3)))
-                    ch(1,ic,4,k) = ((wa1(i-2)*cc(1,i,k,2)-wa1(i-1)* &
-                        cc(1,i-1,k,2))+(wa3(i-2)*cc(1,i,k,4)-wa3(i-1)* &
-                        cc(1,i-1,k,4)))-(cc(1,i,k,1)+(wa2(i-2)*cc(1,i,k,3)- &
-                        wa2(i-1)*cc(1,i-1,k,3)))
-                    ch(1,i-1,3,k) = ((wa1(i-2)*cc(1,i,k,2)-wa1(i-1)* &
-                        cc(1,i-1,k,2))-(wa3(i-2)*cc(1,i,k,4)-wa3(i-1)* &
-                        cc(1,i-1,k,4)))+(cc(1,i-1,k,1)-(wa2(i-2)*cc(1,i-1,k,3)+ &
-                        wa2(i-1)*cc(1,i,k,3)))
-                    ch(1,ic-1,2,k) = (cc(1,i-1,k,1)-(wa2(i-2)*cc(1,i-1,k,3)+ &
-                        wa2(i-1)*cc(1,i,k,3)))-((wa1(i-2)*cc(1,i,k,2)-wa1(i-1)* &
-                        cc(1,i-1,k,2))-(wa3(i-2)*cc(1,i,k,4)-wa3(i-1)* &
-                        cc(1,i-1,k,4)))
-                    ch(1,i,3,k) = ((wa3(i-2)*cc(1,i-1,k,4)+wa3(i-1)* &
-                        cc(1,i,k,4))-(wa1(i-2)*cc(1,i-1,k,2)+wa1(i-1)* &
-                        cc(1,i,k,2)))+(cc(1,i,k,1)-(wa2(i-2)*cc(1,i,k,3)- &
-                        wa2(i-1)*cc(1,i-1,k,3)))
-                    ch(1,ic,2,k) = ((wa3(i-2)*cc(1,i-1,k,4)+wa3(i-1)* &
-                        cc(1,i,k,4))-(wa1(i-2)*cc(1,i-1,k,2)+wa1(i-1)* &
-                        cc(1,i,k,2)))-(cc(1,i,k,1)-(wa2(i-2)*cc(1,i,k,3)- &
-                        wa2(i-1)*cc(1,i-1,k,3)))
-                end do
-            end do
-            if (mod(ido,2) /= 1) then
-                do k=1,l1
-                    ch(1,ido,1,k) = (HALF_SQRT2*(cc(1,ido,k,2)-cc(1,ido,k,4)))+cc(1,ido,k,1)
-                    ch(1,ido,3,k) = cc(1,ido,k,1)-(HALF_SQRT2*(cc(1,ido,k,2)-cc(1,ido,k,4)))
-                    ch(1,1,2,k) = (-HALF_SQRT2*(cc(1,ido,k,2)+cc(1,ido,k,4)))-cc(1,ido,k,3)
-                    ch(1,1,4,k) = (-HALF_SQRT2*(cc(1,ido,k,2)+cc(1,ido,k,4)))+cc(1,ido,k,3)
-                end do
-            end if
-        end if
-
-    end subroutine r1f4kf
-
-
-
-    subroutine r1f5kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
-        ! Dictionary: calling arguments
-        integer (ip), intent (in)     :: ido
-        integer (ip), intent (in)     :: l1
-        real (wp),    intent (in out) :: cc(in1,ido,l1,5)
-        integer (ip), intent (in)     :: in1
-        real (wp),    intent (in out) :: ch(in2,ido,5,l1)
-        integer (ip), intent (in)     :: in2
-        real (wp),    intent (in)     :: wa1(ido)
-        real (wp),    intent (in)     :: wa2(ido)
-        real (wp),    intent (in)     :: wa3(ido)
-        real (wp),    intent (in)     :: wa4(ido)
-        ! Dictionary: local variables
-        integer (ip)         :: i, ic, idp2
-        real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
-        real (wp), parameter :: ARG= TWO_PI/5
-        real (wp), parameter :: TR11=cos(ARG)
-        real (wp), parameter :: TI11=sin(ARG)
-        real (wp), parameter :: TR12=cos(2.0_wp *ARG)
-        real (wp), parameter :: TI12=sin(2.0_wp *ARG)
-
-        ch(1,1,1,:) = cc(1,1,:,1)+(cc(1,1,:,5)+cc(1,1,:,2))+ &
-            (cc(1,1,:,4)+cc(1,1,:,3))
-        ch(1,ido,2,:) = cc(1,1,:,1)+TR11*(cc(1,1,:,5)+cc(1,1,:,2))+ &
-            TR12*(cc(1,1,:,4)+cc(1,1,:,3))
-        ch(1,1,3,:) = TI11*(cc(1,1,:,5)-cc(1,1,:,2))+TI12* &
-            (cc(1,1,:,4)-cc(1,1,:,3))
-        ch(1,ido,4,:) = cc(1,1,:,1)+TR12*(cc(1,1,:,5)+cc(1,1,:,2))+ &
-            TR11*(cc(1,1,:,4)+cc(1,1,:,3))
-        ch(1,1,5,:) = TI12*(cc(1,1,:,5)-cc(1,1,:,2))-TI11* &
-            (cc(1,1,:,4)-cc(1,1,:,3))
-
-        if (ido /= 1) then
-            idp2 = ido+2
-            do i=3,ido,2
-                ic = idp2-i
-                ch(1,i-1,1,:) = cc(1,i-1,:,1)+((wa1(i-2)*cc(1,i-1,:,2)+ &
-                    wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
-                    cc(1,i,:,5)))+((wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
-                    cc(1,i,:,3))+(wa3(i-2)*cc(1,i-1,:,4)+ &
-                    wa3(i-1)*cc(1,i,:,4)))
-
-                ch(1,i,1,:) = cc(1,i,:,1)+((wa1(i-2)*cc(1,i,:,2)- &
-                    wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
-                    cc(1,i-1,:,5)))+((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
-                    cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
-                    cc(1,i-1,:,4)))
-
-                ch(1,i-1,3,:) = cc(1,i-1,:,1)+TR11* &
-                    ( wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2) &
-                    +wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5))+TR12* &
-                    ( wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3) &
-                    +wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))+TI11* &
-                    ( wa1(i-2)*cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2) &
-                    -(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))+TI12* &
-                    ( wa2(i-2)*cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3) &
-                    -(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4)))
-
-                ch(1,ic-1,2,:) = cc(1,i-1,:,1)+TR11* &
-                    ( wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2) &
-                    +wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5))+TR12* &
-                    ( wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3) &
-                    +wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))-(TI11* &
-                    ( wa1(i-2)*cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2) &
-                    -(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))+TI12* &
-                    ( wa2(i-2)*cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3) &
-                    -(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
-
-                ch(1,i,3,:) = (cc(1,i,:,1)+TR11*((wa1(i-2)*cc(1,i,:,2)- &
-                    wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
-                    cc(1,i-1,:,5)))+TR12*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
-                    cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
-                    cc(1,i-1,:,4))))+(TI11*((wa4(i-2)*cc(1,i-1,:,5)+ &
-                    wa4(i-1)*cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
-                    cc(1,i,:,2)))+TI12*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
-                    cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
-                    cc(1,i,:,3))))
-
-                ch(1,ic,2,:) = (TI11*((wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
-                    cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
-                    cc(1,i,:,2)))+TI12*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
-                    cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
-                    cc(1,i,:,3))))-(cc(1,i,:,1)+TR11*((wa1(i-2)*cc(1,i,:,2)- &
-                    wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
-                    cc(1,i-1,:,5)))+TR12*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
-                    cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
-                    cc(1,i-1,:,4))))
-
-                ch(1,i-1,5,:) = (cc(1,i-1,:,1)+TR12*((wa1(i-2)* &
-                    cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)* &
-                    cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5)))+TR11*((wa2(i-2)* &
-                    cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))+(wa3(i-2)* &
-                    cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))))+(TI12*((wa1(i-2)* &
-                    cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa4(i-2)* &
-                    cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))-TI11*((wa2(i-2)* &
-                    cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))-(wa3(i-2)* &
-                    cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
-
-                ch(1,ic-1,4,:) = (cc(1,i-1,:,1)+TR12*((wa1(i-2)* &
-                    cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)* &
-                    cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5)))+TR11*((wa2(i-2)* &
-                    cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))+(wa3(i-2)* &
-                    cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))))-(TI12*((wa1(i-2)* &
-                    cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa4(i-2)* &
-                    cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))-TI11*((wa2(i-2)* &
-                    cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))-(wa3(i-2)* &
-                    cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
-
-                ch(1,i,5,:) = (cc(1,i,:,1)+TR12*((wa1(i-2)*cc(1,i,:,2)- &
-                    wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
-                    cc(1,i-1,:,5)))+TR11*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
-                    cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
-                    cc(1,i-1,:,4))))+(TI12*((wa4(i-2)*cc(1,i-1,:,5)+ &
-                    wa4(i-1)*cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
-                    cc(1,i,:,2)))-TI11*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
-                    cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
-                    cc(1,i,:,3))))
-
-                ch(1,ic,4,:) = (TI12*((wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
-                    cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
-                    cc(1,i,:,2)))-TI11*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
-                    cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
-                    cc(1,i,:,3))))-(cc(1,i,:,1)+TR12*((wa1(i-2)*cc(1,i,:,2)- &
-                    wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
-                    cc(1,i-1,:,5)))+TR11*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
-                    cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
-                    cc(1,i-1,:,4))))
-            end do
-        end if
-
-
-    end subroutine r1f5kf
-
-
-    subroutine r1fgkf(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
-        !-----------------------------------------------
-        ! Dictionary: calling arguments
-        !-----------------------------------------------
-        integer (ip), intent (in)     :: ido
-        integer (ip), intent (in)     :: iip
-        integer (ip), intent (in)     :: l1
-        integer (ip), intent (in)     :: idl1
-        real (wp),    intent (out)    :: cc(in1,ido,iip,l1)
-        real (wp),    intent (in out) :: c1(in1,ido,l1,iip)
-        real (wp),    intent (in out) :: c2(in1,idl1,iip)
-        integer (ip), intent (in)     :: in1
-        real (wp),    intent (in out) :: ch(in2,ido,l1,iip)
-        real (wp),    intent (in out) :: ch2(in2,idl1,iip)
-        integer (ip), intent (in)     :: in2
-        real (wp),    intent (in)     :: wa(ido)
-        !-----------------------------------------------
-        ! Dictionary: local variables
-        !-----------------------------------------------
-        real (wp)            :: ai1, ai2, ar1, ar1h
-        real (wp)            :: ar2, ar2h, arg
-        real (wp)            :: dc2, dcp, ds2, dsp
-        integer (ip)         :: i, idij, idp2
-        integer (ip)         :: ipp2, ipph, is
-        integer (ip)         :: j, jc
-        integer (ip)         :: k, l, lc, nbd
-        real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
-        !-----------------------------------------------
-
-        arg = TWO_PI/iip
-        dcp = cos(arg)
-        dsp = sin(arg)
-        ipph = (iip+1)/2
-        ipp2 = iip+2
-        idp2 = ido+2
-        nbd = (ido-1)/2
-
-        if (ido /= 1) then
-
-            ch2(1,:,1) = c2(1,:,1)
-            ch(1,1,:,2:iip) = c1(1,1,:,2:iip)
-
-            if ( nbd <= l1 ) then
-                is = -ido
-                do j=2,iip
-                    is = is+ido
-                    idij = is
-                    do i=3,ido,2
-                        idij = idij+2
-                        ch(1,i-1,:,j) = wa(idij-1)*c1(1,i-1,:,j)+wa(idij)*c1(1,i,:,j)
-                        ch(1,i,:,j) = wa(idij-1)*c1(1,i,:,j)-wa(idij)*c1(1,i-1,:,j)
-                    end do
-                end do
-            else
-                is = -ido
-                do j=2,iip
-                    is = is+ido
-                    do k=1,l1
-                        idij = is
-                        ch(1,2:ido-1:2,k,j) = &
-                            wa(idij+1:ido-2+idij:2)*c1(1,2:ido-1:2,k,j)&
-                            +wa(idij+2:ido-1+idij:2)*c1(1,3:ido:2,k,j)
-                        ch(1,3:ido:2,k,j) = &
-                            wa(idij+1:ido-2+idij:2)*c1(1,3:ido:2,k,j)&
-                            -wa(idij+2:ido-1+idij:2)*c1(1,2:ido-1:2,k,j)
-                    end do
-                end do
-            end if
-
-            if (nbd >= l1) then
-                do j=2,ipph
-                    jc = ipp2-j
-                    c1(1,2:ido-1:2,:, j)=ch(1,2:ido-1:2,:, j)+ch(1,2:ido-1:2,:, jc)
-                    c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
-                    c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
-                    c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
-                end do
-            else
-                do j=2,ipph
-                    jc = ipp2-j
-                    c1(1,2:ido-1:2,:, j) = ch(1,2:ido-1:2,:, j) + ch(1,2:ido-1:2,:, jc)
-                    c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
-                    c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
-                    c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
-                end do
-            end if
-        else
-            c2(1,:,1) = ch2(1,:,1)
-        end if
-
-        do j=2,ipph
-            jc = ipp2-j
-            c1(1,1,:,j) = ch(1,1,:,j)+ch(1,1,:,jc)
-            c1(1,1,:,jc) = ch(1,1,:,jc)-ch(1,1,:,j)
-        end do
-
-        ar1 = 1.0_wp
-        ai1 = 0.0_wp
-        do l=2,ipph
-            lc = ipp2-l
-            ar1h = dcp*ar1-dsp*ai1
-            ai1 = dcp*ai1+dsp*ar1
-            ar1 = ar1h
-            ch2(1,:,l) = c2(1,:,1)+ar1*c2(1,:,2)
-            ch2(1,:,lc) = ai1*c2(1,:,iip)
-            dc2 = ar1
-            ds2 = ai1
-            ar2 = ar1
-            ai2 = ai1
-            do j=3,ipph
-                jc = ipp2-j
-                ar2h = dc2*ar2-ds2*ai2
-                ai2 = dc2*ai2+ds2*ar2
-                ar2 = ar2h
-                ch2(1,:,l) = ch2(1,:,l)+ar2*c2(1,:,j)
-                ch2(1,:,lc) = ch2(1,:,lc)+ai2*c2(1,:,jc)
-            end do
-        end do
-
-        do j=2,ipph
-            ch2(1,:,1) = ch2(1,:,1)+c2(1,:,j)
-        end do
-
-        cc(1,:,1,:) = ch(1,:,:,1)
-
-        cc(1,ido,2:(ipph-1)*2:2,:) = transpose(ch(1,1,:,2:ipph))
-
-        cc(1,1,3:ipph*2-1:2,:) = transpose(ch(1,1,:,ipp2-2:ipp2-ipph:(-1)))
-
-        if (ido /= 1) then
-            if (nbd >= l1) then
-
-                cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
-                    reshape(source = &
-                    ch(1,2:ido-1:2,:,2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
-                    shape = [(ido -1)/2, ipph-1, l1], &
-                    order = [1, 3, 2])
-
-                cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
-                    reshape(source = &
-                    ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
-                    shape = [(ido-1)/2, ipph-1, l1], &
-                    order = [1, 3, 2])
-
-                cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
-                    reshape(source = &
-                    ch(1,3:ido:2,:,2:ipph)+ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1)), &
-                    shape = [(ido-1)/2, ipph-1, l1], &
-                    order = [1, 3, 2])
-
-                cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
-                    reshape(source = &
-                    ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:, 2:ipph), shape &
-                    = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
-            else
-                cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
-                reshape(source = &
-                ch(1,2:ido-1:2,:, 2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
-                shape = [(ido-1)/2, ipph-1, l1], &
-                order = [1, 3, 2])
-
-                cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
-                reshape(source = &
-                ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
-                shape = [(ido-1)/2, ipph-1, l1], &
-                    order = [1, 3, 2])
-
-                cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
-                reshape(source = &
-                ch(1,3:ido:2,:, 2:ipph) +ch(1,3:ido:2,:, ipp2-2:ipp2-ipph:(-1)), &
-                    shape = [(ido-1)/2, ipph-1, l1], &
-                    order = [1, 3, 2])
-
-                cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
-                reshape(source = &
-                ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:,2:ipph), &
-                shape = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
-            end if
-        end if
-
-    end subroutine r1fgkf
-
-
     subroutine r2w(ldr, ldw, l, m, r, w)
         !
         ! Purpose:
@@ -9641,7 +9110,7 @@ contains
             !------------------------------------------------------------------
             real (wp)            :: ai1, ai2, ar1, ar1h, ar2, ar2h, arg
             real (wp)            :: dc2, dcp, ds2, dsp
-            integer (ip)         :: i, ic, idij, idp2, iipp2, iipph
+            integer (ip)         :: i, idij, idp2, ipp2, ipph
             integer (ip)         :: is, j, j2, jc, k, l, lc, nbd
             real (wp), parameter :: TWO_PI = acos(-1.0_wp)
             !------------------------------------------------------------------
@@ -9651,44 +9120,42 @@ contains
             dsp = sin(arg)
             idp2 = ido+2
             nbd = (ido-1)/2
-            iipp2 = iip+2
-            iipph = (iip+1)/2
+            ipp2 = iip+2
+            ipph = (iip+1)/2
 
             ch(1,:,:,1) = cc(1,:,1,:)
 
-            do j=2,iipph
-                jc = iipp2-j
-                j2 = 2*j
+            do j=2,ipph
+                jc = ipp2-j
+                j2 = j*2
                 ch(1,1,:,j) = 2.0_wp * cc(1,ido,j2-2,:)
                 ch(1,1,:,jc) = 2.0_wp * cc(1,1,j2-1,:)
             end do
 
             if (ido /= 1) then
                 if (nbd >= l1) then
-                    do j=2,iipph
-                        jc = iipp2-j
-                        do k=1,l1
-                            do i=3,ido,2
-                                ic = idp2-i
-                                ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
-                                ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
-                                ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
-                                ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
-                            end do
-                        end do
+                    do j=2,ipph
+                        jc = ipp2-j
+                        ch(1,2:ido-1:2,:, j) = cc(1,2:ido-1:2, 2*j-1,:) + cc(1,idp2-4: &
+                            idp2-1-ido:(-2), 2*j-2,:)
+                        ch(1,2:ido-1:2,:, jc) = cc(1,2:ido-1:2, 2*j-1,:) - cc(1,idp2-4: &
+                            idp2-1-ido:(-2), 2*j-2,:)
+                        ch(1,3:ido:2,:, j) = cc(1,3:ido:2, 2*j-1,:) - cc(1,idp2-3:idp2- &
+                            ido:(-2), 2*j-2,:)
+                        ch(1,3:ido:2,:, jc) = cc(1,3:ido:2, 2*j-1,:) + cc(1,idp2-3:idp2- &
+                            ido:(-2), 2*j-2,:)
                     end do
                 else
-                    do j=2,iipph
-                        jc = iipp2-j
-                        do i=3,ido,2
-                            ic = idp2-i
-                            do k=1,l1
-                                ch(1,i-1,k,j) = cc(1,i-1,2*j-1,k)+cc(1,ic-1,2*j-2,k)
-                                ch(1,i-1,k,jc) = cc(1,i-1,2*j-1,k)-cc(1,ic-1,2*j-2,k)
-                                ch(1,i,k,j) = cc(1,i,2*j-1,k)-cc(1,ic,2*j-2,k)
-                                ch(1,i,k,jc) = cc(1,i,2*j-1,k)+cc(1,ic,2*j-2,k)
-                            end do
-                        end do
+                    do j=2,ipph
+                        jc = ipp2-j
+                        ch(1,2:ido-1:2,:, j) = cc(1,2:ido-1:2, 2*j-1,:) + cc(1,idp2-4: &
+                            idp2-1-ido:(-2), 2*j-2,:)
+                        ch(1,2:ido-1:2,:, jc) = cc(1,2:ido-1:2, 2*j-1,:) - cc(1,idp2-4: &
+                            idp2-1-ido:(-2), 2*j-2,:)
+                        ch(1,3:ido:2,:, j) = cc(1,3:ido:2, 2*j-1,:) - cc(1,idp2-3:idp2- &
+                            ido:(-2), 2*j-2,:)
+                        ch(1,3:ido:2,:, jc) = cc(1,3:ido:2, 2*j-1,:) + cc(1,idp2-3:idp2- &
+                            ido:(-2), 2*j-2,:)
                     end do
                 end if
             end if
@@ -9696,8 +9163,8 @@ contains
             ar1 = 1.0_wp
             ai1 = 0.0_wp
 
-            do l=2,iipph
-                lc = iipp2-l
+            do l=2,ipph
+                lc = ipp2-l
                 ar1h = dcp*ar1-dsp*ai1
                 ai1 = dcp*ai1+dsp*ar1
                 ar1 = ar1h
@@ -9708,8 +9175,8 @@ contains
                 ar2 = ar1
                 ai2 = ai1
 
-                do j=3,iipph
-                    jc = iipp2-j
+                do j=3,ipph
+                    jc = ipp2-j
                     ar2h = dc2*ar2-ds2*ai2
                     ai2 = dc2*ai2+ds2*ar2
                     ar2 = ar2h
@@ -9718,36 +9185,32 @@ contains
                 end do
             end do
 
-            do j=2,iipph
+            do j=2,ipph
                 ch2(1,:,1) = ch2(1,:,1)+ch2(1,:,j)
             end do
 
-            do j=2,iipph
-                jc = iipp2-j
+            do j=2,ipph
+                jc = ipp2-j
                 ch(1,1,:,j) = c1(1,1,:,j)-c1(1,1,:,jc)
                 ch(1,1,:,jc) = c1(1,1,:,j)+c1(1,1,:,jc)
             end do
 
             if (ido /= 1) then
                 if (nbd >= l1) then
-                    do j=2,iipph
-                        jc = iipp2-j
-                        do i=3,ido,2
-                            ch(1,i-1,:,j) = c1(1,i-1,:,j)-c1(1,i,:,jc)
-                            ch(1,i-1,:,jc) = c1(1,i-1,:,j)+c1(1,i,:,jc)
-                            ch(1,i,:,j) = c1(1,i,:,j)+c1(1,i-1,:,jc)
-                            ch(1,i,:,jc) = c1(1,i,:,j)-c1(1,i-1,:,jc)
-                        end do
+                    do j=2,ipph
+                        jc = ipp2-j
+                        ch(1,2:ido-1:2,:, j) = c1(1,2:ido-1:2,:, j) - c1(1,3:ido:2,:, jc)
+                        ch(1,2:ido-1:2,:, jc) = c1(1,2:ido-1:2,:, j) + c1(1,3:ido:2,:, jc)
+                        ch(1,3:ido:2,:, j) = c1(1,3:ido:2,:, j) + c1(1,2:ido-1:2,:, jc)
+                        ch(1,3:ido:2,:, jc) = c1(1,3:ido:2,:, j) - c1(1,2:ido-1:2,:, jc)
                     end do
                 else
-                    do j=2,iipph
-                        jc = iipp2-j
-                        do i=3,ido,2
-                            ch(1,i-1,:,j) = c1(1,i-1,:,j)-c1(1,i,:,jc)
-                            ch(1,i-1,:,jc) = c1(1,i-1,:,j)+c1(1,i,:,jc)
-                            ch(1,i,:,j) = c1(1,i,:,j)+c1(1,i-1,:,jc)
-                            ch(1,i,:,jc) = c1(1,i,:,j)-c1(1,i-1,:,jc)
-                        end do
+                    do j=2,ipph
+                        jc = ipp2-j
+                        ch(1,2:ido-1:2,:, j) = c1(1,2:ido-1:2,:, j) - c1(1,3:ido:2,:, jc)
+                        ch(1,2:ido-1:2,:, jc) = c1(1,2:ido-1:2,:, j) + c1(1,3:ido:2,:, jc)
+                        ch(1,3:ido:2,:, j) = c1(1,3:ido:2,:, j) + c1(1,2:ido-1:2,:, jc)
+                        ch(1,3:ido:2,:, jc) = c1(1,3:ido:2,:, j) - c1(1,2:ido-1:2,:, jc)
                     end do
                 end if
             end if
@@ -9767,14 +9230,12 @@ contains
                             idij = is
                             do i=3,ido,2
                                 idij = idij+2
-                                do k=1,l1
-                                    c1(1,i-1,k,j) = &
-                                        wa(idij-1)*ch(1,i-1,k,j) &
-                                        -wa(idij)*ch(1,i,k,j)
-                                    c1(1,i,k,j) = &
-                                        wa(idij-1)*ch(1,i,k,j) &
-                                        +wa(idij)*ch(1,i-1,k,j)
-                                end do
+                                c1(1,i-1,:,j) = &
+                                    wa(idij-1)*ch(1,i-1,:,j) &
+                                    -wa(idij)*ch(1,i,:,j)
+                                c1(1,i,:,j) = &
+                                    wa(idij-1)*ch(1,i,:,j) &
+                                    +wa(idij)*ch(1,i-1,:,j)
                             end do
                         end do
                     else
@@ -9783,21 +9244,19 @@ contains
                             is = is+ido
                             do k=1,l1
                                 idij = is
-                                do i=3,ido,2
-                                    idij = idij+2
-                                    c1(1,i-1,k,j) = &
-                                        wa(idij-1)*ch(1,i-1,k,j) &
-                                        - wa(idij)*ch(1,i,k,j)
-                                    c1(1,i,k,j) = &
-                                        wa(idij-1)*ch(1,i,k,j) &
-                                        + wa(idij)*ch(1,i-1,k,j)
-                                end do
+                                c1(1,2:ido-1:2, k, j) = &
+                                    wa(idij+1:ido-2+idij:2)*ch(1,2:ido-1:2, &
+                                    k, j) - wa(idij+2:ido-1+idij:2)*ch(1,3:ido:2, k, j)
+                                c1(1,3:ido:2, k, j) = &
+                                    wa(idij+1:ido-2+idij:2)*ch(1,3:ido:2, k, j) &
+                                    + wa(idij+2:ido-1+idij:2)*ch(1,2:ido-1:2, k, j)
                             end do
                         end do
                     end if
             end select
 
         end subroutine r1fgkb
+
 
 
     end subroutine rfft1b
@@ -10017,6 +9476,546 @@ contains
 
         end subroutine rfftf1
 
+
+        subroutine r1f2kf(ido,l1,cc,in1,ch,in2,wa1)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,l1,2)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,2,l1)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip) :: i, ic, idp2
+            !-----------------------------------------------
+
+            ch(1,1,1,:) = cc(1,1,:,1)+cc(1,1,:,2)
+            ch(1,ido,2,:) = cc(1,1,:,1)-cc(1,1,:,2)
+
+            if (ido < 2) then
+                return
+            end if
+
+            select case (ido)
+                case (2)
+                    ch(1,1,2,:) = -cc(1,ido,:,2)
+                    ch(1,ido,1,:) = cc(1,ido,:,1)
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+
+                        ch(1,i,1,:) = &
+                            cc(1,i,:,1)+(wa1(i-2)*cc(1,i,:,2) &
+                            -wa1(i-1)*cc(1,i-1,:,2))
+
+                        ch(1,ic,2,:) = &
+                            (wa1(i-2)*cc(1,i,:,2) &
+                            -wa1(i-1)*cc(1,i-1,:,2))-cc(1,i,:,1)
+
+                        ch(1,i-1,1,:) = &
+                            cc(1,i-1,:,1)+(wa1(i-2)*cc(1,i-1,:,2) &
+                            +wa1(i-1)*cc(1,i,:,2))
+
+                        ch(1,ic-1,2,:) = &
+                            cc(1,i-1,:,1)-(wa1(i-2)*cc(1,i-1,:,2) &
+                            +wa1(i-1)*cc(1,i,:,2))
+                    end do
+
+                    if (mod(ido,2) /= 1) then
+                        ch(1,1,2,:) = -cc(1,ido,:,2)
+                        ch(1,ido,1,:) = cc(1,ido,:,1)
+                    end if
+            end select
+
+        end subroutine r1f2kf
+
+
+        subroutine r1f3kf(ido,l1,cc,in1,ch,in2,wa1,wa2)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,l1,3)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,3,l1)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            !-----------------------------------------------
+            ! Dictionary: local variables
+            !-----------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: ARG = TWO_PI/3
+            real (wp), parameter :: TAUR = cos(ARG)
+            real (wp), parameter :: TAUI = sin(ARG)
+            !-----------------------------------------------
+
+            ch(1,1,1,:) = cc(1,1,:,1)+(cc(1,1,:,2)+cc(1,1,:,3))
+            ch(1,1,3,:) = TAUI*(cc(1,1,:,3)-cc(1,1,:,2))
+            ch(1,ido,2,:) = cc(1,1,:,1)+TAUR*(cc(1,1,:,2)+cc(1,1,:,3))
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+
+                        ch(1,i-1,1,:) = cc(1,i-1,:,1)+((wa1(i-2)*cc(1,i-1,:,2)+ &
+                            wa1(i-1)*cc(1,i,:,2))+(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3)))
+
+                        ch(1,i,1,:) = cc(1,i,:,1)+((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3)))
+
+                        ch(1,i-1,3,:) = (cc(1,i-1,:,1)+TAUR*((wa1(i-2)* &
+                            cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa2(i-2)* &
+                            cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))))+(TAUI*((wa1(i-2)* &
+                            cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa2(i-2)* &
+                            cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))))
+
+                        ch(1,ic-1,2,:) = (cc(1,i-1,:,1)+TAUR*((wa1(i-2)* &
+                            cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa2(i-2)* &
+                            cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))))-(TAUI*((wa1(i-2)* &
+                            cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa2(i-2)* &
+                            cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))))
+
+                        ch(1,i,3,:) = (cc(1,i,:,1)+TAUR*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))))+(TAUI*((wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2))))
+
+                        ch(1,ic,2,:) = (TAUI*((wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2))))-(cc(1,i,:,1)+TAUR*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))))
+                    end do
+            end select
+
+        end subroutine r1f3kf
+
+        subroutine r1f4kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,l1,4)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,4,l1)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            real (wp),    intent (in)     :: wa3(ido)
+            !-----------------------------------------------
+            ! Dictionary: local variables
+            !-----------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: HALF_SQRT2=sqrt(2.0_wp)/2
+            !-----------------------------------------------
+
+            ch(1,1,1,:) = (cc(1,1,:,2)+cc(1,1,:,4))+(cc(1,1,:,1)+cc(1,1,:,3))
+            ch(1,ido,4,:) = (cc(1,1,:,1)+cc(1,1,:,3))-(cc(1,1,:,2)+cc(1,1,:,4))
+            ch(1,ido,2,:) = cc(1,1,:,1)-cc(1,1,:,3)
+            ch(1,1,3,:) = cc(1,1,:,4)-cc(1,1,:,2)
+
+            if (ido < 2) then
+                return
+            end if
+
+            select case (ido)
+                case (2)
+                    ch(1,ido,1,:) = (HALF_SQRT2*(cc(1,ido,:,2)-cc(1,ido,:,4)))+cc(1,ido,:,1)
+                    ch(1,ido,3,:) = cc(1,ido,:,1)-(HALF_SQRT2*(cc(1,ido,:,2)-cc(1,ido,:,4)))
+                    ch(1,1,2,:) = (-HALF_SQRT2*(cc(1,ido,:,2)+cc(1,ido,:,4)))-cc(1,ido,:,3)
+                    ch(1,1,4,:) = (-HALF_SQRT2*(cc(1,ido,:,2)+cc(1,ido,:,4)))+cc(1,ido,:,3)
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+                        ch(1,i-1,1,:) = ((wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2))+(wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4)))+(cc(1,i-1,:,1)+(wa2(i-2)*cc(1,i-1,:,3)+ &
+                            wa2(i-1)*cc(1,i,:,3)))
+                        ch(1,ic-1,4,:) = (cc(1,i-1,:,1)+(wa2(i-2)*cc(1,i-1,:,3)+ &
+                            wa2(i-1)*cc(1,i,:,3)))-((wa1(i-2)*cc(1,i-1,:,2)+ &
+                            wa1(i-1)*cc(1,i,:,2))+(wa3(i-2)*cc(1,i-1,:,4)+ &
+                            wa3(i-1)*cc(1,i,:,4)))
+                        ch(1,i,1,:) = ((wa1(i-2)*cc(1,i,:,2)-wa1(i-1)* &
+                            cc(1,i-1,:,2))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4)))+(cc(1,i,:,1)+(wa2(i-2)*cc(1,i,:,3)- &
+                            wa2(i-1)*cc(1,i-1,:,3)))
+                        ch(1,ic,4,:) = ((wa1(i-2)*cc(1,i,:,2)-wa1(i-1)* &
+                            cc(1,i-1,:,2))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4)))-(cc(1,i,:,1)+(wa2(i-2)*cc(1,i,:,3)- &
+                            wa2(i-1)*cc(1,i-1,:,3)))
+                        ch(1,i-1,3,:) = ((wa1(i-2)*cc(1,i,:,2)-wa1(i-1)* &
+                            cc(1,i-1,:,2))-(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4)))+(cc(1,i-1,:,1)-(wa2(i-2)*cc(1,i-1,:,3)+ &
+                            wa2(i-1)*cc(1,i,:,3)))
+                        ch(1,ic-1,2,:) = (cc(1,i-1,:,1)-(wa2(i-2)*cc(1,i-1,:,3)+ &
+                            wa2(i-1)*cc(1,i,:,3)))-((wa1(i-2)*cc(1,i,:,2)-wa1(i-1)* &
+                            cc(1,i-1,:,2))-(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4)))
+                        ch(1,i,3,:) = ((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))+(cc(1,i,:,1)-(wa2(i-2)*cc(1,i,:,3)- &
+                            wa2(i-1)*cc(1,i-1,:,3)))
+                        ch(1,ic,2,:) = ((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))-(cc(1,i,:,1)-(wa2(i-2)*cc(1,i,:,3)- &
+                            wa2(i-1)*cc(1,i-1,:,3)))
+                    end do
+
+                    if (mod(ido,2) /= 1) then
+                        ch(1,ido,1,:) = (HALF_SQRT2*(cc(1,ido,:,2)-cc(1,ido,:,4)))+cc(1,ido,:,1)
+                        ch(1,ido,3,:) = cc(1,ido,:,1)-(HALF_SQRT2*(cc(1,ido,:,2)-cc(1,ido,:,4)))
+                        ch(1,1,2,:) = (-HALF_SQRT2*(cc(1,ido,:,2)+cc(1,ido,:,4)))-cc(1,ido,:,3)
+                        ch(1,1,4,:) = (-HALF_SQRT2*(cc(1,ido,:,2)+cc(1,ido,:,4)))+cc(1,ido,:,3)
+                    end if
+            end select
+
+        end subroutine r1f4kf
+
+
+
+        subroutine r1f5kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: l1
+            real (wp),    intent (in out) :: cc(in1,ido,l1,5)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,5,l1)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa1(ido)
+            real (wp),    intent (in)     :: wa2(ido)
+            real (wp),    intent (in)     :: wa3(ido)
+            real (wp),    intent (in)     :: wa4(ido)
+            !-----------------------------------------------
+            ! Dictionary: local variables
+            !-----------------------------------------------
+            integer (ip)         :: i, ic, idp2
+            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: ARG= TWO_PI/5
+            real (wp), parameter :: TR11=cos(ARG)
+            real (wp), parameter :: TI11=sin(ARG)
+            real (wp), parameter :: TR12=cos(2.0_wp *ARG)
+            real (wp), parameter :: TI12=sin(2.0_wp *ARG)
+            !-----------------------------------------------
+
+            ch(1,1,1,:) = cc(1,1,:,1)+(cc(1,1,:,5)+cc(1,1,:,2))+ &
+                (cc(1,1,:,4)+cc(1,1,:,3))
+            ch(1,ido,2,:) = cc(1,1,:,1)+TR11*(cc(1,1,:,5)+cc(1,1,:,2))+ &
+                TR12*(cc(1,1,:,4)+cc(1,1,:,3))
+            ch(1,1,3,:) = TI11*(cc(1,1,:,5)-cc(1,1,:,2))+TI12* &
+                (cc(1,1,:,4)-cc(1,1,:,3))
+            ch(1,ido,4,:) = cc(1,1,:,1)+TR12*(cc(1,1,:,5)+cc(1,1,:,2))+ &
+                TR11*(cc(1,1,:,4)+cc(1,1,:,3))
+            ch(1,1,5,:) = TI12*(cc(1,1,:,5)-cc(1,1,:,2))-TI11* &
+                (cc(1,1,:,4)-cc(1,1,:,3))
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+                    idp2 = ido+2
+                    do i=3,ido,2
+                        ic = idp2-i
+                        ch(1,i-1,1,:) = cc(1,i-1,:,1)+((wa1(i-2)*cc(1,i-1,:,2)+ &
+                            wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
+                            cc(1,i,:,5)))+((wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))+(wa3(i-2)*cc(1,i-1,:,4)+ &
+                            wa3(i-1)*cc(1,i,:,4)))
+
+                        ch(1,i,1,:) = cc(1,i,:,1)+((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
+                            cc(1,i-1,:,5)))+((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4)))
+
+                        ch(1,i-1,3,:) = cc(1,i-1,:,1)+TR11* &
+                            ( wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2) &
+                            +wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5))+TR12* &
+                            ( wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3) &
+                            +wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))+TI11* &
+                            ( wa1(i-2)*cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2) &
+                            -(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))+TI12* &
+                            ( wa2(i-2)*cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3) &
+                            -(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4)))
+
+                        ch(1,ic-1,2,:) = cc(1,i-1,:,1)+TR11* &
+                            ( wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2) &
+                            +wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5))+TR12* &
+                            ( wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3) &
+                            +wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))-(TI11* &
+                            ( wa1(i-2)*cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2) &
+                            -(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))+TI12* &
+                            ( wa2(i-2)*cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3) &
+                            -(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
+
+                        ch(1,i,3,:) = (cc(1,i,:,1)+TR11*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
+                            cc(1,i-1,:,5)))+TR12*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4))))+(TI11*((wa4(i-2)*cc(1,i-1,:,5)+ &
+                            wa4(i-1)*cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))+TI12*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))))
+
+                        ch(1,ic,2,:) = (TI11*((wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
+                            cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))+TI12*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))))-(cc(1,i,:,1)+TR11*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
+                            cc(1,i-1,:,5)))+TR12*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4))))
+
+                        ch(1,i-1,5,:) = (cc(1,i-1,:,1)+TR12*((wa1(i-2)* &
+                            cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)* &
+                            cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5)))+TR11*((wa2(i-2)* &
+                            cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))+(wa3(i-2)* &
+                            cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))))+(TI12*((wa1(i-2)* &
+                            cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa4(i-2)* &
+                            cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))-TI11*((wa2(i-2)* &
+                            cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))-(wa3(i-2)* &
+                            cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
+
+                        ch(1,ic-1,4,:) = (cc(1,i-1,:,1)+TR12*((wa1(i-2)* &
+                            cc(1,i-1,:,2)+wa1(i-1)*cc(1,i,:,2))+(wa4(i-2)* &
+                            cc(1,i-1,:,5)+wa4(i-1)*cc(1,i,:,5)))+TR11*((wa2(i-2)* &
+                            cc(1,i-1,:,3)+wa2(i-1)*cc(1,i,:,3))+(wa3(i-2)* &
+                            cc(1,i-1,:,4)+wa3(i-1)*cc(1,i,:,4))))-(TI12*((wa1(i-2)* &
+                            cc(1,i,:,2)-wa1(i-1)*cc(1,i-1,:,2))-(wa4(i-2)* &
+                            cc(1,i,:,5)-wa4(i-1)*cc(1,i-1,:,5)))-TI11*((wa2(i-2)* &
+                            cc(1,i,:,3)-wa2(i-1)*cc(1,i-1,:,3))-(wa3(i-2)* &
+                            cc(1,i,:,4)-wa3(i-1)*cc(1,i-1,:,4))))
+
+                        ch(1,i,5,:) = (cc(1,i,:,1)+TR12*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
+                            cc(1,i-1,:,5)))+TR11*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4))))+(TI12*((wa4(i-2)*cc(1,i-1,:,5)+ &
+                            wa4(i-1)*cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))-TI11*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))))
+
+                        ch(1,ic,4,:) = (TI12*((wa4(i-2)*cc(1,i-1,:,5)+wa4(i-1)* &
+                            cc(1,i,:,5))-(wa1(i-2)*cc(1,i-1,:,2)+wa1(i-1)* &
+                            cc(1,i,:,2)))-TI11*((wa3(i-2)*cc(1,i-1,:,4)+wa3(i-1)* &
+                            cc(1,i,:,4))-(wa2(i-2)*cc(1,i-1,:,3)+wa2(i-1)* &
+                            cc(1,i,:,3))))-(cc(1,i,:,1)+TR12*((wa1(i-2)*cc(1,i,:,2)- &
+                            wa1(i-1)*cc(1,i-1,:,2))+(wa4(i-2)*cc(1,i,:,5)-wa4(i-1)* &
+                            cc(1,i-1,:,5)))+TR11*((wa2(i-2)*cc(1,i,:,3)-wa2(i-1)* &
+                            cc(1,i-1,:,3))+(wa3(i-2)*cc(1,i,:,4)-wa3(i-1)* &
+                            cc(1,i-1,:,4))))
+                    end do
+            end select
+
+        end subroutine r1f5kf
+
+
+        subroutine r1fgkf(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
+            !-----------------------------------------------
+            ! Dictionary: calling arguments
+            !-----------------------------------------------
+            integer (ip), intent (in)     :: ido
+            integer (ip), intent (in)     :: iip
+            integer (ip), intent (in)     :: l1
+            integer (ip), intent (in)     :: idl1
+            real (wp),    intent (out)    :: cc(in1,ido,iip,l1)
+            real (wp),    intent (in out) :: c1(in1,ido,l1,iip)
+            real (wp),    intent (in out) :: c2(in1,idl1,iip)
+            integer (ip), intent (in)     :: in1
+            real (wp),    intent (in out) :: ch(in2,ido,l1,iip)
+            real (wp),    intent (in out) :: ch2(in2,idl1,iip)
+            integer (ip), intent (in)     :: in2
+            real (wp),    intent (in)     :: wa(ido)
+            !-----------------------------------------------
+            ! Dictionary: local variables
+            !-----------------------------------------------
+            real (wp)            :: ai1, ai2, ar1, ar1h
+            real (wp)            :: ar2, ar2h, arg
+            real (wp)            :: dc2, dcp, ds2, dsp
+            integer (ip)         :: i, idij, idp2
+            integer (ip)         :: ipp2, ipph, is
+            integer (ip)         :: j, jc
+            integer (ip)         :: k, l, lc, nbd
+            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            !-----------------------------------------------
+
+            arg = TWO_PI/iip
+            dcp = cos(arg)
+            dsp = sin(arg)
+            ipph = (iip+1)/2
+            ipp2 = iip+2
+            idp2 = ido+2
+            nbd = (ido-1)/2
+
+
+            select case (ido)
+                case (1)
+                    c2(1,:,1) = ch2(1,:,1)
+                case default
+                    ch2(1,:,1) = c2(1,:,1)
+                    ch(1,1,:,2:iip) = c1(1,1,:,2:iip)
+                    if ( nbd <= l1 ) then
+                        is = -ido
+                        do j=2,iip
+                            is = is+ido
+                            idij = is
+                            do i=3,ido,2
+                                idij = idij+2
+                                ch(1,i-1,:,j) = wa(idij-1)*c1(1,i-1,:,j)+wa(idij)*c1(1,i,:,j)
+                                ch(1,i,:,j) = wa(idij-1)*c1(1,i,:,j)-wa(idij)*c1(1,i-1,:,j)
+                            end do
+                        end do
+                    else
+                        is = -ido
+                        do j=2,iip
+                            is = is+ido
+                            do k=1,l1
+                                idij = is
+                                ch(1,2:ido-1:2,k,j) = &
+                                    wa(idij+1:ido-2+idij:2)*c1(1,2:ido-1:2,k,j)&
+                                    +wa(idij+2:ido-1+idij:2)*c1(1,3:ido:2,k,j)
+                                ch(1,3:ido:2,k,j) = &
+                                    wa(idij+1:ido-2+idij:2)*c1(1,3:ido:2,k,j)&
+                                    -wa(idij+2:ido-1+idij:2)*c1(1,2:ido-1:2,k,j)
+                            end do
+                        end do
+                    end if
+
+                    if (nbd >= l1) then
+                        do j=2,ipph
+                            jc = ipp2-j
+                            c1(1,2:ido-1:2,:, j)=ch(1,2:ido-1:2,:, j)+ch(1,2:ido-1:2,:, jc)
+                            c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
+                            c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
+                            c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
+                        end do
+                    else
+                        do j=2,ipph
+                            jc = ipp2-j
+                            c1(1,2:ido-1:2,:, j) = ch(1,2:ido-1:2,:, j) + ch(1,2:ido-1:2,:, jc)
+                            c1(1,2:ido-1:2,:, jc) = ch(1,3:ido:2,:, j) - ch(1,3:ido:2,:, jc)
+                            c1(1,3:ido:2,:, j) = ch(1,3:ido:2,:, j) + ch(1,3:ido:2,:, jc)
+                            c1(1,3:ido:2,:, jc) = ch(1,2:ido-1:2,:, jc) - ch(1,2:ido-1:2,:, j)
+                        end do
+                    end if
+            end select
+
+            do j=2,ipph
+                jc = ipp2-j
+                c1(1,1,:,j) = ch(1,1,:,j)+ch(1,1,:,jc)
+                c1(1,1,:,jc) = ch(1,1,:,jc)-ch(1,1,:,j)
+            end do
+
+            ar1 = 1.0_wp
+            ai1 = 0.0_wp
+            do l=2,ipph
+                lc = ipp2-l
+                ar1h = dcp*ar1-dsp*ai1
+                ai1 = dcp*ai1+dsp*ar1
+                ar1 = ar1h
+                ch2(1,:,l) = c2(1,:,1)+ar1*c2(1,:,2)
+                ch2(1,:,lc) = ai1*c2(1,:,iip)
+                dc2 = ar1
+                ds2 = ai1
+                ar2 = ar1
+                ai2 = ai1
+                do j=3,ipph
+                    jc = ipp2-j
+                    ar2h = dc2*ar2-ds2*ai2
+                    ai2 = dc2*ai2+ds2*ar2
+                    ar2 = ar2h
+                    ch2(1,:,l) = ch2(1,:,l)+ar2*c2(1,:,j)
+                    ch2(1,:,lc) = ch2(1,:,lc)+ai2*c2(1,:,jc)
+                end do
+            end do
+
+            do j=2,ipph
+                ch2(1,:,1) = ch2(1,:,1)+c2(1,:,j)
+            end do
+
+            cc(1,:,1,:) = ch(1,:,:,1)
+
+            cc(1,ido,2:(ipph-1)*2:2,:) = transpose(ch(1,1,:,2:ipph))
+
+            cc(1,1,3:ipph*2-1:2,:) = transpose(ch(1,1,:,ipp2-2:ipp2-ipph:(-1)))
+
+            select case (ido)
+                case (1)
+                    return
+                case default
+                    if (nbd >= l1) then
+
+                        cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
+                            reshape(source = &
+                            ch(1,2:ido-1:2,:,2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido -1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                            reshape(source = &
+                            ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido-1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
+                            reshape(source = &
+                            ch(1,3:ido:2,:,2:ipph)+ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido-1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                            reshape(source = &
+                            ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:, 2:ipph), shape &
+                            = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
+                    else
+                        cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
+                            reshape(source = &
+                            ch(1,2:ido-1:2,:, 2:ipph)+ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido-1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,idp2-4:idp2-1-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                            reshape(source = &
+                            ch(1,2:ido-1:2,:, 2:ipph)-ch(1,2:ido-1:2,:,ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido-1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,3:ido:2, 3:ipph*2-1:2,:) = &
+                            reshape(source = &
+                            ch(1,3:ido:2,:, 2:ipph) +ch(1,3:ido:2,:, ipp2-2:ipp2-ipph:(-1)), &
+                            shape = [(ido-1)/2, ipph-1, l1], &
+                            order = [1, 3, 2])
+
+                        cc(1,idp2-3:idp2-ido:(-2), 2:(ipph-1)*2:2,:) = &
+                            reshape(source = &
+                            ch(1,3:ido:2,:,ipp2-2:ipp2-ipph:(-1))-ch(1,3:ido:2,:,2:ipph), &
+                            shape = [(ido-1)/2, ipph-1, l1], order = [1, 3, 2])
+                    end if
+            end select
+
+        end subroutine r1fgkf
 
     end subroutine rfft1f
 
