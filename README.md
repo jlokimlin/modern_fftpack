@@ -1,4 +1,4 @@
-# **fftpack6.0 - a modern Fortran (2008+) library of fast Fourier transforms**
+# **fftpack6.0 - A modern Fortran (2008+) library of fast Fourier transforms**
 
 An object-oriented modernization of NCAR's FFTPACK5.1.
 

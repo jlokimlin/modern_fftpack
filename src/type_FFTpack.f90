@@ -18,6 +18,7 @@ module type_FFTpack
     public :: cosq1i, cosq1b, cosq1f, cosqmi, cosqmb, cosqmf
     public :: sinq1i, sinq1b, sinq1f, sinqmi, sinqmb, sinqmf
 
+    ! Declare derived data type
     type, public :: FFTpack
         !----------------------------------------------------------------------
         ! Class variables
@@ -2669,1430 +2670,6 @@ contains
 
     end subroutine cfftmi
 
-    subroutine cmf2kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,2)
-        real (wp) ch(2,in2,l1,2,ido)
-        real (wp) chold1
-        real (wp) chold2
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) ti2
-        real (wp) tr2
-        real (wp) wa(ido,1,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido .and. na /= 1) then
-            do k=1,l1
-                do m1=1,m1d,im1
-                    chold1 = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
-                    cc(1,m1,k,1,2) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
-                    cc(1,m1,k,1,1) = chold1
-                    chold2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
-                    cc(2,m1,k,1,2) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
-                    cc(2,m1,k,1,1) = chold2
-                end do
-            end do
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
-                    ch(1,m2,k,2,1) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
-                    ch(2,m2,k,2,1) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
-                end do
-            end do
-
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+cc(1,m1,k,i,2)
-                        tr2 = cc(1,m1,k,i,1)-cc(1,m1,k,i,2)
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+cc(2,m1,k,i,2)
-                        ti2 = cc(2,m1,k,i,1)-cc(2,m1,k,i,2)
-                        ch(2,m2,k,2,i) = wa(i,1,1)*ti2+wa(i,1,2)*tr2
-                        ch(1,m2,k,2,i) = wa(i,1,1)*tr2-wa(i,1,2)*ti2
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf2kb
-
-
-
-    subroutine cmf2kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-        !--------------------------------------------------
-        ! Dictionary: calling arguments
-        !--------------------------------------------------
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-        real (wp) cc(2,in1,l1,ido,2)
-
-        real (wp) ch(2,in2,l1,2,ido)
-        real (wp) chold1
-        real (wp) chold2
-
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-
-        integer (ip) na
-        real (wp) sn
-        real (wp) ti2
-        real (wp) tr2
-        real (wp) wa(ido,1,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido) then
-            sn = 1.0_wp/(2 * l1)
-            if (na /= 1) then
-                do k=1,l1
-                    do m1=1,m1d,im1
-                        chold1 = sn*(cc(1,m1,k,1,1)+cc(1,m1,k,1,2))
-                        cc(1,m1,k,1,2) = sn*(cc(1,m1,k,1,1)-cc(1,m1,k,1,2))
-                        cc(1,m1,k,1,1) = chold1
-                        chold2 = sn*(cc(2,m1,k,1,1)+cc(2,m1,k,1,2))
-                        cc(2,m1,k,1,2) = sn*(cc(2,m1,k,1,1)-cc(2,m1,k,1,2))
-                        cc(2,m1,k,1,1) = chold2
-                    end do
-                end do
-            else
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+cc(1,m1,k,1,2))
-                        ch(1,m2,k,2,1) = sn*(cc(1,m1,k,1,1)-cc(1,m1,k,1,2))
-                        ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+cc(2,m1,k,1,2))
-                        ch(2,m2,k,2,1) = sn*(cc(2,m1,k,1,1)-cc(2,m1,k,1,2))
-                    end do
-                end do
-            end if
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
-                    ch(1,m2,k,2,1) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
-                    ch(2,m2,k,2,1) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
-                end do
-            end do
-
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+cc(1,m1,k,i,2)
-                        tr2 = cc(1,m1,k,i,1)-cc(1,m1,k,i,2)
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+cc(2,m1,k,i,2)
-                        ti2 = cc(2,m1,k,i,1)-cc(2,m1,k,i,2)
-                        ch(2,m2,k,2,i) = wa(i,1,1)*ti2-wa(i,1,2)*tr2
-                        ch(1,m2,k,2,i) = wa(i,1,1)*tr2+wa(i,1,2)*ti2
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf2kf
-
-
-    subroutine cmf3kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,3)
-        real (wp) ch(2,in2,l1,3,ido)
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) di2
-        real (wp) di3
-        real (wp) dr2
-        real (wp) dr3
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp), parameter :: TAUI =  0.866025403784439_wp
-        real (wp), parameter :: TAUR = -0.5_wp
-        real (wp) ti2
-        real (wp) tr2
-        real (wp) wa(ido,2,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido .and. na /= 1) then
-            do k=1,l1
-                do m1=1,m1d,im1
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                    cr2 = cc(1,m1,k,1,1)+TAUR*tr2
-                    cc(1,m1,k,1,1) = cc(1,m1,k,1,1)+tr2
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                    ci2 = cc(2,m1,k,1,1)+TAUR*ti2
-                    cc(2,m1,k,1,1) = cc(2,m1,k,1,1)+ti2
-                    cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                    ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
-                    cc(1,m1,k,1,2) = cr2-ci3
-                    cc(1,m1,k,1,3) = cr2+ci3
-                    cc(2,m1,k,1,2) = ci2+cr3
-                    cc(2,m1,k,1,3) = ci2-cr3
-                end do
-            end do
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                    cr2 = cc(1,m1,k,1,1)+TAUR*tr2
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                    ci2 = cc(2,m1,k,1,1)+TAUR*ti2
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2
-                    cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                    ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
-                    ch(1,m2,k,2,1) = cr2-ci3
-                    ch(1,m2,k,3,1) = cr2+ci3
-                    ch(2,m2,k,2,1) = ci2+cr3
-                    ch(2,m2,k,3,1) = ci2-cr3
-                end do
-            end do
-
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,3)
-                        cr2 = cc(1,m1,k,i,1)+TAUR*tr2
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2
-                        ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,3)
-                        ci2 = cc(2,m1,k,i,1)+TAUR*ti2
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2
-                        cr3 = TAUI*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
-                        ci3 = TAUI*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
-                        dr2 = cr2-ci3
-                        dr3 = cr2+ci3
-                        di2 = ci2+cr3
-                        di3 = ci2-cr3
-                        ch(2,m2,k,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
-                        ch(1,m2,k,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
-                        ch(2,m2,k,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
-                        ch(1,m2,k,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
-                    end do
-                end do
-            end do
-        end if
-    end subroutine cmf3kb
-
-    subroutine cmf3kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,3)
-        real (wp) ch(2,in2,l1,3,ido)
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) di2
-        real (wp) di3
-        real (wp) dr2
-        real (wp) dr3
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) sn
-        real (wp), parameter :: taui = -0.866025403784439_wp
-        real (wp), parameter :: taur = -0.5_wp
-        real (wp) ti2
-        real (wp) tr2
-        real (wp) wa(ido,2,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido) then
-            sn = 1.0_wp/(3 * l1)
-            if (na /= 1) then
-                do k=1,l1
-                    do m1=1,m1d,im1
-                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                        cr2 = cc(1,m1,k,1,1)+taur*tr2
-                        cc(1,m1,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2)
-                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                        ci2 = cc(2,m1,k,1,1)+taur*ti2
-                        cc(2,m1,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2)
-                        cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                        ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
-                        cc(1,m1,k,1,2) = sn*(cr2-ci3)
-                        cc(1,m1,k,1,3) = sn*(cr2+ci3)
-                        cc(2,m1,k,1,2) = sn*(ci2+cr3)
-                        cc(2,m1,k,1,3) = sn*(ci2-cr3)
-                    end do
-                end do
-            else
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                        cr2 = cc(1,m1,k,1,1)+taur*tr2
-                        ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2)
-                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                        ci2 = cc(2,m1,k,1,1)+taur*ti2
-                        ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2)
-                        cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                        ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
-                        ch(1,m2,k,2,1) = sn*(cr2-ci3)
-                        ch(1,m2,k,3,1) = sn*(cr2+ci3)
-                        ch(2,m2,k,2,1) = sn*(ci2+cr3)
-                        ch(2,m2,k,3,1) = sn*(ci2-cr3)
-                    end do
-                end do
-            end if
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
-                    cr2 = cc(1,m1,k,1,1)+taur*tr2
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
-                    ci2 = cc(2,m1,k,1,1)+taur*ti2
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2
-                    cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
-                    ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
-                    ch(1,m2,k,2,1) = cr2-ci3
-                    ch(1,m2,k,3,1) = cr2+ci3
-                    ch(2,m2,k,2,1) = ci2+cr3
-                    ch(2,m2,k,3,1) = ci2-cr3
-                end do
-            end do
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,3)
-                        cr2 = cc(1,m1,k,i,1)+taur*tr2
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2
-                        ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,3)
-                        ci2 = cc(2,m1,k,i,1)+taur*ti2
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2
-                        cr3 = taui*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
-                        ci3 = taui*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
-                        dr2 = cr2-ci3
-                        dr3 = cr2+ci3
-                        di2 = ci2+cr3
-                        di3 = ci2-cr3
-                        ch(2,m2,k,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
-                        ch(1,m2,k,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
-                        ch(2,m2,k,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
-                        ch(1,m2,k,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf3kf
-
-    subroutine cmf4kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,4)
-        real (wp) ch(2,in2,l1,4,ido)
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) ci4
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) cr4
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) ti1
-        real (wp) ti2
-        real (wp) ti3
-        real (wp) ti4
-        real (wp) tr1
-        real (wp) tr2
-        real (wp) tr3
-        real (wp) tr4
-        real (wp) wa(ido,3,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido .and. na /= 1) then
-            do k=1,l1
-                do m1=1,m1d,im1
-                    ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
-                    ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
-                    tr4 = cc(2,m1,k,1,4)-cc(2,m1,k,1,2)
-                    ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
-                    tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
-                    tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
-                    ti4 = cc(1,m1,k,1,2)-cc(1,m1,k,1,4)
-                    tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
-                    cc(1,m1,k,1,1) = tr2+tr3
-                    cc(1,m1,k,1,3) = tr2-tr3
-                    cc(2,m1,k,1,1) = ti2+ti3
-                    cc(2,m1,k,1,3) = ti2-ti3
-                    cc(1,m1,k,1,2) = tr1+tr4
-                    cc(1,m1,k,1,4) = tr1-tr4
-                    cc(2,m1,k,1,2) = ti1+ti4
-                    cc(2,m1,k,1,4) = ti1-ti4
-                end do
-            end do
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
-                    ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
-                    tr4 = cc(2,m1,k,1,4)-cc(2,m1,k,1,2)
-                    ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
-                    tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
-                    tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
-                    ti4 = cc(1,m1,k,1,2)-cc(1,m1,k,1,4)
-                    tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
-                    ch(1,m2,k,1,1) = tr2+tr3
-                    ch(1,m2,k,3,1) = tr2-tr3
-                    ch(2,m2,k,1,1) = ti2+ti3
-                    ch(2,m2,k,3,1) = ti2-ti3
-                    ch(1,m2,k,2,1) = tr1+tr4
-                    ch(1,m2,k,4,1) = tr1-tr4
-                    ch(2,m2,k,2,1) = ti1+ti4
-                    ch(2,m2,k,4,1) = ti1-ti4
-                end do
-            end do
-
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti1 = cc(2,m1,k,i,1)-cc(2,m1,k,i,3)
-                        ti2 = cc(2,m1,k,i,1)+cc(2,m1,k,i,3)
-                        ti3 = cc(2,m1,k,i,2)+cc(2,m1,k,i,4)
-                        tr4 = cc(2,m1,k,i,4)-cc(2,m1,k,i,2)
-                        tr1 = cc(1,m1,k,i,1)-cc(1,m1,k,i,3)
-                        tr2 = cc(1,m1,k,i,1)+cc(1,m1,k,i,3)
-                        ti4 = cc(1,m1,k,i,2)-cc(1,m1,k,i,4)
-                        tr3 = cc(1,m1,k,i,2)+cc(1,m1,k,i,4)
-                        ch(1,m2,k,1,i) = tr2+tr3
-                        cr3 = tr2-tr3
-                        ch(2,m2,k,1,i) = ti2+ti3
-                        ci3 = ti2-ti3
-                        cr2 = tr1+tr4
-                        cr4 = tr1-tr4
-                        ci2 = ti1+ti4
-                        ci4 = ti1-ti4
-                        ch(1,m2,k,2,i) = wa(i,1,1)*cr2-wa(i,1,2)*ci2
-                        ch(2,m2,k,2,i) = wa(i,1,1)*ci2+wa(i,1,2)*cr2
-                        ch(1,m2,k,3,i) = wa(i,2,1)*cr3-wa(i,2,2)*ci3
-                        ch(2,m2,k,3,i) = wa(i,2,1)*ci3+wa(i,2,2)*cr3
-                        ch(1,m2,k,4,i) = wa(i,3,1)*cr4-wa(i,3,2)*ci4
-                        ch(2,m2,k,4,i) = wa(i,3,1)*ci4+wa(i,3,2)*cr4
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf4kb
-
-    subroutine cmf4kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,4)
-        real (wp) ch(2,in2,l1,4,ido)
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) ci4
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) cr4
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) sn
-        real (wp) ti1
-        real (wp) ti2
-        real (wp) ti3
-        real (wp) ti4
-        real (wp) tr1
-        real (wp) tr2
-        real (wp) tr3
-        real (wp) tr4
-        real (wp) wa(ido,3,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido) then
-            sn = 1.0_wp /(4 * l1)
-            if (na /= 1) then
-                do k=1,l1
-                    do m1=1,m1d,im1
-                        ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
-                        ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
-                        tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
-                        ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
-                        tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
-                        tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
-                        ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
-                        tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
-                        cc(1,m1,k,1,1) = sn*(tr2+tr3)
-                        cc(1,m1,k,1,3) = sn*(tr2-tr3)
-                        cc(2,m1,k,1,1) = sn*(ti2+ti3)
-                        cc(2,m1,k,1,3) = sn*(ti2-ti3)
-                        cc(1,m1,k,1,2) = sn*(tr1+tr4)
-                        cc(1,m1,k,1,4) = sn*(tr1-tr4)
-                        cc(2,m1,k,1,2) = sn*(ti1+ti4)
-                        cc(2,m1,k,1,4) = sn*(ti1-ti4)
-                    end do
-                end do
-            else
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
-                        ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
-                        tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
-                        ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
-                        tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
-                        tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
-                        ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
-                        tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
-                        ch(1,m2,k,1,1) = sn*(tr2+tr3)
-                        ch(1,m2,k,3,1) = sn*(tr2-tr3)
-                        ch(2,m2,k,1,1) = sn*(ti2+ti3)
-                        ch(2,m2,k,3,1) = sn*(ti2-ti3)
-                        ch(1,m2,k,2,1) = sn*(tr1+tr4)
-                        ch(1,m2,k,4,1) = sn*(tr1-tr4)
-                        ch(2,m2,k,2,1) = sn*(ti1+ti4)
-                        ch(2,m2,k,4,1) = sn*(ti1-ti4)
-                    end do
-                end do
-            end if
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
-                    ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
-                    tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
-                    ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
-                    tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
-                    tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
-                    ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
-                    tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
-                    ch(1,m2,k,1,1) = tr2+tr3
-                    ch(1,m2,k,3,1) = tr2-tr3
-                    ch(2,m2,k,1,1) = ti2+ti3
-                    ch(2,m2,k,3,1) = ti2-ti3
-                    ch(1,m2,k,2,1) = tr1+tr4
-                    ch(1,m2,k,4,1) = tr1-tr4
-                    ch(2,m2,k,2,1) = ti1+ti4
-                    ch(2,m2,k,4,1) = ti1-ti4
-                end do
-            end do
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti1 = cc(2,m1,k,i,1)-cc(2,m1,k,i,3)
-                        ti2 = cc(2,m1,k,i,1)+cc(2,m1,k,i,3)
-                        ti3 = cc(2,m1,k,i,2)+cc(2,m1,k,i,4)
-                        tr4 = cc(2,m1,k,i,2)-cc(2,m1,k,i,4)
-                        tr1 = cc(1,m1,k,i,1)-cc(1,m1,k,i,3)
-                        tr2 = cc(1,m1,k,i,1)+cc(1,m1,k,i,3)
-                        ti4 = cc(1,m1,k,i,4)-cc(1,m1,k,i,2)
-                        tr3 = cc(1,m1,k,i,2)+cc(1,m1,k,i,4)
-                        ch(1,m2,k,1,i) = tr2+tr3
-                        cr3 = tr2-tr3
-                        ch(2,m2,k,1,i) = ti2+ti3
-                        ci3 = ti2-ti3
-                        cr2 = tr1+tr4
-                        cr4 = tr1-tr4
-                        ci2 = ti1+ti4
-                        ci4 = ti1-ti4
-                        ch(1,m2,k,2,i) = wa(i,1,1)*cr2+wa(i,1,2)*ci2
-                        ch(2,m2,k,2,i) = wa(i,1,1)*ci2-wa(i,1,2)*cr2
-                        ch(1,m2,k,3,i) = wa(i,2,1)*cr3+wa(i,2,2)*ci3
-                        ch(2,m2,k,3,i) = wa(i,2,1)*ci3-wa(i,2,2)*cr3
-                        ch(1,m2,k,4,i) = wa(i,3,1)*cr4+wa(i,3,2)*ci4
-                        ch(2,m2,k,4,i) = wa(i,3,1)*ci4-wa(i,3,2)*cr4
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf4kf
-
-    subroutine cmf5kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,5)
-        real (wp) ch(2,in2,l1,5,ido)
-        real (wp) chold1
-        real (wp) chold2
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) ci4
-        real (wp) ci5
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) cr4
-        real (wp) cr5
-        real (wp) di2
-        real (wp) di3
-        real (wp) di4
-        real (wp) di5
-        real (wp) dr2
-        real (wp) dr3
-        real (wp) dr4
-        real (wp) dr5
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) ti2
-        real (wp) ti3
-        real (wp) ti4
-        real (wp) ti5
-        real (wp) tr2
-        real (wp) tr3
-        real (wp) tr4
-        real (wp) tr5
-        real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-        real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
-        real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
-        real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
-        real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-        real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
-
-        real (wp) wa(ido,4,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido .and. na /= 1) then
-            do k=1,l1
-                do m1=1,m1d,im1
-                    ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
-                    ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
-                    ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
-                    tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
-                    tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
-                    tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
-                    chold1 = cc(1,m1,k,1,1)+tr2+tr3
-                    chold2 = cc(2,m1,k,1,1)+ti2+ti3
-                    cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
-                    cc(1,m1,k,1,1) = chold1
-                    cc(2,m1,k,1,1) = chold2
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
-                    cc(1,m1,k,1,2) = cr2-ci5
-                    cc(1,m1,k,1,5) = cr2+ci5
-                    cc(2,m1,k,1,2) = ci2+cr5
-                    cc(2,m1,k,1,3) = ci3+cr4
-                    cc(1,m1,k,1,3) = cr3-ci4
-                    cc(1,m1,k,1,4) = cr3+ci4
-                    cc(2,m1,k,1,4) = ci3-cr4
-                    cc(2,m1,k,1,5) = ci2-cr5
-                end do
-            end do
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
-                    ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
-                    ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
-                    tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
-                    tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
-                    tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2+tr3
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2+ti3
-                    cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
-                    ch(1,m2,k,2,1) = cr2-ci5
-                    ch(1,m2,k,5,1) = cr2+ci5
-                    ch(2,m2,k,2,1) = ci2+cr5
-                    ch(2,m2,k,3,1) = ci3+cr4
-                    ch(1,m2,k,3,1) = cr3-ci4
-                    ch(1,m2,k,4,1) = cr3+ci4
-                    ch(2,m2,k,4,1) = ci3-cr4
-                    ch(2,m2,k,5,1) = ci2-cr5
-                end do
-            end do
-
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti5 = cc(2,m1,k,i,2)-cc(2,m1,k,i,5)
-                        ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,5)
-                        ti4 = cc(2,m1,k,i,3)-cc(2,m1,k,i,4)
-                        ti3 = cc(2,m1,k,i,3)+cc(2,m1,k,i,4)
-                        tr5 = cc(1,m1,k,i,2)-cc(1,m1,k,i,5)
-                        tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,5)
-                        tr4 = cc(1,m1,k,i,3)-cc(1,m1,k,i,4)
-                        tr3 = cc(1,m1,k,i,3)+cc(1,m1,k,i,4)
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2+tr3
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2+ti3
-                        cr2 = cc(1,m1,k,i,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,m1,k,i,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,m1,k,i,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,m1,k,i,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
-                        dr3 = cr3-ci4
-                        dr4 = cr3+ci4
-                        di3 = ci3+cr4
-                        di4 = ci3-cr4
-                        dr5 = cr2+ci5
-                        dr2 = cr2-ci5
-                        di5 = ci2-cr5
-                        di2 = ci2+cr5
-                        ch(1,m2,k,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
-                        ch(2,m2,k,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
-                        ch(1,m2,k,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
-                        ch(2,m2,k,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
-                        ch(1,m2,k,4,i) = wa(i,3,1)*dr4-wa(i,3,2)*di4
-                        ch(2,m2,k,4,i) = wa(i,3,1)*di4+wa(i,3,2)*dr4
-                        ch(1,m2,k,5,i) = wa(i,4,1)*dr5-wa(i,4,2)*di5
-                        ch(2,m2,k,5,i) = wa(i,4,1)*di5+wa(i,4,2)*dr5
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf5kb
-
-    subroutine cmf5kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) l1
-
-        real (wp) cc(2,in1,l1,ido,5)
-        real (wp) ch(2,in2,l1,5,ido)
-        real (wp) chold1
-        real (wp) chold2
-        real (wp) ci2
-        real (wp) ci3
-        real (wp) ci4
-        real (wp) ci5
-        real (wp) cr2
-        real (wp) cr3
-        real (wp) cr4
-        real (wp) cr5
-        real (wp) di2
-        real (wp) di3
-        real (wp) di4
-        real (wp) di5
-        real (wp) dr2
-        real (wp) dr3
-        real (wp) dr4
-        real (wp) dr5
-        integer (ip) i
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) k
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) sn
-        real (wp) ti2
-        real (wp) ti3
-        real (wp) ti4
-        real (wp) ti5
-        real (wp) tr2
-        real (wp) tr3
-        real (wp) tr4
-        real (wp) tr5
-
-        real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-        real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
-        real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
-        real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
-        real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-        real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
-
-        real (wp) wa(ido,4,2)
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-
-        if (1 >= ido) then
-            sn = 1.0_wp/(5 * l1)
-            if (na /= 1) then
-                do k=1,l1
-                    do m1=1,m1d,im1
-                        ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
-                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
-                        ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
-                        ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
-                        tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
-                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
-                        tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
-                        tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
-                        chold1 = sn*(cc(1,m1,k,1,1)+tr2+tr3)
-                        chold2 = sn*(cc(2,m1,k,1,1)+ti2+ti3)
-                        cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
-                        cc(1,m1,k,1,1) = chold1
-                        cc(2,m1,k,1,1) = chold2
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
-                        cc(1,m1,k,1,2) = sn*(cr2-ci5)
-                        cc(1,m1,k,1,5) = sn*(cr2+ci5)
-                        cc(2,m1,k,1,2) = sn*(ci2+cr5)
-                        cc(2,m1,k,1,3) = sn*(ci3+cr4)
-                        cc(1,m1,k,1,3) = sn*(cr3-ci4)
-                        cc(1,m1,k,1,4) = sn*(cr3+ci4)
-                        cc(2,m1,k,1,4) = sn*(ci3-cr4)
-                        cc(2,m1,k,1,5) = sn*(ci2-cr5)
-                    end do
-                end do
-            else
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
-                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
-                        ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
-                        ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
-                        tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
-                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
-                        tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
-                        tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
-                        ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2+tr3)
-                        ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2+ti3)
-                        cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
-                        ch(1,m2,k,2,1) = sn*(cr2-ci5)
-                        ch(1,m2,k,5,1) = sn*(cr2+ci5)
-                        ch(2,m2,k,2,1) = sn*(ci2+cr5)
-                        ch(2,m2,k,3,1) = sn*(ci3+cr4)
-                        ch(1,m2,k,3,1) = sn*(cr3-ci4)
-                        ch(1,m2,k,4,1) = sn*(cr3+ci4)
-                        ch(2,m2,k,4,1) = sn*(ci3-cr4)
-                        ch(2,m2,k,5,1) = sn*(ci2-cr5)
-                    end do
-                end do
-            end if
-        else
-            do k=1,l1
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
-                    ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
-                    ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
-                    ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
-                    tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
-                    tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
-                    tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
-                    tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
-                    ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2+tr3
-                    ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2+ti3
-                    cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
-                    ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
-                    cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
-                    ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
-                    cr5 = ti11*tr5+ti12*tr4
-                    ci5 = ti11*ti5+ti12*ti4
-                    cr4 = ti12*tr5-ti11*tr4
-                    ci4 = ti12*ti5-ti11*ti4
-                    ch(1,m2,k,2,1) = cr2-ci5
-                    ch(1,m2,k,5,1) = cr2+ci5
-                    ch(2,m2,k,2,1) = ci2+cr5
-                    ch(2,m2,k,3,1) = ci3+cr4
-                    ch(1,m2,k,3,1) = cr3-ci4
-                    ch(1,m2,k,4,1) = cr3+ci4
-                    ch(2,m2,k,4,1) = ci3-cr4
-                    ch(2,m2,k,5,1) = ci2-cr5
-                end do
-            end do
-            do i=2,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ti5 = cc(2,m1,k,i,2)-cc(2,m1,k,i,5)
-                        ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,5)
-                        ti4 = cc(2,m1,k,i,3)-cc(2,m1,k,i,4)
-                        ti3 = cc(2,m1,k,i,3)+cc(2,m1,k,i,4)
-                        tr5 = cc(1,m1,k,i,2)-cc(1,m1,k,i,5)
-                        tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,5)
-                        tr4 = cc(1,m1,k,i,3)-cc(1,m1,k,i,4)
-                        tr3 = cc(1,m1,k,i,3)+cc(1,m1,k,i,4)
-                        ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2+tr3
-                        ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2+ti3
-                        cr2 = cc(1,m1,k,i,1)+tr11*tr2+tr12*tr3
-                        ci2 = cc(2,m1,k,i,1)+tr11*ti2+tr12*ti3
-                        cr3 = cc(1,m1,k,i,1)+tr12*tr2+tr11*tr3
-                        ci3 = cc(2,m1,k,i,1)+tr12*ti2+tr11*ti3
-                        cr5 = ti11*tr5+ti12*tr4
-                        ci5 = ti11*ti5+ti12*ti4
-                        cr4 = ti12*tr5-ti11*tr4
-                        ci4 = ti12*ti5-ti11*ti4
-                        dr3 = cr3-ci4
-                        dr4 = cr3+ci4
-                        di3 = ci3+cr4
-                        di4 = ci3-cr4
-                        dr5 = cr2+ci5
-                        dr2 = cr2-ci5
-                        di5 = ci2-cr5
-                        di2 = ci2+cr5
-                        ch(1,m2,k,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
-                        ch(2,m2,k,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
-                        ch(1,m2,k,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
-                        ch(2,m2,k,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
-                        ch(1,m2,k,4,i) = wa(i,3,1)*dr4+wa(i,3,2)*di4
-                        ch(2,m2,k,4,i) = wa(i,3,1)*di4-wa(i,3,2)*dr4
-                        ch(1,m2,k,5,i) = wa(i,4,1)*dr5+wa(i,4,2)*di5
-                        ch(2,m2,k,5,i) = wa(i,4,1)*di5-wa(i,4,2)*dr5
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmf5kf
-
-    subroutine cmfgkb(lot, ido, iip, l1, lid, na, cc, cc1, im1, in1, &
-        ch, ch1, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) iip
-        integer (ip) l1
-        integer (ip) lid
-
-        real (wp) cc(2,in1,l1,iip,ido)
-        real (wp) cc1(2,in1,lid,iip)
-        real (wp) ch(2,in2,l1,ido,iip)
-        real (wp) ch1(2,in2,lid,iip)
-        real (wp) chold1
-        real (wp) chold2
-        integer (ip) i
-        integer (ip) idlj
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) iipp2
-        integer (ip) iipph
-        integer (ip) j
-        integer (ip) jc
-        integer (ip) k
-        integer (ip) ki
-        integer (ip) l
-        integer (ip) lc
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) wa(ido,iip-1,2)
-        real (wp) wai
-        real (wp) war
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-        iipp2 = iip+2
-        iipph = (iip+1)/2
-
-        do ki=1,lid
-            m2 = m2s
-            do m1=1,m1d,im1
-                m2 = m2+im2
-                ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
-                ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
-            end do
-        end do
-
-        do j=2,iipph
-            jc = iipp2-j
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch1(1,m2,ki,j) =  cc1(1,m1,ki,j)+cc1(1,m1,ki,jc)
-                    ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)-cc1(1,m1,ki,jc)
-                    ch1(2,m2,ki,j) =  cc1(2,m1,ki,j)+cc1(2,m1,ki,jc)
-                    ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(2,m1,ki,jc)
-                end do
-            end do
-        end do
-
-        do j=2,iipph
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    cc1(1,m1,ki,1) = cc1(1,m1,ki,1)+ch1(1,m2,ki,j)
-                    cc1(2,m1,ki,1) = cc1(2,m1,ki,1)+ch1(2,m2,ki,j)
-                end do
-            end do
-        end do
-
-        do l=2,iipph
-            lc = iipp2-l
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    cc1(1,m1,ki,l) = ch1(1,m2,ki,1)+wa(1,l-1,1)*ch1(1,m2,ki,2)
-                    cc1(1,m1,ki,lc) = wa(1,l-1,2)*ch1(1,m2,ki,iip)
-                    cc1(2,m1,ki,l) = ch1(2,m2,ki,1)+wa(1,l-1,1)*ch1(2,m2,ki,2)
-                    cc1(2,m1,ki,lc) = wa(1,l-1,2)*ch1(2,m2,ki,iip)
-                end do
-            end do
-            do j=3,iipph
-                jc = iipp2-j
-                idlj = mod((l-1)*(j-1),iip)
-                war = wa(1,idlj,1)
-                wai = wa(1,idlj,2)
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        cc1(1,m1,ki,l) = cc1(1,m1,ki,l)+war*ch1(1,m2,ki,j)
-                        cc1(1,m1,ki,lc) = cc1(1,m1,ki,lc)+wai*ch1(1,m2,ki,jc)
-                        cc1(2,m1,ki,l) = cc1(2,m1,ki,l)+war*ch1(2,m2,ki,j)
-                        cc1(2,m1,ki,lc) = cc1(2,m1,ki,lc)+wai*ch1(2,m2,ki,jc)
-                    end do
-                end do
-            end do
-        end do
-
-        if (1 >= ido .and. na /= 1) then
-            do j=2,iipph
-                jc = iipp2-j
-                do ki=1,lid
-                    do m1=1,m1d,im1
-                        chold1 = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
-                        chold2 = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
-                        cc1(1,m1,ki,j) = chold1
-                        cc1(2,m1,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
-                        cc1(2,m1,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
-                        cc1(1,m1,ki,jc) = chold2
-                    end do
-                end do
-            end do
-        else
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
-                    ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
-                end do
-            end do
-
-            do j=2,iipph
-                jc = iipp2-j
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch1(1,m2,ki,j) = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
-                        ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
-                        ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
-                        ch1(2,m2,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
-                    end do
-                end do
-            end do
-
-            if (ido /= 1) then
-                do i=1,ido
-                    do k=1,l1
-                        m2 = m2s
-                        do m1=1,m1d,im1
-                            m2 = m2+im2
-                            cc(1,m1,k,1,i) = ch(1,m2,k,i,1)
-                            cc(2,m1,k,1,i) = ch(2,m2,k,i,1)
-                        end do
-                    end do
-                end do
-
-                do j=2,iip
-                    do k=1,l1
-                        m2 = m2s
-                        do m1=1,m1d,im1
-                            m2 = m2+im2
-                            cc(1,m1,k,j,1) = ch(1,m2,k,1,j)
-                            cc(2,m1,k,j,1) = ch(2,m2,k,1,j)
-                        end do
-                    end do
-                end do
-
-                do j=2,iip
-                    do i=2,ido
-                        do k=1,l1
-                            m2 = m2s
-                            do m1=1,m1d,im1
-                                m2 = m2+im2
-                                cc(1,m1,k,j,i) = wa(i,j-1,1)*ch(1,m2,k,i,j) &
-                                    -wa(i,j-1,2)*ch(2,m2,k,i,j)
-                                cc(2,m1,k,j,i) = wa(i,j-1,1)*ch(2,m2,k,i,j) &
-                                    +wa(i,j-1,2)*ch(1,m2,k,i,j)
-                            end do
-                        end do
-                    end do
-                end do
-            end if
-        end if
-
-    end subroutine cmfgkb
-
-
-
-    subroutine cmfgkf(lot, ido, iip, l1, lid, na, cc, cc1, im1, in1, &
-        ch, ch1, im2, in2, wa)
-
-        integer (ip) ido
-        integer (ip) in1
-        integer (ip) in2
-        integer (ip) iip
-        integer (ip) l1
-        integer (ip) lid
-
-        real (wp) cc(2,in1,l1,iip,ido)
-        real (wp) cc1(2,in1,lid,iip)
-        real (wp) ch(2,in2,l1,ido,iip)
-        real (wp) ch1(2,in2,lid,iip)
-        real (wp) chold1
-        real (wp) chold2
-        integer (ip) i
-        integer (ip) idlj
-        integer (ip) im1
-        integer (ip) im2
-        integer (ip) iipp2
-        integer (ip) iipph
-        integer (ip) j
-        integer (ip) jc
-        integer (ip) k
-        integer (ip) ki
-        integer (ip) l
-        integer (ip) lc
-        integer (ip) lot
-        integer (ip) m1
-        integer (ip) m1d
-        integer (ip) m2
-        integer (ip) m2s
-        integer (ip) na
-        real (wp) sn
-        real (wp) wa(ido,iip-1,2)
-        real (wp) wai
-        real (wp) war
-
-        m1d = (lot-1)*im1+1
-        m2s = 1-im2
-        iipp2 = iip+2
-        iipph = (iip+1)/2
-
-        do  ki=1,lid
-            m2 = m2s
-            do m1=1,m1d,im1
-                m2 = m2+im2
-                ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
-                ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
-            end do
-        end do
-
-        do j=2,iipph
-            jc = iipp2-j
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch1(1,m2,ki,j) =  cc1(1,m1,ki,j)+cc1(1,m1,ki,jc)
-                    ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)-cc1(1,m1,ki,jc)
-                    ch1(2,m2,ki,j) =  cc1(2,m1,ki,j)+cc1(2,m1,ki,jc)
-                    ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(2,m1,ki,jc)
-                end do
-            end do
-        end do
-
-        do j=2,iipph
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    cc1(1,m1,ki,1) = cc1(1,m1,ki,1)+ch1(1,m2,ki,j)
-                    cc1(2,m1,ki,1) = cc1(2,m1,ki,1)+ch1(2,m2,ki,j)
-                end do
-            end do
-        end do
-
-        do l=2,iipph
-            lc = iipp2-l
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    cc1(1,m1,ki,l) = ch1(1,m2,ki,1)+wa(1,l-1,1)*ch1(1,m2,ki,2)
-                    cc1(1,m1,ki,lc) = -wa(1,l-1,2)*ch1(1,m2,ki,iip)
-                    cc1(2,m1,ki,l) = ch1(2,m2,ki,1)+wa(1,l-1,1)*ch1(2,m2,ki,2)
-                    cc1(2,m1,ki,lc) = -wa(1,l-1,2)*ch1(2,m2,ki,iip)
-                end do
-            end do
-            do j=3,iipph
-                jc = iipp2-j
-                idlj = mod((l-1)*(j-1),iip)
-                war = wa(1,idlj,1)
-                wai = -wa(1,idlj,2)
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        cc1(1,m1,ki,l) = cc1(1,m1,ki,l)+war*ch1(1,m2,ki,j)
-                        cc1(1,m1,ki,lc) = cc1(1,m1,ki,lc)+wai*ch1(1,m2,ki,jc)
-                        cc1(2,m1,ki,l) = cc1(2,m1,ki,l)+war*ch1(2,m2,ki,j)
-                        cc1(2,m1,ki,lc) = cc1(2,m1,ki,lc)+wai*ch1(2,m2,ki,jc)
-                    end do
-                end do
-            end do
-        end do
-
-        if (1 >= ido) then
-            sn = 1.0_wp /(iip * l1)
-            if (na /= 1) then
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        cc1(1,m1,ki,1) = sn*cc1(1,m1,ki,1)
-                        cc1(2,m1,ki,1) = sn*cc1(2,m1,ki,1)
-                    end do
-                end do
-                do j=2,iipph
-                    jc = iipp2-j
-                    do ki=1,lid
-                        do m1=1,m1d,im1
-                            chold1 = sn*(cc1(1,m1,ki,j)-cc1(2,m1,ki,jc))
-                            chold2 = sn*(cc1(1,m1,ki,j)+cc1(2,m1,ki,jc))
-                            cc1(1,m1,ki,j) = chold1
-                            cc1(2,m1,ki,jc) = sn*(cc1(2,m1,ki,j)-cc1(1,m1,ki,jc))
-                            cc1(2,m1,ki,j) = sn*(cc1(2,m1,ki,j)+cc1(1,m1,ki,jc))
-                            cc1(1,m1,ki,jc) = chold2
-                        end do
-                    end do
-                end do
-            else
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch1(1,m2,ki,1) = sn*cc1(1,m1,ki,1)
-                        ch1(2,m2,ki,1) = sn*cc1(2,m1,ki,1)
-                    end do
-                end do
-                do j=2,iipph
-                    jc = iipp2-j
-                    do ki=1,lid
-                        m2 = m2s
-                        do m1=1,m1d,im1
-                            m2 = m2+im2
-                            ch1(1,m2,ki,j) = sn*(cc1(1,m1,ki,j)-cc1(2,m1,ki,jc))
-                            ch1(2,m2,ki,j) = sn*(cc1(2,m1,ki,j)+cc1(1,m1,ki,jc))
-                            ch1(1,m2,ki,jc) = sn*(cc1(1,m1,ki,j)+cc1(2,m1,ki,jc))
-                            ch1(2,m2,ki,jc) = sn*(cc1(2,m1,ki,j)-cc1(1,m1,ki,jc))
-                        end do
-                    end do
-                end do
-            end if
-        else
-            do ki=1,lid
-                m2 = m2s
-                do m1=1,m1d,im1
-                    m2 = m2+im2
-                    ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
-                    ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
-                end do
-            end do
-            do j=2,iipph
-                jc = iipp2-j
-                do ki=1,lid
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        ch1(1,m2,ki,j) = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
-                        ch1(2,m2,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
-                        ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
-                        ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
-                    end do
-                end do
-            end do
-            do i=1,ido
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        cc(1,m1,k,1,i) = ch(1,m2,k,i,1)
-                        cc(2,m1,k,1,i) = ch(2,m2,k,i,1)
-                    end do
-                end do
-            end do
-            do j=2,iip
-                do k=1,l1
-                    m2 = m2s
-                    do m1=1,m1d,im1
-                        m2 = m2+im2
-                        cc(1,m1,k,j,1) = ch(1,m2,k,1,j)
-                        cc(2,m1,k,j,1) = ch(2,m2,k,1,j)
-                    end do
-                end do
-            end do
-            do j=2,iip
-                do i=2,ido
-                    do k=1,l1
-                        m2 = m2s
-                        do m1=1,m1d,im1
-                            m2 = m2+im2
-                            cc(1,m1,k,j,i) = wa(i,j-1,1)*ch(1,m2,k,i,j) &
-                                +wa(i,j-1,2)*ch(2,m2,k,i,j)
-                            cc(2,m1,k,j,i) = wa(i,j-1,1)*ch(2,m2,k,i,j) &
-                                -wa(i,j-1,2)*ch(1,m2,k,i,j)
-                        end do
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine cmfgkf
 
     subroutine cmfm1b(lot, jump, n, inc, c, ch, wa, fnf, fac)
 
@@ -4160,6 +2737,653 @@ contains
 
         end do
 
+
+    contains
+
+
+        subroutine cmf2kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,2)
+            real (wp) ch(2,in2,l1,2,ido)
+            real (wp) chold1
+            real (wp) chold2
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) ti2
+            real (wp) tr2
+            real (wp) wa(ido,1,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido .and. na /= 1) then
+                do k=1,l1
+                    do m1=1,m1d,im1
+                        chold1 = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
+                        cc(1,m1,k,1,2) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
+                        cc(1,m1,k,1,1) = chold1
+                        chold2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
+                        cc(2,m1,k,1,2) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
+                        cc(2,m1,k,1,1) = chold2
+                    end do
+                end do
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
+                        ch(1,m2,k,2,1) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
+                        ch(2,m2,k,2,1) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
+                    end do
+                end do
+
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+cc(1,m1,k,i,2)
+                            tr2 = cc(1,m1,k,i,1)-cc(1,m1,k,i,2)
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+cc(2,m1,k,i,2)
+                            ti2 = cc(2,m1,k,i,1)-cc(2,m1,k,i,2)
+                            ch(2,m2,k,2,i) = wa(i,1,1)*ti2+wa(i,1,2)*tr2
+                            ch(1,m2,k,2,i) = wa(i,1,1)*tr2-wa(i,1,2)*ti2
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf2kb
+
+        subroutine cmf3kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,3)
+            real (wp) ch(2,in2,l1,3,ido)
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) di2
+            real (wp) di3
+            real (wp) dr2
+            real (wp) dr3
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp), parameter :: TAUI =  0.866025403784439_wp
+            real (wp), parameter :: TAUR = -0.5_wp
+            real (wp) ti2
+            real (wp) tr2
+            real (wp) wa(ido,2,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido .and. na /= 1) then
+                do k=1,l1
+                    do m1=1,m1d,im1
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
+                        cr2 = cc(1,m1,k,1,1)+TAUR*tr2
+                        cc(1,m1,k,1,1) = cc(1,m1,k,1,1)+tr2
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
+                        ci2 = cc(2,m1,k,1,1)+TAUR*ti2
+                        cc(2,m1,k,1,1) = cc(2,m1,k,1,1)+ti2
+                        cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                        ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                        cc(1,m1,k,1,2) = cr2-ci3
+                        cc(1,m1,k,1,3) = cr2+ci3
+                        cc(2,m1,k,1,2) = ci2+cr3
+                        cc(2,m1,k,1,3) = ci2-cr3
+                    end do
+                end do
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
+                        cr2 = cc(1,m1,k,1,1)+TAUR*tr2
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
+                        ci2 = cc(2,m1,k,1,1)+TAUR*ti2
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2
+                        cr3 = TAUI*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                        ci3 = TAUI*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                        ch(1,m2,k,2,1) = cr2-ci3
+                        ch(1,m2,k,3,1) = cr2+ci3
+                        ch(2,m2,k,2,1) = ci2+cr3
+                        ch(2,m2,k,3,1) = ci2-cr3
+                    end do
+                end do
+
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,3)
+                            cr2 = cc(1,m1,k,i,1)+TAUR*tr2
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2
+                            ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,3)
+                            ci2 = cc(2,m1,k,i,1)+TAUR*ti2
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2
+                            cr3 = TAUI*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
+                            ci3 = TAUI*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
+                            dr2 = cr2-ci3
+                            dr3 = cr2+ci3
+                            di2 = ci2+cr3
+                            di3 = ci2-cr3
+                            ch(2,m2,k,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
+                            ch(1,m2,k,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
+                            ch(2,m2,k,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
+                            ch(1,m2,k,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
+                        end do
+                    end do
+                end do
+            end if
+        end subroutine cmf3kb
+
+        subroutine cmf4kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,4)
+            real (wp) ch(2,in2,l1,4,ido)
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) ci4
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) cr4
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) ti1
+            real (wp) ti2
+            real (wp) ti3
+            real (wp) ti4
+            real (wp) tr1
+            real (wp) tr2
+            real (wp) tr3
+            real (wp) tr4
+            real (wp) wa(ido,3,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido .and. na /= 1) then
+                do k=1,l1
+                    do m1=1,m1d,im1
+                        ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
+                        ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
+                        tr4 = cc(2,m1,k,1,4)-cc(2,m1,k,1,2)
+                        ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
+                        tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
+                        tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
+                        ti4 = cc(1,m1,k,1,2)-cc(1,m1,k,1,4)
+                        tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
+                        cc(1,m1,k,1,1) = tr2+tr3
+                        cc(1,m1,k,1,3) = tr2-tr3
+                        cc(2,m1,k,1,1) = ti2+ti3
+                        cc(2,m1,k,1,3) = ti2-ti3
+                        cc(1,m1,k,1,2) = tr1+tr4
+                        cc(1,m1,k,1,4) = tr1-tr4
+                        cc(2,m1,k,1,2) = ti1+ti4
+                        cc(2,m1,k,1,4) = ti1-ti4
+                    end do
+                end do
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
+                        ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
+                        tr4 = cc(2,m1,k,1,4)-cc(2,m1,k,1,2)
+                        ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
+                        tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
+                        tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
+                        ti4 = cc(1,m1,k,1,2)-cc(1,m1,k,1,4)
+                        tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
+                        ch(1,m2,k,1,1) = tr2+tr3
+                        ch(1,m2,k,3,1) = tr2-tr3
+                        ch(2,m2,k,1,1) = ti2+ti3
+                        ch(2,m2,k,3,1) = ti2-ti3
+                        ch(1,m2,k,2,1) = tr1+tr4
+                        ch(1,m2,k,4,1) = tr1-tr4
+                        ch(2,m2,k,2,1) = ti1+ti4
+                        ch(2,m2,k,4,1) = ti1-ti4
+                    end do
+                end do
+
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti1 = cc(2,m1,k,i,1)-cc(2,m1,k,i,3)
+                            ti2 = cc(2,m1,k,i,1)+cc(2,m1,k,i,3)
+                            ti3 = cc(2,m1,k,i,2)+cc(2,m1,k,i,4)
+                            tr4 = cc(2,m1,k,i,4)-cc(2,m1,k,i,2)
+                            tr1 = cc(1,m1,k,i,1)-cc(1,m1,k,i,3)
+                            tr2 = cc(1,m1,k,i,1)+cc(1,m1,k,i,3)
+                            ti4 = cc(1,m1,k,i,2)-cc(1,m1,k,i,4)
+                            tr3 = cc(1,m1,k,i,2)+cc(1,m1,k,i,4)
+                            ch(1,m2,k,1,i) = tr2+tr3
+                            cr3 = tr2-tr3
+                            ch(2,m2,k,1,i) = ti2+ti3
+                            ci3 = ti2-ti3
+                            cr2 = tr1+tr4
+                            cr4 = tr1-tr4
+                            ci2 = ti1+ti4
+                            ci4 = ti1-ti4
+                            ch(1,m2,k,2,i) = wa(i,1,1)*cr2-wa(i,1,2)*ci2
+                            ch(2,m2,k,2,i) = wa(i,1,1)*ci2+wa(i,1,2)*cr2
+                            ch(1,m2,k,3,i) = wa(i,2,1)*cr3-wa(i,2,2)*ci3
+                            ch(2,m2,k,3,i) = wa(i,2,1)*ci3+wa(i,2,2)*cr3
+                            ch(1,m2,k,4,i) = wa(i,3,1)*cr4-wa(i,3,2)*ci4
+                            ch(2,m2,k,4,i) = wa(i,3,1)*ci4+wa(i,3,2)*cr4
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf4kb
+
+        subroutine cmf5kb(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,5)
+            real (wp) ch(2,in2,l1,5,ido)
+            real (wp) chold1
+            real (wp) chold2
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) ci4
+            real (wp) ci5
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) cr4
+            real (wp) cr5
+            real (wp) di2
+            real (wp) di3
+            real (wp) di4
+            real (wp) di5
+            real (wp) dr2
+            real (wp) dr3
+            real (wp) dr4
+            real (wp) dr5
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) ti2
+            real (wp) ti3
+            real (wp) ti4
+            real (wp) ti5
+            real (wp) tr2
+            real (wp) tr3
+            real (wp) tr4
+            real (wp) tr5
+            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
+            real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+
+            real (wp) wa(ido,4,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido .and. na /= 1) then
+                do k=1,l1
+                    do m1=1,m1d,im1
+                        ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
+                        ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
+                        ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
+                        tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
+                        tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
+                        tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
+                        chold1 = cc(1,m1,k,1,1)+tr2+tr3
+                        chold2 = cc(2,m1,k,1,1)+ti2+ti3
+                        cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
+                        ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
+                        cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
+                        ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
+                        cc(1,m1,k,1,1) = chold1
+                        cc(2,m1,k,1,1) = chold2
+                        cr5 = ti11*tr5+ti12*tr4
+                        ci5 = ti11*ti5+ti12*ti4
+                        cr4 = ti12*tr5-ti11*tr4
+                        ci4 = ti12*ti5-ti11*ti4
+                        cc(1,m1,k,1,2) = cr2-ci5
+                        cc(1,m1,k,1,5) = cr2+ci5
+                        cc(2,m1,k,1,2) = ci2+cr5
+                        cc(2,m1,k,1,3) = ci3+cr4
+                        cc(1,m1,k,1,3) = cr3-ci4
+                        cc(1,m1,k,1,4) = cr3+ci4
+                        cc(2,m1,k,1,4) = ci3-cr4
+                        cc(2,m1,k,1,5) = ci2-cr5
+                    end do
+                end do
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
+                        ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
+                        ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
+                        tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
+                        tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
+                        tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2+tr3
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2+ti3
+                        cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
+                        ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
+                        cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
+                        ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
+                        cr5 = ti11*tr5+ti12*tr4
+                        ci5 = ti11*ti5+ti12*ti4
+                        cr4 = ti12*tr5-ti11*tr4
+                        ci4 = ti12*ti5-ti11*ti4
+                        ch(1,m2,k,2,1) = cr2-ci5
+                        ch(1,m2,k,5,1) = cr2+ci5
+                        ch(2,m2,k,2,1) = ci2+cr5
+                        ch(2,m2,k,3,1) = ci3+cr4
+                        ch(1,m2,k,3,1) = cr3-ci4
+                        ch(1,m2,k,4,1) = cr3+ci4
+                        ch(2,m2,k,4,1) = ci3-cr4
+                        ch(2,m2,k,5,1) = ci2-cr5
+                    end do
+                end do
+
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti5 = cc(2,m1,k,i,2)-cc(2,m1,k,i,5)
+                            ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,5)
+                            ti4 = cc(2,m1,k,i,3)-cc(2,m1,k,i,4)
+                            ti3 = cc(2,m1,k,i,3)+cc(2,m1,k,i,4)
+                            tr5 = cc(1,m1,k,i,2)-cc(1,m1,k,i,5)
+                            tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,5)
+                            tr4 = cc(1,m1,k,i,3)-cc(1,m1,k,i,4)
+                            tr3 = cc(1,m1,k,i,3)+cc(1,m1,k,i,4)
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2+tr3
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2+ti3
+                            cr2 = cc(1,m1,k,i,1)+tr11*tr2+tr12*tr3
+                            ci2 = cc(2,m1,k,i,1)+tr11*ti2+tr12*ti3
+                            cr3 = cc(1,m1,k,i,1)+tr12*tr2+tr11*tr3
+                            ci3 = cc(2,m1,k,i,1)+tr12*ti2+tr11*ti3
+                            cr5 = ti11*tr5+ti12*tr4
+                            ci5 = ti11*ti5+ti12*ti4
+                            cr4 = ti12*tr5-ti11*tr4
+                            ci4 = ti12*ti5-ti11*ti4
+                            dr3 = cr3-ci4
+                            dr4 = cr3+ci4
+                            di3 = ci3+cr4
+                            di4 = ci3-cr4
+                            dr5 = cr2+ci5
+                            dr2 = cr2-ci5
+                            di5 = ci2-cr5
+                            di2 = ci2+cr5
+                            ch(1,m2,k,2,i) = wa(i,1,1)*dr2-wa(i,1,2)*di2
+                            ch(2,m2,k,2,i) = wa(i,1,1)*di2+wa(i,1,2)*dr2
+                            ch(1,m2,k,3,i) = wa(i,2,1)*dr3-wa(i,2,2)*di3
+                            ch(2,m2,k,3,i) = wa(i,2,1)*di3+wa(i,2,2)*dr3
+                            ch(1,m2,k,4,i) = wa(i,3,1)*dr4-wa(i,3,2)*di4
+                            ch(2,m2,k,4,i) = wa(i,3,1)*di4+wa(i,3,2)*dr4
+                            ch(1,m2,k,5,i) = wa(i,4,1)*dr5-wa(i,4,2)*di5
+                            ch(2,m2,k,5,i) = wa(i,4,1)*di5+wa(i,4,2)*dr5
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf5kb
+
+        subroutine cmfgkb(lot, ido, iip, l1, lid, na, cc, cc1, im1, in1, &
+            ch, ch1, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) iip
+            integer (ip) l1
+            integer (ip) lid
+
+            real (wp) cc(2,in1,l1,iip,ido)
+            real (wp) cc1(2,in1,lid,iip)
+            real (wp) ch(2,in2,l1,ido,iip)
+            real (wp) ch1(2,in2,lid,iip)
+            real (wp) chold1
+            real (wp) chold2
+            integer (ip) i
+            integer (ip) idlj
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) iipp2
+            integer (ip) iipph
+            integer (ip) j
+            integer (ip) jc
+            integer (ip) k
+            integer (ip) ki
+            integer (ip) l
+            integer (ip) lc
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) wa(ido,iip-1,2)
+            real (wp) wai
+            real (wp) war
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+            iipp2 = iip+2
+            iipph = (iip+1)/2
+
+            do ki=1,lid
+                m2 = m2s
+                do m1=1,m1d,im1
+                    m2 = m2+im2
+                    ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
+                    ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
+                end do
+            end do
+
+            do j=2,iipph
+                jc = iipp2-j
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch1(1,m2,ki,j) =  cc1(1,m1,ki,j)+cc1(1,m1,ki,jc)
+                        ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)-cc1(1,m1,ki,jc)
+                        ch1(2,m2,ki,j) =  cc1(2,m1,ki,j)+cc1(2,m1,ki,jc)
+                        ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(2,m1,ki,jc)
+                    end do
+                end do
+            end do
+
+            do j=2,iipph
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        cc1(1,m1,ki,1) = cc1(1,m1,ki,1)+ch1(1,m2,ki,j)
+                        cc1(2,m1,ki,1) = cc1(2,m1,ki,1)+ch1(2,m2,ki,j)
+                    end do
+                end do
+            end do
+
+            do l=2,iipph
+                lc = iipp2-l
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        cc1(1,m1,ki,l) = ch1(1,m2,ki,1)+wa(1,l-1,1)*ch1(1,m2,ki,2)
+                        cc1(1,m1,ki,lc) = wa(1,l-1,2)*ch1(1,m2,ki,iip)
+                        cc1(2,m1,ki,l) = ch1(2,m2,ki,1)+wa(1,l-1,1)*ch1(2,m2,ki,2)
+                        cc1(2,m1,ki,lc) = wa(1,l-1,2)*ch1(2,m2,ki,iip)
+                    end do
+                end do
+                do j=3,iipph
+                    jc = iipp2-j
+                    idlj = mod((l-1)*(j-1),iip)
+                    war = wa(1,idlj,1)
+                    wai = wa(1,idlj,2)
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            cc1(1,m1,ki,l) = cc1(1,m1,ki,l)+war*ch1(1,m2,ki,j)
+                            cc1(1,m1,ki,lc) = cc1(1,m1,ki,lc)+wai*ch1(1,m2,ki,jc)
+                            cc1(2,m1,ki,l) = cc1(2,m1,ki,l)+war*ch1(2,m2,ki,j)
+                            cc1(2,m1,ki,lc) = cc1(2,m1,ki,lc)+wai*ch1(2,m2,ki,jc)
+                        end do
+                    end do
+                end do
+            end do
+
+            if (1 >= ido .and. na /= 1) then
+                do j=2,iipph
+                    jc = iipp2-j
+                    do ki=1,lid
+                        do m1=1,m1d,im1
+                            chold1 = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
+                            chold2 = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
+                            cc1(1,m1,ki,j) = chold1
+                            cc1(2,m1,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
+                            cc1(2,m1,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
+                            cc1(1,m1,ki,jc) = chold2
+                        end do
+                    end do
+                end do
+            else
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
+                        ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
+                    end do
+                end do
+
+                do j=2,iipph
+                    jc = iipp2-j
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch1(1,m2,ki,j) = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
+                            ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
+                            ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
+                            ch1(2,m2,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
+                        end do
+                    end do
+                end do
+
+                if (ido /= 1) then
+                    do i=1,ido
+                        do k=1,l1
+                            m2 = m2s
+                            do m1=1,m1d,im1
+                                m2 = m2+im2
+                                cc(1,m1,k,1,i) = ch(1,m2,k,i,1)
+                                cc(2,m1,k,1,i) = ch(2,m2,k,i,1)
+                            end do
+                        end do
+                    end do
+
+                    do j=2,iip
+                        do k=1,l1
+                            m2 = m2s
+                            do m1=1,m1d,im1
+                                m2 = m2+im2
+                                cc(1,m1,k,j,1) = ch(1,m2,k,1,j)
+                                cc(2,m1,k,j,1) = ch(2,m2,k,1,j)
+                            end do
+                        end do
+                    end do
+
+                    do j=2,iip
+                        do i=2,ido
+                            do k=1,l1
+                                m2 = m2s
+                                do m1=1,m1d,im1
+                                    m2 = m2+im2
+                                    cc(1,m1,k,j,i) = wa(i,j-1,1)*ch(1,m2,k,i,j) &
+                                        -wa(i,j-1,2)*ch(2,m2,k,i,j)
+                                    cc(2,m1,k,j,i) = wa(i,j-1,1)*ch(2,m2,k,i,j) &
+                                        +wa(i,j-1,2)*ch(1,m2,k,i,j)
+                                end do
+                            end do
+                        end do
+                    end do
+                end if
+            end if
+
+        end subroutine cmfgkb
+
     end subroutine cmfm1b
 
     subroutine cmfm1f(lot, jump, n, inc, c, ch, wa, fnf, fac)
@@ -4226,6 +3450,791 @@ contains
                 na = 1-na
             end if
         end do
+
+    contains
+
+        subroutine cmf2kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+            !--------------------------------------------------
+            ! Dictionary: calling arguments
+            !--------------------------------------------------
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+            real (wp) cc(2,in1,l1,ido,2)
+
+            real (wp) ch(2,in2,l1,2,ido)
+            real (wp) chold1
+            real (wp) chold2
+
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+
+            integer (ip) na
+            real (wp) sn
+            real (wp) ti2
+            real (wp) tr2
+            real (wp) wa(ido,1,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido) then
+                sn = 1.0_wp/(2 * l1)
+                if (na /= 1) then
+                    do k=1,l1
+                        do m1=1,m1d,im1
+                            chold1 = sn*(cc(1,m1,k,1,1)+cc(1,m1,k,1,2))
+                            cc(1,m1,k,1,2) = sn*(cc(1,m1,k,1,1)-cc(1,m1,k,1,2))
+                            cc(1,m1,k,1,1) = chold1
+                            chold2 = sn*(cc(2,m1,k,1,1)+cc(2,m1,k,1,2))
+                            cc(2,m1,k,1,2) = sn*(cc(2,m1,k,1,1)-cc(2,m1,k,1,2))
+                            cc(2,m1,k,1,1) = chold2
+                        end do
+                    end do
+                else
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+cc(1,m1,k,1,2))
+                            ch(1,m2,k,2,1) = sn*(cc(1,m1,k,1,1)-cc(1,m1,k,1,2))
+                            ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+cc(2,m1,k,1,2))
+                            ch(2,m2,k,2,1) = sn*(cc(2,m1,k,1,1)-cc(2,m1,k,1,2))
+                        end do
+                    end do
+                end if
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+cc(1,m1,k,1,2)
+                        ch(1,m2,k,2,1) = cc(1,m1,k,1,1)-cc(1,m1,k,1,2)
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+cc(2,m1,k,1,2)
+                        ch(2,m2,k,2,1) = cc(2,m1,k,1,1)-cc(2,m1,k,1,2)
+                    end do
+                end do
+
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+cc(1,m1,k,i,2)
+                            tr2 = cc(1,m1,k,i,1)-cc(1,m1,k,i,2)
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+cc(2,m1,k,i,2)
+                            ti2 = cc(2,m1,k,i,1)-cc(2,m1,k,i,2)
+                            ch(2,m2,k,2,i) = wa(i,1,1)*ti2-wa(i,1,2)*tr2
+                            ch(1,m2,k,2,i) = wa(i,1,1)*tr2+wa(i,1,2)*ti2
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf2kf
+
+
+
+        subroutine cmf3kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,3)
+            real (wp) ch(2,in2,l1,3,ido)
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) di2
+            real (wp) di3
+            real (wp) dr2
+            real (wp) dr3
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) sn
+            real (wp), parameter :: taui = -0.866025403784439_wp
+            real (wp), parameter :: taur = -0.5_wp
+            real (wp) ti2
+            real (wp) tr2
+            real (wp) wa(ido,2,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido) then
+                sn = 1.0_wp/(3 * l1)
+                if (na /= 1) then
+                    do k=1,l1
+                        do m1=1,m1d,im1
+                            tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
+                            cr2 = cc(1,m1,k,1,1)+taur*tr2
+                            cc(1,m1,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2)
+                            ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
+                            ci2 = cc(2,m1,k,1,1)+taur*ti2
+                            cc(2,m1,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2)
+                            cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                            ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                            cc(1,m1,k,1,2) = sn*(cr2-ci3)
+                            cc(1,m1,k,1,3) = sn*(cr2+ci3)
+                            cc(2,m1,k,1,2) = sn*(ci2+cr3)
+                            cc(2,m1,k,1,3) = sn*(ci2-cr3)
+                        end do
+                    end do
+                else
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
+                            cr2 = cc(1,m1,k,1,1)+taur*tr2
+                            ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2)
+                            ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
+                            ci2 = cc(2,m1,k,1,1)+taur*ti2
+                            ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2)
+                            cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                            ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                            ch(1,m2,k,2,1) = sn*(cr2-ci3)
+                            ch(1,m2,k,3,1) = sn*(cr2+ci3)
+                            ch(2,m2,k,2,1) = sn*(ci2+cr3)
+                            ch(2,m2,k,3,1) = sn*(ci2-cr3)
+                        end do
+                    end do
+                end if
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,3)
+                        cr2 = cc(1,m1,k,1,1)+taur*tr2
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,3)
+                        ci2 = cc(2,m1,k,1,1)+taur*ti2
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2
+                        cr3 = taui*(cc(1,m1,k,1,2)-cc(1,m1,k,1,3))
+                        ci3 = taui*(cc(2,m1,k,1,2)-cc(2,m1,k,1,3))
+                        ch(1,m2,k,2,1) = cr2-ci3
+                        ch(1,m2,k,3,1) = cr2+ci3
+                        ch(2,m2,k,2,1) = ci2+cr3
+                        ch(2,m2,k,3,1) = ci2-cr3
+                    end do
+                end do
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,3)
+                            cr2 = cc(1,m1,k,i,1)+taur*tr2
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2
+                            ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,3)
+                            ci2 = cc(2,m1,k,i,1)+taur*ti2
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2
+                            cr3 = taui*(cc(1,m1,k,i,2)-cc(1,m1,k,i,3))
+                            ci3 = taui*(cc(2,m1,k,i,2)-cc(2,m1,k,i,3))
+                            dr2 = cr2-ci3
+                            dr3 = cr2+ci3
+                            di2 = ci2+cr3
+                            di3 = ci2-cr3
+                            ch(2,m2,k,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
+                            ch(1,m2,k,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
+                            ch(2,m2,k,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
+                            ch(1,m2,k,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf3kf
+
+
+
+        subroutine cmf4kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,4)
+            real (wp) ch(2,in2,l1,4,ido)
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) ci4
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) cr4
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) sn
+            real (wp) ti1
+            real (wp) ti2
+            real (wp) ti3
+            real (wp) ti4
+            real (wp) tr1
+            real (wp) tr2
+            real (wp) tr3
+            real (wp) tr4
+            real (wp) wa(ido,3,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido) then
+                sn = 1.0_wp /(4 * l1)
+                if (na /= 1) then
+                    do k=1,l1
+                        do m1=1,m1d,im1
+                            ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
+                            ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
+                            tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
+                            ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
+                            tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
+                            tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
+                            ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
+                            tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
+                            cc(1,m1,k,1,1) = sn*(tr2+tr3)
+                            cc(1,m1,k,1,3) = sn*(tr2-tr3)
+                            cc(2,m1,k,1,1) = sn*(ti2+ti3)
+                            cc(2,m1,k,1,3) = sn*(ti2-ti3)
+                            cc(1,m1,k,1,2) = sn*(tr1+tr4)
+                            cc(1,m1,k,1,4) = sn*(tr1-tr4)
+                            cc(2,m1,k,1,2) = sn*(ti1+ti4)
+                            cc(2,m1,k,1,4) = sn*(ti1-ti4)
+                        end do
+                    end do
+                else
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
+                            ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
+                            tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
+                            ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
+                            tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
+                            tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
+                            ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
+                            tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
+                            ch(1,m2,k,1,1) = sn*(tr2+tr3)
+                            ch(1,m2,k,3,1) = sn*(tr2-tr3)
+                            ch(2,m2,k,1,1) = sn*(ti2+ti3)
+                            ch(2,m2,k,3,1) = sn*(ti2-ti3)
+                            ch(1,m2,k,2,1) = sn*(tr1+tr4)
+                            ch(1,m2,k,4,1) = sn*(tr1-tr4)
+                            ch(2,m2,k,2,1) = sn*(ti1+ti4)
+                            ch(2,m2,k,4,1) = sn*(ti1-ti4)
+                        end do
+                    end do
+                end if
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ti1 = cc(2,m1,k,1,1)-cc(2,m1,k,1,3)
+                        ti2 = cc(2,m1,k,1,1)+cc(2,m1,k,1,3)
+                        tr4 = cc(2,m1,k,1,2)-cc(2,m1,k,1,4)
+                        ti3 = cc(2,m1,k,1,2)+cc(2,m1,k,1,4)
+                        tr1 = cc(1,m1,k,1,1)-cc(1,m1,k,1,3)
+                        tr2 = cc(1,m1,k,1,1)+cc(1,m1,k,1,3)
+                        ti4 = cc(1,m1,k,1,4)-cc(1,m1,k,1,2)
+                        tr3 = cc(1,m1,k,1,2)+cc(1,m1,k,1,4)
+                        ch(1,m2,k,1,1) = tr2+tr3
+                        ch(1,m2,k,3,1) = tr2-tr3
+                        ch(2,m2,k,1,1) = ti2+ti3
+                        ch(2,m2,k,3,1) = ti2-ti3
+                        ch(1,m2,k,2,1) = tr1+tr4
+                        ch(1,m2,k,4,1) = tr1-tr4
+                        ch(2,m2,k,2,1) = ti1+ti4
+                        ch(2,m2,k,4,1) = ti1-ti4
+                    end do
+                end do
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti1 = cc(2,m1,k,i,1)-cc(2,m1,k,i,3)
+                            ti2 = cc(2,m1,k,i,1)+cc(2,m1,k,i,3)
+                            ti3 = cc(2,m1,k,i,2)+cc(2,m1,k,i,4)
+                            tr4 = cc(2,m1,k,i,2)-cc(2,m1,k,i,4)
+                            tr1 = cc(1,m1,k,i,1)-cc(1,m1,k,i,3)
+                            tr2 = cc(1,m1,k,i,1)+cc(1,m1,k,i,3)
+                            ti4 = cc(1,m1,k,i,4)-cc(1,m1,k,i,2)
+                            tr3 = cc(1,m1,k,i,2)+cc(1,m1,k,i,4)
+                            ch(1,m2,k,1,i) = tr2+tr3
+                            cr3 = tr2-tr3
+                            ch(2,m2,k,1,i) = ti2+ti3
+                            ci3 = ti2-ti3
+                            cr2 = tr1+tr4
+                            cr4 = tr1-tr4
+                            ci2 = ti1+ti4
+                            ci4 = ti1-ti4
+                            ch(1,m2,k,2,i) = wa(i,1,1)*cr2+wa(i,1,2)*ci2
+                            ch(2,m2,k,2,i) = wa(i,1,1)*ci2-wa(i,1,2)*cr2
+                            ch(1,m2,k,3,i) = wa(i,2,1)*cr3+wa(i,2,2)*ci3
+                            ch(2,m2,k,3,i) = wa(i,2,1)*ci3-wa(i,2,2)*cr3
+                            ch(1,m2,k,4,i) = wa(i,3,1)*cr4+wa(i,3,2)*ci4
+                            ch(2,m2,k,4,i) = wa(i,3,1)*ci4-wa(i,3,2)*cr4
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf4kf
+
+
+        subroutine cmf5kf(lot, ido, l1, na, cc, im1, in1, ch, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) l1
+
+            real (wp) cc(2,in1,l1,ido,5)
+            real (wp) ch(2,in2,l1,5,ido)
+            real (wp) chold1
+            real (wp) chold2
+            real (wp) ci2
+            real (wp) ci3
+            real (wp) ci4
+            real (wp) ci5
+            real (wp) cr2
+            real (wp) cr3
+            real (wp) cr4
+            real (wp) cr5
+            real (wp) di2
+            real (wp) di3
+            real (wp) di4
+            real (wp) di5
+            real (wp) dr2
+            real (wp) dr3
+            real (wp) dr4
+            real (wp) dr5
+            integer (ip) i
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) k
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) sn
+            real (wp) ti2
+            real (wp) ti3
+            real (wp) ti4
+            real (wp) ti5
+            real (wp) tr2
+            real (wp) tr3
+            real (wp) tr4
+            real (wp) tr5
+
+            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
+            real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+
+            real (wp) wa(ido,4,2)
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+
+            if (1 >= ido) then
+                sn = 1.0_wp/(5 * l1)
+                if (na /= 1) then
+                    do k=1,l1
+                        do m1=1,m1d,im1
+                            ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
+                            ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
+                            ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
+                            ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
+                            tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
+                            tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
+                            tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
+                            tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
+                            chold1 = sn*(cc(1,m1,k,1,1)+tr2+tr3)
+                            chold2 = sn*(cc(2,m1,k,1,1)+ti2+ti3)
+                            cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
+                            ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
+                            cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
+                            ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
+                            cc(1,m1,k,1,1) = chold1
+                            cc(2,m1,k,1,1) = chold2
+                            cr5 = ti11*tr5+ti12*tr4
+                            ci5 = ti11*ti5+ti12*ti4
+                            cr4 = ti12*tr5-ti11*tr4
+                            ci4 = ti12*ti5-ti11*ti4
+                            cc(1,m1,k,1,2) = sn*(cr2-ci5)
+                            cc(1,m1,k,1,5) = sn*(cr2+ci5)
+                            cc(2,m1,k,1,2) = sn*(ci2+cr5)
+                            cc(2,m1,k,1,3) = sn*(ci3+cr4)
+                            cc(1,m1,k,1,3) = sn*(cr3-ci4)
+                            cc(1,m1,k,1,4) = sn*(cr3+ci4)
+                            cc(2,m1,k,1,4) = sn*(ci3-cr4)
+                            cc(2,m1,k,1,5) = sn*(ci2-cr5)
+                        end do
+                    end do
+                else
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
+                            ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
+                            ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
+                            ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
+                            tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
+                            tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
+                            tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
+                            tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
+                            ch(1,m2,k,1,1) = sn*(cc(1,m1,k,1,1)+tr2+tr3)
+                            ch(2,m2,k,1,1) = sn*(cc(2,m1,k,1,1)+ti2+ti3)
+                            cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
+                            ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
+                            cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
+                            ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
+                            cr5 = ti11*tr5+ti12*tr4
+                            ci5 = ti11*ti5+ti12*ti4
+                            cr4 = ti12*tr5-ti11*tr4
+                            ci4 = ti12*ti5-ti11*ti4
+                            ch(1,m2,k,2,1) = sn*(cr2-ci5)
+                            ch(1,m2,k,5,1) = sn*(cr2+ci5)
+                            ch(2,m2,k,2,1) = sn*(ci2+cr5)
+                            ch(2,m2,k,3,1) = sn*(ci3+cr4)
+                            ch(1,m2,k,3,1) = sn*(cr3-ci4)
+                            ch(1,m2,k,4,1) = sn*(cr3+ci4)
+                            ch(2,m2,k,4,1) = sn*(ci3-cr4)
+                            ch(2,m2,k,5,1) = sn*(ci2-cr5)
+                        end do
+                    end do
+                end if
+            else
+                do k=1,l1
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ti5 = cc(2,m1,k,1,2)-cc(2,m1,k,1,5)
+                        ti2 = cc(2,m1,k,1,2)+cc(2,m1,k,1,5)
+                        ti4 = cc(2,m1,k,1,3)-cc(2,m1,k,1,4)
+                        ti3 = cc(2,m1,k,1,3)+cc(2,m1,k,1,4)
+                        tr5 = cc(1,m1,k,1,2)-cc(1,m1,k,1,5)
+                        tr2 = cc(1,m1,k,1,2)+cc(1,m1,k,1,5)
+                        tr4 = cc(1,m1,k,1,3)-cc(1,m1,k,1,4)
+                        tr3 = cc(1,m1,k,1,3)+cc(1,m1,k,1,4)
+                        ch(1,m2,k,1,1) = cc(1,m1,k,1,1)+tr2+tr3
+                        ch(2,m2,k,1,1) = cc(2,m1,k,1,1)+ti2+ti3
+                        cr2 = cc(1,m1,k,1,1)+tr11*tr2+tr12*tr3
+                        ci2 = cc(2,m1,k,1,1)+tr11*ti2+tr12*ti3
+                        cr3 = cc(1,m1,k,1,1)+tr12*tr2+tr11*tr3
+                        ci3 = cc(2,m1,k,1,1)+tr12*ti2+tr11*ti3
+                        cr5 = ti11*tr5+ti12*tr4
+                        ci5 = ti11*ti5+ti12*ti4
+                        cr4 = ti12*tr5-ti11*tr4
+                        ci4 = ti12*ti5-ti11*ti4
+                        ch(1,m2,k,2,1) = cr2-ci5
+                        ch(1,m2,k,5,1) = cr2+ci5
+                        ch(2,m2,k,2,1) = ci2+cr5
+                        ch(2,m2,k,3,1) = ci3+cr4
+                        ch(1,m2,k,3,1) = cr3-ci4
+                        ch(1,m2,k,4,1) = cr3+ci4
+                        ch(2,m2,k,4,1) = ci3-cr4
+                        ch(2,m2,k,5,1) = ci2-cr5
+                    end do
+                end do
+                do i=2,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ti5 = cc(2,m1,k,i,2)-cc(2,m1,k,i,5)
+                            ti2 = cc(2,m1,k,i,2)+cc(2,m1,k,i,5)
+                            ti4 = cc(2,m1,k,i,3)-cc(2,m1,k,i,4)
+                            ti3 = cc(2,m1,k,i,3)+cc(2,m1,k,i,4)
+                            tr5 = cc(1,m1,k,i,2)-cc(1,m1,k,i,5)
+                            tr2 = cc(1,m1,k,i,2)+cc(1,m1,k,i,5)
+                            tr4 = cc(1,m1,k,i,3)-cc(1,m1,k,i,4)
+                            tr3 = cc(1,m1,k,i,3)+cc(1,m1,k,i,4)
+                            ch(1,m2,k,1,i) = cc(1,m1,k,i,1)+tr2+tr3
+                            ch(2,m2,k,1,i) = cc(2,m1,k,i,1)+ti2+ti3
+                            cr2 = cc(1,m1,k,i,1)+tr11*tr2+tr12*tr3
+                            ci2 = cc(2,m1,k,i,1)+tr11*ti2+tr12*ti3
+                            cr3 = cc(1,m1,k,i,1)+tr12*tr2+tr11*tr3
+                            ci3 = cc(2,m1,k,i,1)+tr12*ti2+tr11*ti3
+                            cr5 = ti11*tr5+ti12*tr4
+                            ci5 = ti11*ti5+ti12*ti4
+                            cr4 = ti12*tr5-ti11*tr4
+                            ci4 = ti12*ti5-ti11*ti4
+                            dr3 = cr3-ci4
+                            dr4 = cr3+ci4
+                            di3 = ci3+cr4
+                            di4 = ci3-cr4
+                            dr5 = cr2+ci5
+                            dr2 = cr2-ci5
+                            di5 = ci2-cr5
+                            di2 = ci2+cr5
+                            ch(1,m2,k,2,i) = wa(i,1,1)*dr2+wa(i,1,2)*di2
+                            ch(2,m2,k,2,i) = wa(i,1,1)*di2-wa(i,1,2)*dr2
+                            ch(1,m2,k,3,i) = wa(i,2,1)*dr3+wa(i,2,2)*di3
+                            ch(2,m2,k,3,i) = wa(i,2,1)*di3-wa(i,2,2)*dr3
+                            ch(1,m2,k,4,i) = wa(i,3,1)*dr4+wa(i,3,2)*di4
+                            ch(2,m2,k,4,i) = wa(i,3,1)*di4-wa(i,3,2)*dr4
+                            ch(1,m2,k,5,i) = wa(i,4,1)*dr5+wa(i,4,2)*di5
+                            ch(2,m2,k,5,i) = wa(i,4,1)*di5-wa(i,4,2)*dr5
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmf5kf
+
+
+        subroutine cmfgkf(lot, ido, iip, l1, lid, na, cc, cc1, im1, in1, &
+            ch, ch1, im2, in2, wa)
+
+            integer (ip) ido
+            integer (ip) in1
+            integer (ip) in2
+            integer (ip) iip
+            integer (ip) l1
+            integer (ip) lid
+
+            real (wp) cc(2,in1,l1,iip,ido)
+            real (wp) cc1(2,in1,lid,iip)
+            real (wp) ch(2,in2,l1,ido,iip)
+            real (wp) ch1(2,in2,lid,iip)
+            real (wp) chold1
+            real (wp) chold2
+            integer (ip) i
+            integer (ip) idlj
+            integer (ip) im1
+            integer (ip) im2
+            integer (ip) iipp2
+            integer (ip) iipph
+            integer (ip) j
+            integer (ip) jc
+            integer (ip) k
+            integer (ip) ki
+            integer (ip) l
+            integer (ip) lc
+            integer (ip) lot
+            integer (ip) m1
+            integer (ip) m1d
+            integer (ip) m2
+            integer (ip) m2s
+            integer (ip) na
+            real (wp) sn
+            real (wp) wa(ido,iip-1,2)
+            real (wp) wai
+            real (wp) war
+
+            m1d = (lot-1)*im1+1
+            m2s = 1-im2
+            iipp2 = iip+2
+            iipph = (iip+1)/2
+
+            do  ki=1,lid
+                m2 = m2s
+                do m1=1,m1d,im1
+                    m2 = m2+im2
+                    ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
+                    ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
+                end do
+            end do
+
+            do j=2,iipph
+                jc = iipp2-j
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch1(1,m2,ki,j) =  cc1(1,m1,ki,j)+cc1(1,m1,ki,jc)
+                        ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)-cc1(1,m1,ki,jc)
+                        ch1(2,m2,ki,j) =  cc1(2,m1,ki,j)+cc1(2,m1,ki,jc)
+                        ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(2,m1,ki,jc)
+                    end do
+                end do
+            end do
+
+            do j=2,iipph
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        cc1(1,m1,ki,1) = cc1(1,m1,ki,1)+ch1(1,m2,ki,j)
+                        cc1(2,m1,ki,1) = cc1(2,m1,ki,1)+ch1(2,m2,ki,j)
+                    end do
+                end do
+            end do
+
+            do l=2,iipph
+                lc = iipp2-l
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        cc1(1,m1,ki,l) = ch1(1,m2,ki,1)+wa(1,l-1,1)*ch1(1,m2,ki,2)
+                        cc1(1,m1,ki,lc) = -wa(1,l-1,2)*ch1(1,m2,ki,iip)
+                        cc1(2,m1,ki,l) = ch1(2,m2,ki,1)+wa(1,l-1,1)*ch1(2,m2,ki,2)
+                        cc1(2,m1,ki,lc) = -wa(1,l-1,2)*ch1(2,m2,ki,iip)
+                    end do
+                end do
+                do j=3,iipph
+                    jc = iipp2-j
+                    idlj = mod((l-1)*(j-1),iip)
+                    war = wa(1,idlj,1)
+                    wai = -wa(1,idlj,2)
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            cc1(1,m1,ki,l) = cc1(1,m1,ki,l)+war*ch1(1,m2,ki,j)
+                            cc1(1,m1,ki,lc) = cc1(1,m1,ki,lc)+wai*ch1(1,m2,ki,jc)
+                            cc1(2,m1,ki,l) = cc1(2,m1,ki,l)+war*ch1(2,m2,ki,j)
+                            cc1(2,m1,ki,lc) = cc1(2,m1,ki,lc)+wai*ch1(2,m2,ki,jc)
+                        end do
+                    end do
+                end do
+            end do
+
+            if (1 >= ido) then
+                sn = 1.0_wp /(iip * l1)
+                if (na /= 1) then
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            cc1(1,m1,ki,1) = sn*cc1(1,m1,ki,1)
+                            cc1(2,m1,ki,1) = sn*cc1(2,m1,ki,1)
+                        end do
+                    end do
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do ki=1,lid
+                            do m1=1,m1d,im1
+                                chold1 = sn*(cc1(1,m1,ki,j)-cc1(2,m1,ki,jc))
+                                chold2 = sn*(cc1(1,m1,ki,j)+cc1(2,m1,ki,jc))
+                                cc1(1,m1,ki,j) = chold1
+                                cc1(2,m1,ki,jc) = sn*(cc1(2,m1,ki,j)-cc1(1,m1,ki,jc))
+                                cc1(2,m1,ki,j) = sn*(cc1(2,m1,ki,j)+cc1(1,m1,ki,jc))
+                                cc1(1,m1,ki,jc) = chold2
+                            end do
+                        end do
+                    end do
+                else
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch1(1,m2,ki,1) = sn*cc1(1,m1,ki,1)
+                            ch1(2,m2,ki,1) = sn*cc1(2,m1,ki,1)
+                        end do
+                    end do
+                    do j=2,iipph
+                        jc = iipp2-j
+                        do ki=1,lid
+                            m2 = m2s
+                            do m1=1,m1d,im1
+                                m2 = m2+im2
+                                ch1(1,m2,ki,j) = sn*(cc1(1,m1,ki,j)-cc1(2,m1,ki,jc))
+                                ch1(2,m2,ki,j) = sn*(cc1(2,m1,ki,j)+cc1(1,m1,ki,jc))
+                                ch1(1,m2,ki,jc) = sn*(cc1(1,m1,ki,j)+cc1(2,m1,ki,jc))
+                                ch1(2,m2,ki,jc) = sn*(cc1(2,m1,ki,j)-cc1(1,m1,ki,jc))
+                            end do
+                        end do
+                    end do
+                end if
+            else
+                do ki=1,lid
+                    m2 = m2s
+                    do m1=1,m1d,im1
+                        m2 = m2+im2
+                        ch1(1,m2,ki,1) = cc1(1,m1,ki,1)
+                        ch1(2,m2,ki,1) = cc1(2,m1,ki,1)
+                    end do
+                end do
+                do j=2,iipph
+                    jc = iipp2-j
+                    do ki=1,lid
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            ch1(1,m2,ki,j) = cc1(1,m1,ki,j)-cc1(2,m1,ki,jc)
+                            ch1(2,m2,ki,j) = cc1(2,m1,ki,j)+cc1(1,m1,ki,jc)
+                            ch1(1,m2,ki,jc) = cc1(1,m1,ki,j)+cc1(2,m1,ki,jc)
+                            ch1(2,m2,ki,jc) = cc1(2,m1,ki,j)-cc1(1,m1,ki,jc)
+                        end do
+                    end do
+                end do
+                do i=1,ido
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            cc(1,m1,k,1,i) = ch(1,m2,k,i,1)
+                            cc(2,m1,k,1,i) = ch(2,m2,k,i,1)
+                        end do
+                    end do
+                end do
+                do j=2,iip
+                    do k=1,l1
+                        m2 = m2s
+                        do m1=1,m1d,im1
+                            m2 = m2+im2
+                            cc(1,m1,k,j,1) = ch(1,m2,k,1,j)
+                            cc(2,m1,k,j,1) = ch(2,m2,k,1,j)
+                        end do
+                    end do
+                end do
+                do j=2,iip
+                    do i=2,ido
+                        do k=1,l1
+                            m2 = m2s
+                            do m1=1,m1d,im1
+                                m2 = m2+im2
+                                cc(1,m1,k,j,i) = wa(i,j-1,1)*ch(1,m2,k,i,j) &
+                                    +wa(i,j-1,2)*ch(2,m2,k,i,j)
+                                cc(2,m1,k,j,i) = wa(i,j-1,1)*ch(2,m2,k,i,j) &
+                                    -wa(i,j-1,2)*ch(1,m2,k,i,j)
+                            end do
+                        end do
+                    end do
+                end do
+            end if
+
+        end subroutine cmfgkf
 
     end subroutine cmfm1f
 
