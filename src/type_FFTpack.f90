@@ -27,6 +27,19 @@ module type_FFTpack
         real (wp), allocatable :: workspace(:)
         !----------------------------------------------------------------------
     contains
+        procedure, private :: real_1d_forward
+        procedure, private :: real_1d_backward
+        procedure, private :: complex_1d_forward
+        procedure, private :: complex_1d_backward
+        generic,   public  :: fft => &
+            real_1d_forward, &
+            complex_1d_forward
+        generic,   public  :: ifft => &
+            real_1d_backward, &
+            complex_1d_backward
+        !----------------------------------------------------------------------
+        ! Private class methods
+        !----------------------------------------------------------------------
         !----------------------------------------------------------------------
         ! Class methods
         !----------------------------------------------------------------------
@@ -111,6 +124,360 @@ module type_FFTpack
     end interface
 
 contains
+
+
+    subroutine real_1d_forward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real(wp),        intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(real_data)
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_real_1d_workspace_size(n), &
+            lensav => get_real_1d_saved_workspace_size(n) , &
+            lenr => size(real_data), &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize real transform
+                !
+                call rfft1i(n,wsave,lensav,ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "rfft1i: lensave not big enough"
+                end if
+
+                !
+                !==> Perform real forward transform
+                !
+                call rfft1f(n,inc,r,lenr,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "rfft1f: lenr not big enough"
+            case (2)
+                error stop "rfft1f: lensav not big enough"
+            case (3)
+                error stop "rfft1f: lenwrk not big enough"
+            case (20)
+                error stop "rfft1f: input error returned by lower level routine"
+        end select
+
+    end subroutine real_1d_forward
+
+    subroutine real_1d_backward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real(wp),        intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(real_data)
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_real_1d_workspace_size(n), &
+            lensav => get_real_1d_saved_workspace_size(n) , &
+            lenr => size(real_data), &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize real transform
+                !
+                call rfft1i(n,wsave,lensav,ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "rfft1i: lensave not big enough"
+                end if
+
+                call rfft1b(n,inc,r,lenr,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "rfft1b: lenr not big enough"
+            case (2)
+                error stop "rfft1b: lensav not big enough"
+            case (3)
+                error stop "rfft1b: lenwrk not big enough"
+            case (20)
+                error stop "rfft1b: input error returned by lower level routine"
+        end select
+
+    end subroutine real_1d_backward
+
+    pure function get_real_1d_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+
+        end associate
+
+    end function get_real_1d_saved_workspace_size
+
+    pure function get_real_1d_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = n
+
+        end associate
+
+    end function get_real_1d_workspace_size
+
+    pure function get_complex_1d_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+
+        end associate
+
+    end function get_complex_1d_saved_workspace_size
+
+    pure function get_complex_1d_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = 2*n
+
+        end associate
+
+    end function get_complex_1d_workspace_size
+
+    subroutine complex_1d_forward(this, complex_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        complex (wp),    intent (in out) :: complex_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(complex_data)
+
+        associate( &
+            c => complex_data, &
+            lenwrk => get_complex_1d_workspace_size(n), &
+            lensav => get_complex_1d_saved_workspace_size(n), &
+            lenc => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize complex transform
+                !
+                call cfft1i(n,wsave,lensav,ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "cfft1i: lensav not big enough"
+                end if
+
+                !
+                !==> Perform complex forward transform
+                !
+                call cfft1f(n,inc,c,lenc,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "cfft1f: lenc not big enough"
+            case (2)
+                error stop "cfft1f: lensav not big enough"
+            case (3)
+                error stop "cfft1f: lenwrk not big enough"
+            case (20)
+                error stop "cfft1f: input error returned by lower level routine"
+        end select
+
+    end subroutine complex_1d_forward
+
+
+
+    subroutine complex_1d_backward(this, complex_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        complex (wp),    intent (in out) :: complex_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(complex_data)
+
+        associate( &
+            c => complex_data, &
+            lenwrk => get_complex_1d_workspace_size(n), &
+            lensav => get_complex_1d_saved_workspace_size(n), &
+            lenc => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize complex transform
+                !
+                call cfft1i(n,wsave,lensav,ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "cfft1i: lensav not big enough"
+                end if
+
+                !
+                !==> Perform complex backward transform
+                !
+                call cfft1b(n,inc,c,lenc,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "cfft1b: lenc not big enough"
+            case (2)
+                error stop "cfft1b: lensav not big enough"
+            case (3)
+                error stop "cfft1b: lenwrk not big enough"
+            case (20)
+                error stop "cfft1b: input error returned by lower level routine"
+        end select
+
+    end subroutine complex_1d_backward
 
     pure function fftpack_2d_constructor(l, m) result (return_value)
         !------------------------------------------------------------------
@@ -410,7 +777,7 @@ contains
         !  in routines cfft1b or cfft1f.
         !
         !  output
-        !  ier, error flag.
+        !  ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough.
         !
@@ -478,7 +845,7 @@ contains
         !
         !  real workspace work(lenwrk).
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenc not big enough;
         !  2, input parameter lensav not big enough;
@@ -1216,7 +1583,7 @@ contains
         !  lenc must be at least inc*(n-1) + 1.
         !
         !  OUTPUT
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenc not big enough;
         !  2, input parameter lensav not big enough;
@@ -2030,7 +2397,7 @@ contains
         !
         !  OUTPUT
         !
-        !  integer ier, the error flag.
+        !  integer ier, the error_flag.
         !
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
@@ -2124,7 +2491,7 @@ contains
 
         end associate
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cfft2b',-5)
@@ -2194,7 +2561,7 @@ contains
         !  real work(lenwrk), workspace array
         !
         !  OUTPUT
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  3, input parameter lenwrk not big enough;
@@ -2261,7 +2628,7 @@ contains
 
         end associate
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cfft2f',-5)
@@ -2282,7 +2649,7 @@ contains
 
         end associate
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cfft2f',-5)
@@ -2333,7 +2700,7 @@ contains
         !  and m, and also certain trigonometric values which will be used in
         !  routines cfft2b or cfft2f.
         !
-        !  integer  ier, error flag.
+        !  integer  ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
@@ -2369,7 +2736,7 @@ contains
 
         end associate
 
-        ! Check error flag
+        ! Check error_flag
         if ( local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cfft2i',-5)
@@ -2385,7 +2752,7 @@ contains
 
         end associate
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cfft2i',-5)
@@ -2452,7 +2819,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least 2*lot*n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit
         !  1, input parameter lenc not big enough;
         !  2, input parameter lensav not big enough;
@@ -2496,7 +2863,7 @@ contains
         !
         if (n /= 1) then
 
-            ! Set workspace pointer
+            ! Set workspace index pointer
             iw1 = 2*n+1
 
             call cmfm1b(lot,jump,n,inc,c,work,wsave,wsave(iw1),wsave(iw1+1))
@@ -2563,7 +2930,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least 2*lot*n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0 successful exit;
         !  1 input parameter lenc not big enough;
         !  2 input parameter lensav not big enough;
@@ -2643,7 +3010,7 @@ contains
         !  of n and also containing certain trigonometric values which will be used in
         !  routines cfftmb or cfftmf.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough.
         !
@@ -4279,7 +4646,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -4330,7 +4697,7 @@ contains
         else
             call cosqb1(n,inc,x,wsave,work,local_error_flag)
 
-            ! check error flag
+            ! check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosq1b',-5)
@@ -4383,7 +4750,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -4435,7 +4802,7 @@ contains
             ! Peform cosine transform
             call cosqf1(n,inc,x,wsave,work,local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosq1f',-5)
@@ -4472,7 +4839,7 @@ contains
         !  and also containing certain trigonometric values which will be used
         !  in routines cosq1b or cosq1f.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
@@ -4715,7 +5082,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least lot*n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -4782,7 +5149,7 @@ contains
         else
             call mcsqb1(lot,jump,n,inc,x,wsave,work,local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosqmb',-5)
@@ -4846,7 +5213,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least lot*n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -4912,7 +5279,7 @@ contains
         else
             call mcsqf1(lot,jump,n,inc,x,wsave,work,local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('cosqmf',-5)
@@ -4947,7 +5314,7 @@ contains
         !  n and also containing certain trigonometric values which will be used
         !  in routines cosqmb or cosqmf.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
@@ -4979,10 +5346,12 @@ contains
             wsave(k) = cos(fk*dt)
         end do
 
+        ! Set workspace index pointer
         lnsv = get_1d_saved_workspace_size(n) - n
 
         call rfftmi(n, wsave(n+1), lnsv, local_error_flag)
 
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('cosqmi',-5)
@@ -5035,7 +5404,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least n-1.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -5134,7 +5503,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least n-1.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -5216,7 +5585,7 @@ contains
         !  n and also containing certain trigonometric values which will be used in
         !  routines cost1b or cost1f.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
@@ -5456,6 +5825,7 @@ contains
                     x(1,ns2+1) = x(1,ns2+1)+x(1,ns2+1)
                 end if
 
+                ! Set workspace index pointers
                 lenx = inc*(nm1-1)  + 1
                 lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
                 lnwk = nm1
@@ -5546,7 +5916,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least lot*(n+1).
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -5594,6 +5964,7 @@ contains
             ier = 0
         end if
 
+        ! Set workspace index pointer
         iw1 = 2*lot+1
         call mcstb1(lot,jump,n,inc,x,wsave,work,work(iw1),local_error_flag)
 
@@ -5661,7 +6032,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(N+1).
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -5715,7 +6086,7 @@ contains
         iw1 = 2*lot+1
         call mcstf1(lot,jump,n,inc,x,wsave,work,work(iw1),local_error_flag)
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('costmf',-5)
@@ -5750,7 +6121,7 @@ contains
         !  and also containing certain trigonometric values which will be used
         !  in routines costmb or costmf.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.
@@ -8351,7 +8722,7 @@ contains
 
             call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('msntf1',-5)
@@ -8594,7 +8965,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -9319,7 +9690,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least n.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough:
         !  2, input parameter lensav not big enough;
@@ -10063,7 +10434,7 @@ contains
         !  integer LENSAV, the dimension of the wsave array.
         !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough.
         !
@@ -10136,7 +10507,7 @@ contains
         !  integer  LENWRK, the number of elements in the WORK
         !  array.  LENWRK must be at least LDIM*M.
         !
-        !  integer IER, the error flag.
+        !  integer IER, the error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  3, input parameter LENWRK not big enough;
@@ -10315,7 +10686,7 @@ contains
         !  integer LENWRK, the number of elements in the WORK
         !  array.  LENWRK must be at least LDIM*M.
         !
-        !  integer IER, the error flag.
+        !  integer IER, the error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  3, input parameter LENWRK not big enough;
@@ -10491,7 +10862,7 @@ contains
         !  of L and M, and also containing certain trigonometric values which
         !  will be used in routines RFFT2B or RFFT2F.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -10720,7 +11091,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -10825,7 +11196,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -10905,7 +11276,7 @@ contains
         !  factors of n and also containing certain trigonometric
         !  values which will be used in routines rfftmb or rfftmf.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough.
         !
@@ -10981,7 +11352,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  integer IER, the error flag.
+        !  integer IER, the error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11089,7 +11460,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least N.
         !
-        !  integer IER, the error flag.
+        !  integer IER, the error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11139,7 +11510,7 @@ contains
 
             call cosq1f(n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
-            ! check error flag
+            ! check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sinq1f',-5)
@@ -11177,7 +11548,7 @@ contains
         !  of N and also containing certain trigonometric values which will be used
         ! in routines SINQ1B or SINQ1F.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -11260,7 +11631,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11315,7 +11686,7 @@ contains
 
             call cosqmb(lot,jump,n,inc,x,lenx,wsave,lensav,work,lenwrk,local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sinqmb',-5)
@@ -11388,7 +11759,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*N.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11495,7 +11866,7 @@ contains
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINQMB or SINQMF.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -11518,7 +11889,7 @@ contains
 
         call cosqmi(n, wsave, lensav, local_error_flag)
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('sinqmi',-5)
@@ -11571,7 +11942,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*N+2.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11616,7 +11987,7 @@ contains
         !
         call sintb1(n,inc,x,wsave,work,work(n+2),local_error_flag)
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('sint1b',-5)
@@ -11668,7 +12039,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least 2*N+2.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -11748,7 +12119,7 @@ contains
         !  of N and also containing certain trigonometric values which will be used
         !  in routines SINT1B or SINT1F.
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  2, input parameter LENSAV not big enough;
         !  20, input error returned by lower level routine.
@@ -11797,7 +12168,7 @@ contains
 
             call rfft1i(np1, wsave(ns2+1), lnsv, local_error_flag)
 
-            ! Check error flag
+            ! Check error_flag
             if (local_error_flag /= 0) then
                 ier = 20
                 call fft_error_handler('sint1i',-5)
@@ -12033,7 +12404,7 @@ contains
         !  integer LENWRK, the dimension of the WORK array.
         !  LENWRK must be at least LOT*(2*N+4).
         !
-        !  integer IER, error flag.
+        !  integer IER, error_flag.
         !  0, successful exit;
         !  1, input parameter LENR not big enough;
         !  2, input parameter LENSAV not big enough;
@@ -12146,7 +12517,7 @@ contains
         !  integer lenwrk, the dimension of the work array.
         !  lenwrk must be at least lot*(2*n+4).
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  1, input parameter lenr not big enough;
         !  2, input parameter lensav not big enough;
@@ -12205,7 +12576,7 @@ contains
 
         call msntf1(lot, jump, n, inc, x, wsave, work, work(iw1), work(iw2), local_error_flag)
 
-        ! Check error flag
+        ! Check error_flag
         if (local_error_flag /= 0) then
             ier = 20
             call fft_error_handler('sintmf', -5)
@@ -12239,7 +12610,7 @@ contains
         !  of n and also containing certain trigonometric values which will be used
         !  in routines sintmb or sintmf.
         !
-        !  integer ier, error flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
         !  2, input parameter lensav not big enough;
         !  20, input error returned by lower level routine.

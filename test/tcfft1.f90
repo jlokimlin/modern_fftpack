@@ -48,125 +48,65 @@ program tcfft1
     !------------------------------------------------------
     type (FFTpack)          :: fft
     integer (ip), parameter :: n = 10**3
-    integer (ip)            :: error_flag
-    complex (wp)            :: c(n)
-    real (wp)               :: rr(n), ri(n)
+    complex (wp)            :: complex_data(n)
+    real (wp)               :: real_part(n), imaginary_part(n)
     !------------------------------------------------------
 
     !
-    !==> Allocate memory
+    !==> Identify test
     !
-    fft = FFTpack(n)
+    write( stdout, '(A)') 'program tcfft1 and related messages:'
 
-    associate( &
-        wsave => fft%saved_workspace, &
-        work => fft%workspace &
-        )
-        !
-        !==> Identify test and initialize FFT
-        !
-        write( stdout, '(A)') 'program tcfft1 and related messages:'
-        call fft%cfft1i(n, wsave, size(wsave), error_flag)
+    !
+    !==> Generate test vector for forward-backward test
+    !
+    call get_random_vector(real_part, imaginary_part, complex_data)
 
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1i'
-            stop
-        end if
+    !
+    !==> Perform backward transform
+    !
+    call fft%ifft(complex_data)
 
-        !
-        !==> Generate test vector for forward-backward test
-        !
-        call get_random_vector(rr, ri, c)
+    !
+    !==> Perform forward transform
+    !
+    call fft%fft(complex_data)
 
-        !
-        !==> Perform backward transform
-        !
-        call fft%cfft1b(n, 1, c, n, &
-            wsave, size(wsave), work, size(work), error_flag)
+    !
+    !==> Print test results
+    !
+    associate( max_err => maxval(abs(complex_data-cmplx(real_part, imaginary_part, kind=wp))) )
 
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1b !'
-            stop
-        end if
-
-        !
-        !==> Perform forward transform
-        !
-        call fft%cfft1f(n, 1, c, n, wsave, size(wsave), work, size(work), error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1f !'
-            stop
-        end if
-
-        !
-        !==> Print test results
-        !
-        associate( max_err => maxval(abs(c-cmplx(rr, ri, kind=wp))) )
-
-            write( stdout, '(A,E23.15E3)' ) 'cfft1 backward-forward max error =', max_err
-
-        end associate
-
-        !
-        !==> Identify test and initialize fft
-        !
-        write( stdout, '(A)') 'program tcfft1 and related messages:'
-
-        call fft%cfft1i(n, wsave, size(wsave), error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1i'
-            stop
-        end if
-
-        !
-        !==> Generate test vector for forward-backward test
-        !
-        call get_random_vector(rr, ri, c)
-
-        !
-        !==> Perform forward transform
-        !
-        call fft%cfft1f(n, 1, c, n, wsave, size(wsave), work, size(work), error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1f !'
-            stop
-        end if
-
-        !
-        !==> Perform backward transform
-        !
-        call fft%cfft1b(n, 1, c, n, wsave, size(wsave), work, size(work), error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ', error_flag, ' in routine cfft1b !'
-            stop
-        end if
-
-
-        !
-        !==> Print test results
-        !
-        associate( max_err => maxval(abs(c-cmplx(rr, ri, kind=wp))) )
-
-            write( stdout, '(A,E23.15E3)' ) 'cfft1 forward-backward max error =', max_err
-            write( stdout, '(A, /)') 'end program tcfft1 and related messages'
-
-        end associate
+        write( stdout, '(A,E23.15E3)' ) 'cfft1 backward-forward max error =', max_err
 
     end associate
+
     !
-    !==> Release memory
+    !==> Generate test vector for forward-backward test
     !
-    call fft%destroy()
+    call get_random_vector(real_part, imaginary_part, complex_data)
+
+    !
+    !==> Perform forward transform
+    !
+    call fft%fft(complex_data)
+
+
+    !
+    !==> Perform backward transform
+    !
+    call fft%ifft(complex_data)
+
+
+    !
+    !==> Print test results
+    !
+    associate( max_err => maxval(abs(complex_data-cmplx(real_part, imaginary_part, kind=wp))) )
+
+        write( stdout, '(A,E23.15E3)' ) 'cfft1 forward-backward max error =', max_err
+        write( stdout, '(A, /)') 'end program tcfft1 and related messages'
+
+    end associate
 
 contains
 

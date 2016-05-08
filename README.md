@@ -29,28 +29,18 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
     ! Explicit typing only
     implicit none
     
-    type (FFTpack)  	      :: fft
-    complex (wp), allocatable :: data(l,m)
-    integer (ip)              :: error_flag
+    type (FFTpack)  	         :: foo
+    complex (wp), allocatable :: my_data(:)
     
     
     !.... generate some data
     
-    ! Initialize object
-    fft = FFTpack(l,m)
+    ! Forward transform
+    foo%fft(my_data)
     
-    associate( &
-        wsave => fft%saved_workspace, &
-        wrk => fft%workspace &
-        )
-        
-        ! perform forward transform
-        call fft%cfft2f(l,l,m,data, wsave, size(wsave),wrk, size(wrk),error_flag)
-            
-    end associate
+    ! Backward transform
+    foo%ifft(my_data)
     
-    ! Release memory
-    call fft%destroy()
 
 ```
 
