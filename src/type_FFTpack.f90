@@ -447,7 +447,7 @@ contains
     end subroutine cfft1i
 
 
-    subroutine cfft1b(n, inc, complex_data, lenc, wsave, lensav, work, lenwrk, ier)
+    subroutine cfft1b(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
         !
         !  INPUT
         !  integer n, the length of the sequence to be
@@ -457,7 +457,7 @@ contains
         !  integer inc, the increment between the locations, in
         !  array c, of two consecutive elements within the sequence to be transformed.
         !
-        !  integer lenc, the dimension of the complex_data array.
+        !  integer lenc, the dimension of the c array.
         !  lenc must be at least inc*(n-1) + 1.
         !
         !  real wsave(lensav). wsave's contents must be initialized with a call
@@ -473,7 +473,7 @@ contains
         !  lenwrk must be at least 2*n.
         !
         !  INPUT/OUTPUT
-        !  complex complex_data(lenc) containing the sequence to be
+        !  complex c(lenc) containing the sequence to be
         !  transformed.
         !
         !  real workspace work(lenwrk).
@@ -490,7 +490,7 @@ contains
         !--------------------------------------------------------------
         integer (ip), intent (in)     :: n
         integer (ip), intent (in)     :: inc
-        complex (wp), intent (in out) :: complex_data(lenc)
+        complex (wp), intent (in out) :: c(lenc)
         integer (ip), intent (in)     :: lenc
         integer (ip), intent (in)     :: lensav
         integer (ip), intent (in)     :: lenwrk
@@ -527,13 +527,13 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( real_copy(2,size(complex_data)) )
+            allocate( real_copy(2,size(c)) )
 
             !
             !==> Make copy: complex to real
             !
-            real_copy(1,:) = real(complex_data)
-            real_copy(2,:) = aimag(complex_data)
+            real_copy(1,:) = real(c)
+            real_copy(2,:) = aimag(c)
 
             ! Set workspace index pointer
             iw1 = 2 * n + 1
@@ -543,7 +543,7 @@ contains
             !
             !==> Make copy: real to complex
             !
-            complex_data =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
+            c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
 
             !
             !==> Release memory
