@@ -27,22 +27,31 @@ module type_FFTpack
         real (wp), allocatable :: workspace(:)
         !----------------------------------------------------------------------
     contains
-        procedure, private :: real_1d_forward
-        procedure, private :: real_1d_backward
-        procedure, private :: complex_1d_forward
-        procedure, private :: complex_1d_backward
-        generic,   public  :: fft => &
-            real_1d_forward, &
-            complex_1d_forward
-        generic,   public  :: ifft => &
-            real_1d_backward, &
-            complex_1d_backward
-        !----------------------------------------------------------------------
-        ! Private class methods
-        !----------------------------------------------------------------------
         !----------------------------------------------------------------------
         ! Class methods
         !----------------------------------------------------------------------
+        procedure, private :: real_1d_forward
+        procedure, private :: real_1d_backward
+        procedure, private :: real_2d_forward
+        procedure, private :: real_2d_backward
+        procedure, private :: real_nd_forward
+        procedure, private :: real_nd_backward
+        procedure, private :: complex_1d_forward
+        procedure, private :: complex_1d_backward
+        procedure, private :: complex_2d_forward
+        procedure, private :: complex_2d_backward
+        !procedure, private :: complex_nd_forward
+        !procedure, private :: complex_nd_backward
+
+        generic,   public  :: fft => real_1d_forward, complex_1d_forward
+        generic,   public  :: ifft => real_1d_backward, complex_1d_backward
+        generic,   public  :: fft2 => real_2d_forward, complex_2d_forward
+        generic,   public  :: ifft2 => real_2d_backward, complex_2d_backward
+        generic,   public  :: fftn => real_nd_forward!, complex_nd_forward
+        generic,   public  :: ifftn => real_nd_backward!, complex_nd_backward
+        procedure, public  :: destroy => destroy_fftpack
+
+
         procedure, nopass, public :: get_1d_saved_workspace_size
         procedure, nopass, public :: get_1d_saved_workspace
         procedure, nopass, public :: get_1d_workspace_size
@@ -53,7 +62,7 @@ module type_FFTpack
         procedure, nopass, public :: get_2d_saved_workspace
         procedure, nopass, public :: get_2d_workspace_size
         procedure, nopass, public :: get_2d_workspace
-        procedure,         public :: destroy => destroy_fftpack
+
         !----------------------------------------------------------------------
         ! Complex transform routines
         !----------------------------------------------------------------------
@@ -124,6 +133,211 @@ module type_FFTpack
     end interface
 
 contains
+
+    pure function get_real_1d_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+
+        end associate
+
+    end function get_real_1d_saved_workspace_size
+
+    pure function get_real_1d_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = n
+
+        end associate
+
+    end function get_real_1d_workspace_size
+
+    pure function get_complex_1d_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+
+        end associate
+
+    end function get_complex_1d_saved_workspace_size
+
+    pure function get_complex_1d_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = 2*n
+
+        end associate
+
+    end function get_complex_1d_workspace_size
+
+    pure function get_real_2d_saved_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = l+3*m &
+                +int(log(real(l, kind=wp))/log(2.0_wp)) &
+                +2*int(log(real(m, kind=wp))/log(2.0_wp)) + 12
+
+        end associate
+
+    end function get_real_2d_saved_workspace_size
+
+    pure function get_real_2d_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = m*(l+1)
+
+        end associate
+
+    end function get_real_2d_workspace_size
+
+    pure function get_complex_2d_saved_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = 2*(l+m) &
+                + int(log(real(l, kind=wp))/log(2.0_wp)) &
+                +int(log(real(m, kind=wp))/log(2.0_wp)) + 8
+
+        end associate
+
+    end function get_complex_2d_saved_workspace_size
+
+    pure function get_complex_2d_workspace_size(l, m) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: l
+        integer (ip), intent (in) :: m
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = 2*l*m
+
+        end associate
+
+    end function get_complex_2d_workspace_size
+
+
+
+    pure function get_real_nd_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n ! length of each sequence
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+
+        end associate
+
+    end function get_real_nd_saved_workspace_size
+
+    pure function get_real_nd_workspace_size(n, lot) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n   ! length of each sequence
+        integer (ip), intent (in) :: lot ! number of sequences
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = n*lot
+
+        end associate
+
+    end function get_real_nd_workspace_size
+
+
+    pure function get_complex_nd_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n ! length of each sequence
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+
+        end associate
+
+    end function get_complex_nd_saved_workspace_size
+
+    pure function get_complex_nd_workspace_size(n, lot) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n   ! length of each sequence
+        integer (ip), intent (in) :: lot ! number of sequences
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = 2*n*lot
+
+        end associate
+
+    end function get_complex_nd_workspace_size
 
 
     subroutine real_1d_forward(this, real_data)
@@ -268,70 +482,6 @@ contains
         end select
 
     end subroutine real_1d_backward
-
-    pure function get_real_1d_saved_workspace_size(n) result (return_value)
-        !------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !------------------------------------------------------------------
-        integer (ip), intent (in) :: n
-        integer (ip)              :: return_value
-        !------------------------------------------------------------------
-
-        associate( lensav => return_value )
-
-            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
-
-        end associate
-
-    end function get_real_1d_saved_workspace_size
-
-    pure function get_real_1d_workspace_size(n) result (return_value)
-        !------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !------------------------------------------------------------------
-        integer (ip), intent (in) :: n
-        integer (ip)              :: return_value
-        !------------------------------------------------------------------
-
-        associate( lenwrk => return_value )
-
-            lenwrk = n
-
-        end associate
-
-    end function get_real_1d_workspace_size
-
-    pure function get_complex_1d_saved_workspace_size(n) result (return_value)
-        !------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !------------------------------------------------------------------
-        integer (ip), intent (in) :: n
-        integer (ip)              :: return_value
-        !------------------------------------------------------------------
-
-        associate( lensav => return_value )
-
-            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
-
-        end associate
-
-    end function get_complex_1d_saved_workspace_size
-
-    pure function get_complex_1d_workspace_size(n) result (return_value)
-        !------------------------------------------------------------------
-        ! Dictionary: calling arguments
-        !------------------------------------------------------------------
-        integer (ip), intent (in) :: n
-        integer (ip)              :: return_value
-        !------------------------------------------------------------------
-
-        associate( lenwrk => return_value )
-
-            lenwrk = 2*n
-
-        end associate
-
-    end function get_complex_1d_workspace_size
 
     subroutine complex_1d_forward(this, complex_data)
         !-----------------------------------------------------------------
@@ -478,6 +628,642 @@ contains
         end select
 
     end subroutine complex_1d_backward
+
+
+    subroutine real_2d_forward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real (wp),       intent (in out) :: real_data(:,:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, m, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(real_data, dim=1)
+        m = size(real_data, dim=2)
+
+        associate( &
+            ldim => l, &
+            r => real_data, &
+            lensav => get_real_2d_saved_workspace_size(l, m), &
+            lenwrk => get_real_2d_workspace_size(l, m), &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call rfft2i(l,m,wsave,lensav,ier)
+
+                ! Check error flag
+                select case (ier)
+                    case (2)
+                        error stop "rfft2i: lensav not big enough"
+                    case (20)
+                        error stop "rfft2i: input error returned by lower level routine"
+                end select
+
+                !
+                !==> Perform transform
+                !
+                call rfft2f(ldim,l,m,real_data,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error flag
+        select case (error_flag)
+            case (0)
+                return
+            case (6)
+                error stop "rfft2f: ldim is less than 2*((l+1)/2)"
+            case (2)
+                error stop "rfft2f: lensav not big enough"
+            case (3)
+                error stop "rfft2f: lenwrk not big enough"
+            case (20)
+                error stop "rfft2f: input error returned by lower level routine"
+        end select
+
+    end subroutine real_2d_forward
+
+    subroutine real_2d_backward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real (wp),       intent (in out) :: real_data(:,:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, m, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(real_data, dim=1)
+        m = size(real_data, dim=2)
+
+        associate( &
+            ldim => l, &
+            r => real_data, &
+            lensav => get_real_2d_saved_workspace_size(l, m), &
+            lenwrk => get_real_2d_workspace_size(l, m), &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call rfft2i(l,m,wsave,lensav,ier)
+
+                ! Check error flag
+                select case (ier)
+                    case (2)
+                        error stop "rfft2i: lensav not big enough"
+                    case (20)
+                        error stop "rfft2i: input error returned by lower level routine"
+                end select
+
+                !
+                !==> perform transform
+                call rfft2b(ldim,l,m,real_data,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error flag
+        select case(error_flag)
+            case (0)
+                return
+            case (6)
+                error stop "rfft2b: ldim is less than 2*((l+1)/2)"
+            case (2)
+                error stop "rfft2b: lensav not big enough"
+            case (3)
+                error stop "rfft2b: lenwrk not big enough"
+            case (20)
+                error stop "rfft2b: input error returned by lower level routine"
+        end select
+
+    end subroutine real_2d_backward
+
+
+    subroutine complex_2d_forward(this, complex_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        complex (wp),    intent (in out) :: complex_data(:,:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, m, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(complex_data, dim=1)
+        m = size(complex_data, dim=2)
+
+        associate( &
+            c => complex_data, &
+            ldim => l, &
+            lensav => get_complex_2d_saved_workspace_size(l, m), &
+            lenwrk => get_complex_2d_workspace_size(l, m), &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call cfft2i(l,m,wsave,lensav,ier)
+
+                select case (ier)
+                    case (2)
+                        error stop "cfft2i: lensav not big enough"
+                    case (20)
+                        error stop "cfft2i: input error returned by lower level routine"
+                end select
+
+                !
+                !==> Perform transform
+                !
+                call cfft2f(ldim,l,m,c,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error flag
+        select case(error_flag)
+            case (0)
+                return
+            case (5)
+                error stop "cfft2f: l > ldim"
+            case (2)
+                error stop "cfft2f: lensav not big enough"
+            case (3)
+                error stop "cfft2f: lenwrk not big enough"
+            case (20)
+                error stop "cfft2f: input error returned by lower level routine"
+        end select
+
+    end subroutine complex_2d_forward
+
+    subroutine complex_2d_backward(this, complex_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        complex (wp),    intent (in out) :: complex_data(:,:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, m, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(complex_data, dim=1)
+        m = size(complex_data, dim=2)
+
+        associate( &
+            c => complex_data, &
+            ldim => l, &
+            lensav => get_complex_2d_saved_workspace_size(l, m), &
+            lenwrk => get_complex_2d_workspace_size(l, m), &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call cfft2i(l,m,wsave,lensav,ier)
+
+                select case (ier)
+                    case (2)
+                        error stop "cfft2i: lensav not big enough"
+                    case (20)
+                        error stop "cfft2i: input error returned by lower level routine"
+                end select
+
+                !
+                !==> Perform transform
+                !
+                call cfft2b(ldim, l, m, c, wsave, lensav, work, lenwrk, ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error flag
+        select case (error_flag)
+            case (0)
+                return
+            case (5)
+                error stop "cfft2b: l > ldim"
+            case (2)
+                error stop "cfft2b: lensav not big enough"
+            case (3)
+                error stop "cfft2b: lenwrk not big enough"
+            case (20)
+                error stop "cfft2b: input error returned by lower level routine"
+        end select
+
+    end subroutine complex_2d_backward
+
+
+    subroutine real_nd_forward(this, n, lot, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        integer (ip),    intent (in)     :: n   ! length of each sequence
+        integer (ip),    intent (in)     :: lot ! number of sequences
+        real(wp),        intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(real_data)
+
+        if (mod(n*lot,l)/=0) then
+            error stop "real_nd_forward: "&
+                //"incommensurate input arguments "&
+                //"mod(n*lot,size(real_data)) /= 0."
+        end if
+
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_real_nd_workspace_size(n, lot), &
+            lensav => get_real_nd_saved_workspace_size(n) , &
+            lenr => n*lot, &
+            jump => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call rfftmi(n, wsave, lensav, ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "rfftmi: lensave not big enough"
+                end if
+
+                !
+                !==> Perform forward transform
+                !
+                call rfftmf(lot,jump,n,inc,r,lenr,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "rfftmf: lenr not big enough"
+            case (2)
+                error stop "rfftmf: lensav not big enough"
+            case (3)
+                error stop "rfftmf: lenwrk not big enough"
+            case (4)
+                error stop "rfftmf: inc, jump, n, lot are not consistent"
+        end select
+
+    end subroutine real_nd_forward
+
+    subroutine real_nd_backward(this, n, lot, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        integer (ip),    intent (in)     :: n   ! length of each sequence
+        integer (ip),    intent (in)     :: lot ! number of sequences
+        real (wp),       intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: l, error_flag
+        !-----------------------------------------------------------------
+
+        l = size(real_data)
+
+        if (mod(n*lot,l)/=0) then
+            error stop "real_nd_backward: "&
+                //"incommensurate input arguments "&
+                //"mod(n*lot,size(real_data)) /= 0."
+        end if
+
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_real_nd_workspace_size(n, lot), &
+            lensav => get_real_nd_saved_workspace_size(n) , &
+            lenr => n*lot, &
+            jump => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            allocate( this%saved_workspace(lensav) )
+            allocate( this%workspace(lenwrk) )
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call rfftmi(n, wsave, lensav, ier)
+
+                ! Check error_flag
+                if(ier == 2) then
+                    error stop "rfftmi: lensave not big enough"
+                end if
+
+                !
+                !==> Perform forward transform
+                !
+                call rfftmb(lot,jump,n,inc,r,lenr,wsave,lensav,work,lenwrk,ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "rfftmb: lenr not big enough"
+            case (2)
+                error stop "rfftmb: lensav not big enough"
+            case (3)
+                error stop "rfftmb: lenwrk not big enough"
+            case (4)
+                error stop "rfftmb: inc, jump, n, lot are not consistent"
+        end select
+
+    end subroutine real_nd_backward
+
+
+!    subroutine complex_nd_forward(this, n, lot, complex_data)
+!        !-----------------------------------------------------------------
+!        ! Dictionary: calling arguments
+!        !-----------------------------------------------------------------
+!        class (FFTpack), intent (in out) :: this
+!        integer (ip),    intent (in)     :: n   ! length of each sequence
+!        integer (ip),    intent (in)     :: lot ! number of sequences
+!        complex (wp),    intent(in out)  :: complex_data(:)
+!        !-----------------------------------------------------------------
+!        ! Dictionary: local variables
+!        !-----------------------------------------------------------------
+!        integer (ip) :: l, error_flag
+!        !-----------------------------------------------------------------
+!
+!        l = size(complex_data)
+!
+!        if (mod(n*lot,l)/=0) then
+!            error stop "complex_nd_forward: "&
+!                //"incommensurate input arguments "&
+!                //"mod(n*lot,size(complex_data)) /= 0."
+!        end if
+!
+!
+!        associate( &
+!            c => complex_data, &
+!            lenwrk => get_complex_nd_workspace_size(n, lot), &
+!            lensav => get_complex_nd_saved_workspace_size(n) , &
+!            lenc => n*lot, &
+!            jump => n, &
+!            inc => 1, &
+!            ier => error_flag &
+!            )
+!
+!            !
+!            !==> Allocate memory
+!            !
+!            allocate( this%saved_workspace(lensav) )
+!            allocate( this%workspace(lenwrk) )
+!
+!            associate( &
+!                wsave => this%saved_workspace, &
+!                work => this%workspace &
+!                )
+!
+!                !
+!                !==> Initialize transform
+!                !
+!                call cfftmi(n, wsave, lensav, ier)
+!
+!                ! Check error_flag
+!                if(ier == 2) then
+!                    error stop "cfftmi: lensave not big enough"
+!                end if
+!
+!                 !
+!                 !==> Perform transform
+!                 !
+!                call cfftmf(lot, jump, n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+!
+!            end associate
+!        end associate
+!
+!        !
+!        !==> Release memory
+!        !
+!        call this%destroy()
+!
+!        ! Check error_flag
+!        select case (error_flag)
+!            case (0)
+!                return
+!            case (1)
+!                error stop "cfftmf: lenc not big enough"
+!            case (2)
+!                error stop "cfftmf: lensav not big enough"
+!            case (3)
+!                error stop "cfftmf: lenwrk not big enough"
+!            case (4)
+!                error stop "cfftmf: inc, jump, n, lot are not consistent"
+!        end select
+!
+!    end subroutine complex_nd_forward
+!
+!    subroutine complex_nd_backward(this, n, lot, complex_data)
+!        !-----------------------------------------------------------------
+!        ! Dictionary: calling arguments
+!        !-----------------------------------------------------------------
+!        class (FFTpack), intent (in out) :: this
+!        integer (ip),    intent (in)     :: n   ! length of each sequence
+!        integer (ip),    intent (in)     :: lot ! number of sequences
+!        complex (wp),    intent(in out)  :: complex_data(:)
+!        !-----------------------------------------------------------------
+!        ! Dictionary: local variables
+!        !-----------------------------------------------------------------
+!        integer (ip) :: l, error_flag
+!        !-----------------------------------------------------------------
+!
+!        l = size(complex_data)
+!
+!        if (mod(n*lot,l)/=0) then
+!            error stop "complex_nd_backward: "&
+!                //"incommensurate input arguments "&
+!                //"mod(n*lot,size(complex_data)) /= 0."
+!        end if
+!
+!
+!        associate( &
+!            c => complex_data, &
+!            lenwrk => get_complex_nd_workspace_size(n, lot), &
+!            lensav => get_complex_nd_saved_workspace_size(n) , &
+!            lenc => n*lot, &
+!            jump => n, &
+!            inc => 1, &
+!            ier => error_flag &
+!            )
+!
+!            !
+!            !==> Allocate memory
+!            !
+!            allocate( this%saved_workspace(lensav) )
+!            allocate( this%workspace(lenwrk) )
+!
+!            associate( &
+!                wsave => this%saved_workspace, &
+!                work => this%workspace &
+!                )
+!
+!                !
+!                !==> Initialize transform
+!                !
+!                call cfftmi(n, wsave, lensav, ier)
+!
+!                ! Check error_flag
+!                if(ier == 2) then
+!                    error stop "cfftmi: lensave not big enough"
+!                end if
+!
+!                !
+!                !==> Perform transform
+!                !
+!                call cfftmb(lot,jump,n,inc,c,lenc,wsave,lensav,work,lenwrk,ier)
+!
+!            end associate
+!        end associate
+!
+!        !
+!        !==> Release memory
+!        !
+!        call this%destroy()
+!
+!        ! Check error_flag
+!        select case (error_flag)
+!            case (0)
+!                return
+!            case (1)
+!                error stop "cfftmb: lenc not big enough"
+!            case (2)
+!                error stop "cfftmb: lensav not big enough"
+!            case (3)
+!                error stop "cfftmb: lenwrk not big enough"
+!            case (4)
+!                error stop "cfftmb: inc, jump, n, lot are not consistent"
+!        end select
+!
+!    end subroutine complex_nd_backward
 
     pure function fftpack_2d_constructor(l, m) result (return_value)
         !------------------------------------------------------------------
@@ -2952,6 +3738,7 @@ contains
         integer (ip) n
         real (wp) work(lenwrk)
         real (wp) wsave(lensav)
+
 
         !
         !==> Check validity of input arguments

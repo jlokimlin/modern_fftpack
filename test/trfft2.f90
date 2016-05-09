@@ -51,26 +51,15 @@ program trfft2
     !------------------------------------------------------------------
     ! Dictionary
     !------------------------------------------------------------------
-    type (FFTpack)          :: fft
-    integer (ip)            :: error_flag
-    integer (ip), parameter :: l=100, m=100, ldim=l
-    integer (ip), parameter :: lensav= 430
-    integer (ip), parameter :: lenwrk=(l+1)*m
+    type (FFTpack)          :: my_fft
+    integer (ip), parameter :: l=100, m=100
     real (wp)               :: real_data(l,m), data_copy(l,m)
-    real (wp)               :: wsave(lensav), work(lenwrk)
     !------------------------------------------------------------------
 
     !
-    !==> Identify test and initialize FFT
+    !==> Identify test
     !
     write( stdout, '(A)') 'program trfft2 and related messages:'
-    call fft%rfft2i(l,m,wsave, size(wsave),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine rfft2i'
-        stop
-    end if
 
     !
     !==> Generate test matrix for forward-backward test
@@ -82,37 +71,25 @@ program trfft2
     !
     !==> Perform forward transform
     !
-    call fft%rfft2f (ldim,l,m,real_data, wsave, size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine rfft2f !'
-        stop
-    end if
+    call my_fft%fft2(real_data)
 
     !
     !==> Perform backward transform
     !
-    call fft%rfft2b (ldim,l,m,real_data, wsave, size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine rfft2b !'
-        stop
-    end if
-
+    call my_fft%ifft2(real_data)
 
     !
     !==> Print test results
     !
     associate( max_err => maxval(abs(real_data-data_copy)) )
 
-        write( stdout, '(A,E23.15E3)' ) 'rfft2 forward-backward max error =', max_err
+        write( stdout, '(A,E23.15E3)' ) 'fft2 (real) forward-backward max error =', max_err
 
     end associate
 
+    !
     !==> Generate test matrix for backward-forward test
-
+    !
     call random_seed()
     call random_number(real_data)
     data_copy = real_data
@@ -120,32 +97,18 @@ program trfft2
     !
     !==> Perform backward transform
     !
-    call fft%rfft2b (ldim,l,m,real_data, &
-        wsave, size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine rfft2b !'
-        stop
-    end if
-
+    call my_fft%ifft2(real_data)
     !
     !==> Perform forward transform
     !
-    call fft%rfft2f (ldim,l,m,real_data, wsave, size(wsave),work, size(work),error_flag)
-
-    ! Check error flag
-    if (error_flag /= 0) then
-        write( stdout, '(A,I3,A)') 'error ',error_flag,' in routine rfft2f !'
-        stop
-    end if
+    call my_fft%fft2(real_data)
 
     !
     !==> Print test results
     !
     associate( max_err => maxval(abs(real_data-data_copy)) )
 
-        write( stdout, '(A,E23.15E3)' ) 'rfft2 backward-forward max error =', max_err
+        write( stdout, '(A,E23.15E3)' ) 'fft2 (real) backward-forward max error =', max_err
         write( stdout, '(A,/)') 'end program trfft2 and related messages'
 
     end associate

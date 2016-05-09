@@ -46,110 +46,63 @@ program tcfft2
     !------------------------------------------------------------------
     ! Dictionary
     !------------------------------------------------------------------
-    type (FFTpack)          :: fft
-    integer (ip)            :: error_flag
-    integer (ip), parameter :: l=100, m=100, ldim=l
-    complex (wp)            :: c(l,m)
-    real (wp)               :: rr(l,m), ri(l,m)
+    type (FFTpack)          :: my_fft
+    integer (ip), parameter :: l=100, m=100
+    complex (wp)            :: complex_data(l,m)
+    real (wp)               :: real_part(l,m), imaginary_part(l,m)
     !------------------------------------------------------
 
+
     !
-    !==> Allocate memory
+    !==> Identify test and initialize FFT
     !
-    fft = FFTpack(l,m)
+    write( stdout, '(A)') 'program fft2 (complex) and related messages:'
 
-    associate( &
-        wsave => fft%saved_workspace, &
-        work => fft%workspace &
-        )
-        !
-        !==> Identify test and initialize FFT
-        !
-        write( stdout, '(A)') 'program tcfft2 and related messages:'
-        call fft%cfft2i(l,m,wsave, size(wsave),error_flag)
+    !
+    !==> generate test matrix for forward-backward test
+    !
+    call get_random_matrix(real_part, imaginary_part, complex_data)
 
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2i'
-            stop
-        end if
+    !
+    !==> perform forward transform
+    !
+    call my_fft%fft2(complex_data)
 
-        !
-        !==> generate test matrix for forward-backward test
-        !
-        call get_random_matrix(rr, ri, c)
+    !
+    !==> perform backward transform
+    !
+    call my_fft%ifft2(complex_data)
 
-        !
-        !==> perform forward transform
-        !
-        call fft%cfft2f(ldim,l,m,c, &
-            wsave, size(wsave),work, size(work),error_flag)
+    !
+    !==> Print test results
+    !
+    associate( max_err => maxval(abs(complex_data-cmplx(real_part,imaginary_part,kind=wp))) )
 
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
-            stop
-        end if
-
-        !
-        !==> perform backward transform
-        !
-        call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
-            stop
-        end if
-
-        !
-        !==> Print test results
-        !
-        associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
-
-            write( stdout, '(A,E23.15E3)' ) 'cfft2 forward-backward max error =', max_err
-
-        end associate
-
-        !==> generate test matrix for backward-forward test
-
-        call get_random_matrix(rr, ri, c)
-
-        !==> perform backward transform
-
-        call fft%cfft2b(ldim,l,m,c, wsave, size(wsave),work, size(work),error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2b !'
-            stop
-        end if
-
-        !==> perform forward transform
-        !
-        call fft%cfft2f(ldim,l,m,c, wsave, size(wsave), work, size(work), error_flag)
-
-        ! Check error flag
-        if (error_flag /= 0) then
-            write( stderr, '(A,I3,A)') 'error ',error_flag,' in routine cfft2f !'
-            stop
-        end if
-
-        !
-        !==> Print test results
-        !
-        associate( max_err => maxval(abs(c-cmplx(rr,ri,kind=wp))) )
-
-            write( stdout, '(A,E23.15E3)' ) 'cfft2 backward-forward max error =', max_err
-            write( stdout, '(A,/)') 'end program tcfft2 and related messages'
-
-        end associate
+        write( stdout, '(A,E23.15E3)' ) 'fft2 (complex) forward-backward max error =', max_err
 
     end associate
+
+    !==> generate test matrix for backward-forward test
+
+    call get_random_matrix(real_part, imaginary_part, complex_data)
+
+    !==> perform backward transform
+
+    call my_fft%ifft2(complex_data)
+
+    !==> perform forward transform
     !
-    !==> Release memory
+    call my_fft%fft2(complex_data)
+
     !
-    call fft%destroy()
+    !==> Print test results
+    !
+    associate( max_err => maxval(abs(complex_data-cmplx(real_part,imaginary_part,kind=wp))) )
+
+        write( stdout, '(A,E23.15E3)' ) 'cfft2 backward-forward max error =', max_err
+        write( stdout, '(A,/)') 'end program tcfft2 and related messages'
+
+    end associate
 
 contains
 
