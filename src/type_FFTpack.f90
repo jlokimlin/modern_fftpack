@@ -45,7 +45,6 @@ module type_FFTpack
         procedure, private :: cost_1d_forward
         procedure, private :: cost_1d_backward
 
-
         generic,   public  :: fft => real_1d_forward, complex_1d_forward
         generic,   public  :: ifft => real_1d_backward, complex_1d_backward
         generic,   public  :: dct => cost_1d_forward

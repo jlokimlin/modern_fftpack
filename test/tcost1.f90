@@ -103,7 +103,9 @@ program tcost1
 
     end associate
 
+
 contains
+
 
     subroutine get_random_vector(real_data, real_copy)
         !--------------------------------------------------
