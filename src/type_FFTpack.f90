@@ -42,14 +42,21 @@ module type_FFTpack
         procedure, private :: complex_2d_backward
         !procedure, private :: complex_nd_forward
         !procedure, private :: complex_nd_backward
+        procedure, private :: cost_1d_forward
+        procedure, private :: cost_1d_backward
+
 
         generic,   public  :: fft => real_1d_forward, complex_1d_forward
         generic,   public  :: ifft => real_1d_backward, complex_1d_backward
+        generic,   public  :: dct => cost_1d_forward
+        generic,   public  :: idct => cost_1d_backward
         generic,   public  :: fft2 => real_2d_forward, complex_2d_forward
         generic,   public  :: ifft2 => real_2d_backward, complex_2d_backward
         generic,   public  :: fftn => real_nd_forward!, complex_nd_forward
         generic,   public  :: ifftn => real_nd_backward!, complex_nd_backward
+
         procedure, public  :: destroy => destroy_fftpack
+        procedure, public  :: create => create_fftpack
 
 
         procedure, nopass, public :: get_1d_saved_workspace_size
@@ -197,6 +204,40 @@ contains
         end associate
 
     end function get_complex_1d_workspace_size
+
+    pure function get_cost_1d_saved_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n ! length of each sequence
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lensav => return_value )
+
+            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+
+        end associate
+
+    end function get_cost_1d_saved_workspace_size
+
+
+    pure function get_cost_1d_workspace_size(n) result (return_value)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in) :: n
+        integer (ip)              :: return_value
+        !------------------------------------------------------------------
+
+        associate( lenwrk => return_value )
+
+            lenwrk = n-1
+
+        end associate
+
+    end function get_cost_1d_workspace_size
+
 
     pure function get_real_2d_saved_workspace_size(l, m) result (return_value)
         !------------------------------------------------------------------
@@ -628,6 +669,156 @@ contains
         end select
 
     end subroutine complex_1d_backward
+
+
+    subroutine cost_1d_forward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real (wp),       intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(real_data)
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_cost_1d_workspace_size(n), &
+            lensav => get_cost_1d_saved_workspace_size(n) , &
+            lenr => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            call this%create(lensav, lenwrk)
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call cost1i(n, wsave, lensav, ier)
+
+                ! Check error_flag
+                if (ier == 2) then
+                    error stop "cost_1d_backward: lensave not big enough"
+                else if (ier == 20) then
+                    error stop "cost_1d_backward: input error returned by lower level routine"
+                end if
+
+                !
+                !==> Perform transform
+                !
+                call cost1f(n, inc, r, lenr, wsave, lensav, work, lenwrk, ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "cost1f: lenr not big enough"
+            case (2)
+                error stop "cost1f: lensav not big enough"
+            case (3)
+                error stop "cost1f: lenwrk not big enough"
+            case (20)
+                error stop "cost1f: input error returned by lower level routine"
+        end select
+
+    end subroutine cost_1d_forward
+
+
+    subroutine cost_1d_backward(this, real_data)
+        !-----------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !-----------------------------------------------------------------
+        class (FFTpack), intent (in out) :: this
+        real (wp),       intent(in out)  :: real_data(:)
+        !-----------------------------------------------------------------
+        ! Dictionary: local variables
+        !-----------------------------------------------------------------
+        integer (ip) :: n, error_flag
+        !-----------------------------------------------------------------
+
+        n = size(real_data)
+
+        associate( &
+            r => real_data, &
+            lenwrk => get_cost_1d_workspace_size(n), &
+            lensav => get_cost_1d_saved_workspace_size(n) , &
+            lenr => n, &
+            inc => 1, &
+            ier => error_flag &
+            )
+
+            !
+            !==> Allocate memory
+            !
+            call this%create(lensav, lenwrk)
+
+            associate( &
+                wsave => this%saved_workspace, &
+                work => this%workspace &
+                )
+
+                !
+                !==> Initialize transform
+                !
+                call cost1i(n, wsave, lensav, ier)
+
+                ! Check error_flag
+                if (ier == 2) then
+                    error stop "cost_1d_backward: lensave not big enough"
+                else if (ier == 20) then
+                    error stop "cost_1d_backward: input error returned by lower level routine"
+                end if
+
+                !
+                !==> Perform transform
+                !
+                call cost1b(n, inc, r, lenr, wsave, lensav, work, lenwrk, ier)
+
+            end associate
+        end associate
+
+        !
+        !==> Release memory
+        !
+        call this%destroy()
+
+        ! Check error_flag
+        select case (error_flag)
+            case (0)
+                return
+            case (1)
+                error stop "cost_1d_backward: lenr not big enough"
+            case (2)
+                error stop "cost_1d_backward: lensav not big enough"
+            case (3)
+                error stop "cost_1d_backward: lenwrk not big enough"
+            case (20)
+                error stop "cost_1d_backward: input error returned by lower level routine"
+        end select
+
+    end subroutine cost_1d_backward
 
 
     subroutine real_2d_forward(this, real_data)
@@ -1099,171 +1290,171 @@ contains
     end subroutine real_nd_backward
 
 
-!    subroutine complex_nd_forward(this, n, lot, complex_data)
-!        !-----------------------------------------------------------------
-!        ! Dictionary: calling arguments
-!        !-----------------------------------------------------------------
-!        class (FFTpack), intent (in out) :: this
-!        integer (ip),    intent (in)     :: n   ! length of each sequence
-!        integer (ip),    intent (in)     :: lot ! number of sequences
-!        complex (wp),    intent(in out)  :: complex_data(:)
-!        !-----------------------------------------------------------------
-!        ! Dictionary: local variables
-!        !-----------------------------------------------------------------
-!        integer (ip) :: l, error_flag
-!        !-----------------------------------------------------------------
-!
-!        l = size(complex_data)
-!
-!        if (mod(n*lot,l)/=0) then
-!            error stop "complex_nd_forward: "&
-!                //"incommensurate input arguments "&
-!                //"mod(n*lot,size(complex_data)) /= 0."
-!        end if
-!
-!
-!        associate( &
-!            c => complex_data, &
-!            lenwrk => get_complex_nd_workspace_size(n, lot), &
-!            lensav => get_complex_nd_saved_workspace_size(n) , &
-!            lenc => n*lot, &
-!            jump => n, &
-!            inc => 1, &
-!            ier => error_flag &
-!            )
-!
-!            !
-!            !==> Allocate memory
-!            !
-!            allocate( this%saved_workspace(lensav) )
-!            allocate( this%workspace(lenwrk) )
-!
-!            associate( &
-!                wsave => this%saved_workspace, &
-!                work => this%workspace &
-!                )
-!
-!                !
-!                !==> Initialize transform
-!                !
-!                call cfftmi(n, wsave, lensav, ier)
-!
-!                ! Check error_flag
-!                if(ier == 2) then
-!                    error stop "cfftmi: lensave not big enough"
-!                end if
-!
-!                 !
-!                 !==> Perform transform
-!                 !
-!                call cfftmf(lot, jump, n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
-!
-!            end associate
-!        end associate
-!
-!        !
-!        !==> Release memory
-!        !
-!        call this%destroy()
-!
-!        ! Check error_flag
-!        select case (error_flag)
-!            case (0)
-!                return
-!            case (1)
-!                error stop "cfftmf: lenc not big enough"
-!            case (2)
-!                error stop "cfftmf: lensav not big enough"
-!            case (3)
-!                error stop "cfftmf: lenwrk not big enough"
-!            case (4)
-!                error stop "cfftmf: inc, jump, n, lot are not consistent"
-!        end select
-!
-!    end subroutine complex_nd_forward
-!
-!    subroutine complex_nd_backward(this, n, lot, complex_data)
-!        !-----------------------------------------------------------------
-!        ! Dictionary: calling arguments
-!        !-----------------------------------------------------------------
-!        class (FFTpack), intent (in out) :: this
-!        integer (ip),    intent (in)     :: n   ! length of each sequence
-!        integer (ip),    intent (in)     :: lot ! number of sequences
-!        complex (wp),    intent(in out)  :: complex_data(:)
-!        !-----------------------------------------------------------------
-!        ! Dictionary: local variables
-!        !-----------------------------------------------------------------
-!        integer (ip) :: l, error_flag
-!        !-----------------------------------------------------------------
-!
-!        l = size(complex_data)
-!
-!        if (mod(n*lot,l)/=0) then
-!            error stop "complex_nd_backward: "&
-!                //"incommensurate input arguments "&
-!                //"mod(n*lot,size(complex_data)) /= 0."
-!        end if
-!
-!
-!        associate( &
-!            c => complex_data, &
-!            lenwrk => get_complex_nd_workspace_size(n, lot), &
-!            lensav => get_complex_nd_saved_workspace_size(n) , &
-!            lenc => n*lot, &
-!            jump => n, &
-!            inc => 1, &
-!            ier => error_flag &
-!            )
-!
-!            !
-!            !==> Allocate memory
-!            !
-!            allocate( this%saved_workspace(lensav) )
-!            allocate( this%workspace(lenwrk) )
-!
-!            associate( &
-!                wsave => this%saved_workspace, &
-!                work => this%workspace &
-!                )
-!
-!                !
-!                !==> Initialize transform
-!                !
-!                call cfftmi(n, wsave, lensav, ier)
-!
-!                ! Check error_flag
-!                if(ier == 2) then
-!                    error stop "cfftmi: lensave not big enough"
-!                end if
-!
-!                !
-!                !==> Perform transform
-!                !
-!                call cfftmb(lot,jump,n,inc,c,lenc,wsave,lensav,work,lenwrk,ier)
-!
-!            end associate
-!        end associate
-!
-!        !
-!        !==> Release memory
-!        !
-!        call this%destroy()
-!
-!        ! Check error_flag
-!        select case (error_flag)
-!            case (0)
-!                return
-!            case (1)
-!                error stop "cfftmb: lenc not big enough"
-!            case (2)
-!                error stop "cfftmb: lensav not big enough"
-!            case (3)
-!                error stop "cfftmb: lenwrk not big enough"
-!            case (4)
-!                error stop "cfftmb: inc, jump, n, lot are not consistent"
-!        end select
-!
-!    end subroutine complex_nd_backward
+    !    subroutine complex_nd_forward(this, n, lot, complex_data)
+    !        !-----------------------------------------------------------------
+    !        ! Dictionary: calling arguments
+    !        !-----------------------------------------------------------------
+    !        class (FFTpack), intent (in out) :: this
+    !        integer (ip),    intent (in)     :: n   ! length of each sequence
+    !        integer (ip),    intent (in)     :: lot ! number of sequences
+    !        complex (wp),    intent(in out)  :: complex_data(:)
+    !        !-----------------------------------------------------------------
+    !        ! Dictionary: local variables
+    !        !-----------------------------------------------------------------
+    !        integer (ip) :: l, error_flag
+    !        !-----------------------------------------------------------------
+    !
+    !        l = size(complex_data)
+    !
+    !        if (mod(n*lot,l)/=0) then
+    !            error stop "complex_nd_forward: "&
+    !                //"incommensurate input arguments "&
+    !                //"mod(n*lot,size(complex_data)) /= 0."
+    !        end if
+    !
+    !
+    !        associate( &
+    !            c => complex_data, &
+    !            lenwrk => get_complex_nd_workspace_size(n, lot), &
+    !            lensav => get_complex_nd_saved_workspace_size(n) , &
+    !            lenc => n*lot, &
+    !            jump => n, &
+    !            inc => 1, &
+    !            ier => error_flag &
+    !            )
+    !
+    !            !
+    !            !==> Allocate memory
+    !            !
+    !            allocate( this%saved_workspace(lensav) )
+    !            allocate( this%workspace(lenwrk) )
+    !
+    !            associate( &
+    !                wsave => this%saved_workspace, &
+    !                work => this%workspace &
+    !                )
+    !
+    !                !
+    !                !==> Initialize transform
+    !                !
+    !                call cfftmi(n, wsave, lensav, ier)
+    !
+    !                ! Check error_flag
+    !                if(ier == 2) then
+    !                    error stop "cfftmi: lensave not big enough"
+    !                end if
+    !
+    !                 !
+    !                 !==> Perform transform
+    !                 !
+    !                call cfftmf(lot, jump, n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+    !
+    !            end associate
+    !        end associate
+    !
+    !        !
+    !        !==> Release memory
+    !        !
+    !        call this%destroy()
+    !
+    !        ! Check error_flag
+    !        select case (error_flag)
+    !            case (0)
+    !                return
+    !            case (1)
+    !                error stop "cfftmf: lenc not big enough"
+    !            case (2)
+    !                error stop "cfftmf: lensav not big enough"
+    !            case (3)
+    !                error stop "cfftmf: lenwrk not big enough"
+    !            case (4)
+    !                error stop "cfftmf: inc, jump, n, lot are not consistent"
+    !        end select
+    !
+    !    end subroutine complex_nd_forward
+    !
+    !    subroutine complex_nd_backward(this, n, lot, complex_data)
+    !        !-----------------------------------------------------------------
+    !        ! Dictionary: calling arguments
+    !        !-----------------------------------------------------------------
+    !        class (FFTpack), intent (in out) :: this
+    !        integer (ip),    intent (in)     :: n   ! length of each sequence
+    !        integer (ip),    intent (in)     :: lot ! number of sequences
+    !        complex (wp),    intent(in out)  :: complex_data(:)
+    !        !-----------------------------------------------------------------
+    !        ! Dictionary: local variables
+    !        !-----------------------------------------------------------------
+    !        integer (ip) :: l, error_flag
+    !        !-----------------------------------------------------------------
+    !
+    !        l = size(complex_data)
+    !
+    !        if (mod(n*lot,l)/=0) then
+    !            error stop "complex_nd_backward: "&
+    !                //"incommensurate input arguments "&
+    !                //"mod(n*lot,size(complex_data)) /= 0."
+    !        end if
+    !
+    !
+    !        associate( &
+    !            c => complex_data, &
+    !            lenwrk => get_complex_nd_workspace_size(n, lot), &
+    !            lensav => get_complex_nd_saved_workspace_size(n) , &
+    !            lenc => n*lot, &
+    !            jump => n, &
+    !            inc => 1, &
+    !            ier => error_flag &
+    !            )
+    !
+    !            !
+    !            !==> Allocate memory
+    !            !
+    !            allocate( this%saved_workspace(lensav) )
+    !            allocate( this%workspace(lenwrk) )
+    !
+    !            associate( &
+    !                wsave => this%saved_workspace, &
+    !                work => this%workspace &
+    !                )
+    !
+    !                !
+    !                !==> Initialize transform
+    !                !
+    !                call cfftmi(n, wsave, lensav, ier)
+    !
+    !                ! Check error_flag
+    !                if(ier == 2) then
+    !                    error stop "cfftmi: lensave not big enough"
+    !                end if
+    !
+    !                !
+    !                !==> Perform transform
+    !                !
+    !                call cfftmb(lot,jump,n,inc,c,lenc,wsave,lensav,work,lenwrk,ier)
+    !
+    !            end associate
+    !        end associate
+    !
+    !        !
+    !        !==> Release memory
+    !        !
+    !        call this%destroy()
+    !
+    !        ! Check error_flag
+    !        select case (error_flag)
+    !            case (0)
+    !                return
+    !            case (1)
+    !                error stop "cfftmb: lenc not big enough"
+    !            case (2)
+    !                error stop "cfftmb: lensav not big enough"
+    !            case (3)
+    !                error stop "cfftmb: lenwrk not big enough"
+    !            case (4)
+    !                error stop "cfftmb: inc, jump, n, lot are not consistent"
+    !        end select
+    !
+    !    end subroutine complex_nd_backward
 
     pure function fftpack_2d_constructor(l, m) result (return_value)
         !------------------------------------------------------------------
@@ -1298,6 +1489,30 @@ contains
         return_value%workspace = get_1d_workspace(n)
 
     end function fftpack_1d_constructor
+
+
+
+    subroutine create_fftpack(this, lensav, lenwrk)
+        !------------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !------------------------------------------------------------------
+        class (FFTpack) , intent (in out) :: this
+        integer (ip),     intent (in)     :: lensav
+        integer (ip),     intent (in)     :: lenwrk
+        !------------------------------------------------------------------
+
+        ! Ensure that object is usable
+        call this%destroy()
+
+        !
+        !==> Allocate memory
+        !
+        allocate( this%saved_workspace(lensav) )
+        allocate( this%workspace(lenwrk) )
+
+    end subroutine create_fftpack
+
+
 
     subroutine destroy_fftpack(this)
         !------------------------------------------------------------------
