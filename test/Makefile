@@ -1,20 +1,23 @@
 
 include ../make.inc
 
-SRC=tcfft1.f90 trfft1.f90 tcosq1.f90 tcost1.f90 tsinq1.f90 tsint1.f90 \
-    tcfft2.f90 trfft2.f90
+SRC=$(subst .o,.f90, $(OBJ))
 
-EXES=$(subst .f90,.exe, $(SRC))
+EXES=$(subst .o,.exe, $(OBJ))
 
-all : $(EXES)
+FFTPACK_MODULE_PATH = $(LIB_DIRECTORY)
 
-$(EXES) : $(SRC)
+LINKS = -L$(LIB_DIRECTORY) -l$(LIB_NAME) -I$(FFTPACK_MODULE_PATH) -I$(OBJ_DIRECTORY)
+
+all: $(EXES)
+
+$(EXES): $(SRC)
 
 %.exe : %.f90
 	rm -f $@
-	$(FC) $< -o $@ -L../lib -l$(LIB_NAME)
+	$(FC) $< -o $@ $(LINKS)
 	./$@
 
 
 clean :
-	rm -f $(EXES)
+	rm -f $(OBJS) $(EXES)

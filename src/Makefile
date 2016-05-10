@@ -1,12 +1,9 @@
 
 include ../make.inc
 
-SRC=type_FFTpack.f90
+SRC=$(subst .o,.f90, $(OBJ))
 
-OBJ=$(subst .f90,.o,$(SRC))
-OBJS=$(addprefix ../objs/,$(OBJ))
-
-$(LIB) : $(OBJS)
+$(LIB): $(OBJS)
 	$(AR) -rv $@ $? 
 
 ../objs/%.o : %.f90
