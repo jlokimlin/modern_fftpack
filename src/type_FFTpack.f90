@@ -132,13 +132,19 @@ module type_FFTpack
         !----------------------------------------------------------------------
     end type FFTpack
 
+
+
     ! Declare constructor
     interface FFTpack
         module procedure fftpack_2d_constructor
         module procedure fftpack_1d_constructor
     end interface
 
+
+
 contains
+
+
 
     pure function get_real_1d_saved_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
@@ -156,6 +162,8 @@ contains
 
     end function get_real_1d_saved_workspace_size
 
+
+
     pure function get_real_1d_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -171,6 +179,8 @@ contains
         end associate
 
     end function get_real_1d_workspace_size
+
+
 
     pure function get_complex_1d_saved_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
@@ -188,6 +198,8 @@ contains
 
     end function get_complex_1d_saved_workspace_size
 
+
+
     pure function get_complex_1d_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -203,6 +215,8 @@ contains
         end associate
 
     end function get_complex_1d_workspace_size
+
+
 
     pure function get_cost_1d_saved_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
@@ -221,6 +235,7 @@ contains
     end function get_cost_1d_saved_workspace_size
 
 
+
     pure function get_cost_1d_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -236,6 +251,7 @@ contains
         end associate
 
     end function get_cost_1d_workspace_size
+
 
 
     pure function get_real_2d_saved_workspace_size(l, m) result (return_value)
@@ -256,6 +272,8 @@ contains
         end associate
 
     end function get_real_2d_saved_workspace_size
+
+
 
     pure function get_real_2d_workspace_size(l, m) result (return_value)
         !------------------------------------------------------------------
@@ -293,6 +311,8 @@ contains
 
     end function get_complex_2d_saved_workspace_size
 
+
+
     pure function get_complex_2d_workspace_size(l, m) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -328,6 +348,8 @@ contains
 
     end function get_real_nd_saved_workspace_size
 
+
+
     pure function get_real_nd_workspace_size(n, lot) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -346,6 +368,7 @@ contains
     end function get_real_nd_workspace_size
 
 
+
     pure function get_complex_nd_saved_workspace_size(n) result (return_value)
         !------------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -361,6 +384,8 @@ contains
         end associate
 
     end function get_complex_nd_saved_workspace_size
+
+
 
     pure function get_complex_nd_workspace_size(n, lot) result (return_value)
         !------------------------------------------------------------------
@@ -378,6 +403,7 @@ contains
         end associate
 
     end function get_complex_nd_workspace_size
+
 
 
     subroutine real_1d_forward(this, real_data)
@@ -406,8 +432,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -453,12 +478,14 @@ contains
 
     end subroutine real_1d_forward
 
+
+
     subroutine real_1d_backward(this, real_data)
         !-----------------------------------------------------------------
         ! Dictionary: calling arguments
         !-----------------------------------------------------------------
         class (FFTpack), intent (in out) :: this
-        real(wp),        intent(in out)  :: real_data(:)
+        real (wp),       intent(in out)  :: real_data(:)
         !-----------------------------------------------------------------
         ! Dictionary: local variables
         !-----------------------------------------------------------------
@@ -479,8 +506,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -523,6 +549,8 @@ contains
 
     end subroutine real_1d_backward
 
+
+
     subroutine complex_1d_forward(this, complex_data)
         !-----------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -549,8 +577,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -623,8 +650,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -846,8 +872,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -896,6 +921,7 @@ contains
 
     end subroutine real_2d_forward
 
+
     subroutine real_2d_backward(this, real_data)
         !-----------------------------------------------------------------
         ! Dictionary: calling arguments
@@ -922,8 +948,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -995,11 +1020,10 @@ contains
             ier => error_flag &
             )
 
-            !
-            !==> Allocate memory
-            !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+                        !
+                        !==> Allocate memory
+                        !
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -1069,11 +1093,10 @@ contains
             ier => error_flag &
             )
 
-            !
-            !==> Allocate memory
-            !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+             !
+             !==> Allocate memory
+             !
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -1155,11 +1178,10 @@ contains
             ier => error_flag &
             )
 
-            !
-            !==> Allocate memory
-            !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+             !
+             !==> Allocate memory
+             !
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -1241,8 +1263,7 @@ contains
             !
             !==> Allocate memory
             !
-            allocate( this%saved_workspace(lensav) )
-            allocate( this%workspace(lenwrk) )
+            call this%create(lensav, lenwrk)
 
             associate( &
                 wsave => this%saved_workspace, &
@@ -1793,7 +1814,7 @@ contains
         !
         !==> Check validity of input arguments
         !
-        if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
+        if ( size(wsave) < get_complex_1d_saved_workspace_size(n) ) then
             ier = 2
             call fft_error_handler('cfftmi ', 3)
         else
@@ -1877,10 +1898,10 @@ contains
         if (lenc < inc * (n - 1) + 1) then
             ier = 1
             call fft_error_handler('cfft1b ', 4)
-        else if ( size(wsave) < get_1d_saved_workspace_size(n) ) then
+        else if (size(wsave) < get_complex_1d_saved_workspace_size(n)) then
             ier = 2
             call fft_error_handler('cfft1b ', 6)
-        else if ( size(work) < 2 * n) then
+        else if (size(work) < get_complex_1d_workspace_size(n)) then
             ier = 3
             call fft_error_handler('cfft1b ', 8)
         else
@@ -2615,10 +2636,10 @@ contains
         if (lenc < inc*(n-1) + 1) then
             ier = 1
             call fft_error_handler('cfft1f ', 4)
-        else if (lensav < get_1d_saved_workspace_size(n) ) then
+        else if (size(wsave) < get_complex_1d_saved_workspace_size(n)) then
             ier = 2
             call fft_error_handler('cfft1f ', 6)
-        else if (lenwrk < 2*n) then
+        else if (size(work) < get_complex_1d_workspace_size(n)) then
             ier = 3
             call fft_error_handler('cfft1f ', 8)
         else
@@ -2736,7 +2757,7 @@ contains
             !----------------------------------------------------------------------
             integer (ip)           :: i !! counter
             real (wp)              :: sn
-            real (wp), allocatable :: temp1(:), temp2(:)
+            real (wp), allocatable :: chold1(:), chold2(:)
             real (wp), allocatable :: ti2(:), tr2(:)
             !----------------------------------------------------------------------
 
@@ -2746,20 +2767,20 @@ contains
                     !
                     !==> Allocate memory
                     !
-                    allocate( temp1(l1) )
-                    allocate( temp2(l1) )
+                    allocate( chold1(l1) )
+                    allocate( chold2(l1) )
 
-                    temp1 = sn*(cc(1,:,1,1)+cc(1,:,1,2))
+                    chold1 = sn*(cc(1,:,1,1)+cc(1,:,1,2))
                     cc(1,:,1,2) = sn*(cc(1,:,1,1)-cc(1,:,1,2))
-                    cc(1,:,1,1) = temp1
-                    temp2 = sn*(cc(2,:,1,1)+cc(2,:,1,2))
+                    cc(1,:,1,1) = chold1
+                    chold2 = sn*(cc(2,:,1,1)+cc(2,:,1,2))
                     cc(2,:,1,2) = sn*(cc(2,:,1,1)-cc(2,:,1,2))
-                    cc(2,:,1,1) = temp2
+                    cc(2,:,1,1) = chold2
                     !
                     !==> Release memory
                     !
-                    deallocate( temp1 )
-                    deallocate( temp2 )
+                    deallocate( chold1 )
+                    deallocate( chold2 )
                 else
                     ch(1,:,1,1) = sn*(cc(1,:,1,1)+cc(1,:,1,2))
                     ch(1,:,2,1) = sn*(cc(1,:,1,1)-cc(1,:,1,2))
@@ -3431,11 +3452,11 @@ contains
             ier = 5
             call fft_error_handler('cfft2b', -2)
             return
-        else if (lensav < get_2d_saved_workspace_size(l, m)) then
+        else if (size(wsave) < get_complex_2d_saved_workspace_size(l, m)) then
             ier = 2
             call fft_error_handler('cfft2b', 6)
             return
-        else if (lenwrk < get_2d_workspace_size(l, m)) then
+        else if (size(work) < get_complex_2d_workspace_size(l, m)) then
             ier = 3
             call fft_error_handler('cfft2b', 8)
             return
@@ -3592,11 +3613,11 @@ contains
             ier = 5
             call fft_error_handler('cfft2f', -2)
             return
-        else if (lensav < get_2d_saved_workspace_size(l, m)) then
+        else if (size(wsave) < get_complex_2d_saved_workspace_size(l, m)) then
             ier = 2
             call fft_error_handler('cfft2f', 6)
             return
-        else if (lenwrk < get_2d_workspace_size(l, m)) then
+        else if (size(work) < get_complex_2d_workspace_size(l, m)) then
             ier = 3
             call fft_error_handler('cfft2f', 8)
             return
@@ -3722,7 +3743,7 @@ contains
         !
         !==> Check validity of input arguments
         !
-        if ( lensav < get_2d_saved_workspace_size(l, m)) then
+        if (size(wsave) < get_complex_2d_saved_workspace_size(l, m)) then
             ier = 2
             call fft_error_handler('cfft2i', 4)
             return
@@ -3730,9 +3751,9 @@ contains
             ier = 0
         end if
 
-        associate( temp => get_1d_saved_workspace_size(l) )
+        associate( lnsv => get_complex_1d_saved_workspace_size(l) )
 
-            call cfftmi(l, wsave(1), temp, local_error_flag)
+            call cfftmi(l, wsave(1:), lnsv, local_error_flag)
 
         end associate
 
@@ -3745,10 +3766,10 @@ contains
 
         associate( &
             iw => get_1d_saved_workspace_size(l) - 1, &
-            temp => get_1d_saved_workspace_size(m) &
+            lnsv => get_1d_saved_workspace_size(m) &
             )
 
-            call cfftmi(m, wsave(iw), temp, local_error_flag)
+            call cfftmi(m, wsave(iw:), lnsv, local_error_flag)
 
         end associate
 
@@ -3845,10 +3866,10 @@ contains
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call fft_error_handler('cfftmb ', 6)
-        else if (lensav < get_1d_saved_workspace_size(n)) then
+        else if (lensav < get_complex_nd_saved_workspace_size(n)) then
             ier = 2
             call fft_error_handler('cfftmb ', 8)
-        else if (lenwrk < 2*lot*n) then
+        else if (lenwrk < get_complex_nd_workspace_size(n, lot)) then
             ier = 3
             call fft_error_handler('cfftmb ', 10)
         else if (.not. fft_consistent(inc,jump,n,lot)) then
@@ -3960,10 +3981,10 @@ contains
         if (lenc < (lot-1)*jump + inc*(n-1) + 1) then
             ier = 1
             call fft_error_handler('cfftmf ', 6)
-        else if (lensav < get_1d_saved_workspace_size(n)) then
+        else if (lensav < get_complex_nd_saved_workspace_size(n)) then
             ier = 2
             call fft_error_handler('cfftmf ', 8)
-        else if (lenwrk < 2*lot*n) then
+        else if (lenwrk < get_complex_nd_workspace_size(n, lot)) then
             ier = 3
             call fft_error_handler('cfftmf ', 10)
         else if (.not. fft_consistent(inc,jump,n,lot)) then
@@ -4015,25 +4036,40 @@ contains
         !  0, successful exit;
         !  2, input parameter lensav not big enough.
         !
+        !--------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !--------------------------------------------------------------
+        integer (ip), intent (in)  :: n
+        real (wp),    intent (out) :: wsave(lensav)
+        integer (ip), intent (in)  :: lensav
+        integer (ip), intent (out) :: ier
+        !--------------------------------------------------------------
+        ! Dictionary: calling arguments
+        !--------------------------------------------------------------
+        integer (ip) :: iw1
+        !--------------------------------------------------------------
 
-
-        integer (ip) lensav
-
-        integer (ip) ier
-        integer (ip) iw1
-        integer (ip) n
-        real (wp) wsave(lensav)
-
-        ier = 0
-
-        if (lensav < get_1d_saved_workspace_size(n) ) then
+        !
+        !==> Check validity of input arguments
+        !
+        if (lensav < get_complex_nd_saved_workspace_size(n) ) then
             ier = 2
             call fft_error_handler('cfftmi ', 3)
+            return
+        else
+            ier = 0
         end if
 
+        !
+        !==>  Perform transform
+        !
         if (n /= 1) then
-            iw1 = n+n+1
-            call mcfti1(n,wsave,wsave(iw1),wsave(iw1+1))
+
+            ! Set workspace index pointer
+            iw1 = 2*n+1
+
+            call mcfti1(n,wsave,wsave(iw1),wsave(iw1+1:))
+
         end if
 
     end subroutine cfftmi
@@ -5674,11 +5710,11 @@ contains
             ier = 1
             call fft_error_handler('cosq1b', 6)
             return
-        else if (lensav < get_1d_saved_workspace_size(n) ) then
+        else if (lensav < get_cost_1d_saved_workspace_size(n) ) then
             ier = 2
             call fft_error_handler('cosq1b', 8)
             return
-        else if (lenwrk < n) then
+        else if (lenwrk < get_cost_1d_workspace_size(n)) then
             ier = 3
             call fft_error_handler('cosq1b', 10)
             return
@@ -5691,19 +5727,24 @@ contains
         !
         if (n < 2) then
             return
-        else if (n == 2) then
-            x1 = x(1,1)+x(1,2)
-            x(1,2) = (x(1,1)-x(1,2))/sqrt(2.0_wp)
-            x(1,1) = x1
-        else
-            call cosqb1(n,inc,x,wsave,work,local_error_flag)
-
-            ! check error_flag
-            if (local_error_flag /= 0) then
-                ier = 20
-                call fft_error_handler('cosq1b',-5)
-            end if
         end if
+
+        select case (n)
+            case (2)
+                x1 = x(1,1)+x(1,2)
+                x(1,2) = (x(1,1)-x(1,2))/sqrt(2.0_wp)
+                x(1,1) = x1
+            case default
+
+                call cosqb1(n,inc,x,wsave,work,local_error_flag)
+
+                ! check error_flag
+                if (local_error_flag /= 0) then
+                    ier = 20
+                    call fft_error_handler('cosq1b',-5)
+                end if
+
+        end select
 
     end subroutine cosq1b
 
@@ -5778,11 +5819,11 @@ contains
             ier = 1
             call fft_error_handler('cosq1f', 6)
             return
-        else if (lensav < get_1d_saved_workspace_size(n) ) then
+        else if (lensav < get_cost_1d_saved_workspace_size(n) ) then
             ier = 2
             call fft_error_handler('cosq1f', 8)
             return
-        else if (lenwrk < n) then
+        else if (lenwrk < get_cost_1d_workspace_size(n)) then
             ier = 3
             call fft_error_handler('cosq1f', 10)
             return
@@ -5858,7 +5899,7 @@ contains
         !
         !==> Check validity of input arguments
         !
-        if (lensav < get_1d_saved_workspace_size(n) ) then
+        if (lensav < get_cost_1d_saved_workspace_size(n)) then
             ier = 2
             call fft_error_handler('cosq1i', 3)
             return

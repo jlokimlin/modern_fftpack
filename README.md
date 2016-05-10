@@ -1,4 +1,4 @@
-# **fftpack6.0 - A modern Fortran (2008+) library of fast Fourier transforms**
+# **modern\_fftpack - A modern Fortran (2008+) library of fast Fourier transforms**
 
 An object-oriented modernization of NCAR's FFTPACK5.1.
 
@@ -59,9 +59,9 @@ Type the following command line arguments
 
 ```bash
 
-	git clone https://github.com/jlokimlin/fftpack6.0.git
+	git clone https://github.com/jlokimlin/modern_fftpack.git
 	
-	cd fftpack6.0; make all
+	cd modern_fftpack; make all
 ```
 
 -----------------------------------------------------------------------------

@@ -99,7 +99,7 @@ program tcfft2
     !
     associate( max_err => maxval(abs(complex_data-cmplx(real_part,imaginary_part,kind=wp))) )
 
-        write( stdout, '(A,E23.15E3)' ) 'cfft2 backward-forward max error =', max_err
+        write( stdout, '(A,E23.15E3)' ) 'fft2 (complex) backward-forward max error =', max_err
         write( stdout, '(A,/)') 'end program tcfft2 and related messages'
 
     end associate
