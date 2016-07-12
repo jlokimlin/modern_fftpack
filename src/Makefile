@@ -36,6 +36,12 @@ fftpack_routines.f90
 	$(FC) $(FFLAGS) -c fftpack_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
+multiple_complex_transform_routines.o: \
+fftpack_routines.o \
+multiple_complex_transform_routines.f90
+	$(FC) $(FFLAGS) -c multiple_complex_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
 complex_transform_routines.o: \
 fftpack_routines.o \
 complex_transform_routines.f90
@@ -57,8 +63,14 @@ sine_transform_routines.f90
 
 quarter_sine_transform_routines.o: \
 fftpack_routines.o \
-sine_transform_routines.f90
+quarter_sine_transform_routines.f90
 	$(FC) $(FFLAGS) -c quarter_sine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+multiple_quarter_sine_transform_routines.o: \
+fftpack_routines.o \
+multiple_quarter_sine_transform_routines.f90
+	$(FC) $(FFLAGS) -c multiple_quarter_sine_transform_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 cosine_transform_routines.o: \
