@@ -30,59 +30,65 @@ error_handlers.f90
 	$(FC) $(FFLAGS) -c error_handlers.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
-fftpack_routines.o: \
-auxiliary_routines.o \
-fftpack_routines.f90
-	$(FC) $(FFLAGS) -c fftpack_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-multiple_complex_transform_routines.o: \
-fftpack_routines.o \
-multiple_complex_transform_routines.f90
-	$(FC) $(FFLAGS) -c multiple_complex_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
 complex_transform_routines.o: \
-fftpack_routines.o \
+auxiliary_routines.o \
 complex_transform_routines.f90
 	$(FC) $(FFLAGS) -c complex_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+initialize_complex_routines.o: \
+complex_transform_routines.o \
+initialize_complex_routines.f90
+	$(FC) $(FFLAGS) -c initialize_complex_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+complex_backward_1d.o: \
+complex_transform_routines.o \
+complex_backward_1d.f90
+	$(FC) $(FFLAGS) -c complex_backward_1d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+complex_forward_1d.o: \
+complex_transform_routines.o \
+complex_forward_1d.f90
+	$(FC) $(FFLAGS) -c complex_forward_1d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+multiple_complex_forward.o: \
+complex_transform_routines.o \
+multiple_complex_forward.f90
+	$(FC) $(FFLAGS) -c multiple_complex_forward.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+complex_forward_2d.o: \
+multiple_complex_forward.o \
+complex_forward_2d.f90
+	$(FC) $(FFLAGS) -c complex_forward_2d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+multiple_complex_backward.o: \
+complex_transform_routines.o \
+multiple_complex_backward.f90
+	$(FC) $(FFLAGS) -c multiple_complex_backward.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+complex_backward_2d.o: \
+multiple_complex_backward.o \
+complex_backward_2d.f90
+	$(FC) $(FFLAGS) -c complex_backward_2d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+fftpack_routines.o: \
+auxiliary_routines.o \
+complex_transform_routines.o \
+fftpack_routines.f90
+	$(FC) $(FFLAGS) -c fftpack_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 real_transform_routines.o: \
 fftpack_routines.o \
 real_transform_routines.f90
 	$(FC) $(FFLAGS) -c real_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-sine_transform_routines.o: \
-fftpack_routines.o \
-sine_transform_routines.f90
-	$(FC) $(FFLAGS) -c sine_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-
-quarter_sine_transform_routines.o: \
-fftpack_routines.o \
-quarter_sine_transform_routines.f90
-	$(FC) $(FFLAGS) -c quarter_sine_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-multiple_quarter_sine_transform_routines.o: \
-fftpack_routines.o \
-multiple_quarter_sine_transform_routines.f90
-	$(FC) $(FFLAGS) -c multiple_quarter_sine_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-cosine_transform_routines.o: \
-fftpack_routines.o \
-cosine_transform_routines.f90
-	$(FC) $(FFLAGS) -c cosine_transform_routines.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
-quarter_cosine_transform_routines.o: \
-fftpack_routines.o \
-quarter_cosine_transform_routines.f90
-	$(FC) $(FFLAGS) -c quarter_cosine_transform_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 main.o: \
