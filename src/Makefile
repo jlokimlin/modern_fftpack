@@ -7,15 +7,70 @@ LINKS = \
 
 EXECUTABLE = ./build_lib.exe
 
+type_FFTpack.o: \
+fftpack_routines.o \
+type_FFTpack.f90
+	$(FC) $(FFLAGS) -c type_FFTpack.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
 fftpack_precision.o: \
 fftpack_precision.f90
 	$(FC) $(FFLAGS) -c fftpack_precision.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
-type_FFTpack.o: \
+auxiliary_routines.o: \
 fftpack_precision.o \
-type_FFTpack.f90
-	$(FC) $(FFLAGS) -c type_FFTpack.f90 $(LINKS) \
+auxiliary_routines.f90
+	$(FC) $(FFLAGS) -c auxiliary_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+error_handlers.o: \
+auxiliary_routines.o \
+error_handlers.f90
+	$(FC) $(FFLAGS) -c error_handlers.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+fftpack_routines.o: \
+auxiliary_routines.o \
+fftpack_routines.f90
+	$(FC) $(FFLAGS) -c fftpack_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+complex_transform_routines.o: \
+fftpack_routines.o \
+complex_transform_routines.f90
+	$(FC) $(FFLAGS) -c complex_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+real_transform_routines.o: \
+fftpack_routines.o \
+real_transform_routines.f90
+	$(FC) $(FFLAGS) -c real_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+sine_transform_routines.o: \
+fftpack_routines.o \
+sine_transform_routines.f90
+	$(FC) $(FFLAGS) -c sine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+
+quarter_sine_transform_routines.o: \
+fftpack_routines.o \
+sine_transform_routines.f90
+	$(FC) $(FFLAGS) -c quarter_sine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+cosine_transform_routines.o: \
+fftpack_routines.o \
+cosine_transform_routines.f90
+	$(FC) $(FFLAGS) -c cosine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+quarter_cosine_transform_routines.o: \
+fftpack_routines.o \
+quarter_cosine_transform_routines.f90
+	$(FC) $(FFLAGS) -c quarter_cosine_transform_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 main.o: \
@@ -37,5 +92,5 @@ all:
 	make lib
 
 clean:
-	rm -f $(OBJS) $(LIB) $(LIB_DIRECTORY)/*.mod
+	rm -f $(OBJS) $(LIB) $(LIB_DIRECTORY)/*.mod $(LIB_DIRECTORY)/*.smod
 	rm -f $(EXECUTABLE)
