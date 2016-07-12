@@ -1,7 +1,6 @@
+MAKE = /usr/bin/make
 
-LIB_NAME = modern_fftpack
-
-LIB=../lib/lib$(LIB_NAME).a
+AR = /usr/bin/ar
 
 #EXTERNAL_LIBRARY_PATH = /usr/local/lib
 EXTERNAL_LIBRARY_PATH = /usr/local/lib64
@@ -12,66 +11,34 @@ OBJ := $(patsubst %.f90, %.o, $(wildcard *.f90))
 
 OBJ_DIRECTORY = ../objs
 
-LIB_DIRECTORY = ../lib
-
 OBJS = $(addprefix $(OBJ_DIRECTORY)/, $(OBJ))
 
-UNAMES := $(shell uname -s)
+LIB_DIRECTORY = ../lib
 
-ifeq ($(UNAMES),Linux)
+LIB_NAME = modern_fftpack
 
-  PGI := $(shell pgf90 2>&1)
+LIB = $(LIB_DIRECTORY)/lib$(LIB_NAME).a
 
-  ifeq ($(PGI),pgf90-Warning-No files to process)
+MOD_DIRECTORY = $(LIB_DIRECTORY)
 
-    FC := pgf90 -module ../lib -I../lib
-    CPP := pgf90 -E
+FC = gfortran-6
 
-  else
+FFLAGS = \
+-fmodule-private \
+$(ERROR_WARNING_OPTIONS)
+$(ENFORCE_64_BIT_PRECISION) \
+$(LANGUAGE_OPTIONS)\
 
-    FC := gfortran -O3 -Wall \
-    -J../lib -I../lib
-    CPP := gfortran -E
-   
-  endif
 
-  MAKE := gmake
-  AR := /usr/bin/ar
+ENFORCE_64_BIT_PRECISION = \
+-fdefault-real-8 \
+-fdefault-double-8
 
-endif
+LANGUAGE_OPTIONS = \
+-fimplicit-none
 
-ifeq ($(UNAMES),AIX)
+ERROR_WARNING_OPTIONS = \
+-Wall
 
-  FC := xlf -qmoddir=../lib -I../lib
-  CPP := xlf -d -qnoobject
-  MAKE := gmake
-  AR := /usr/bin/ar
-
-endif
-
-ifeq ($(UNAMES),SunOS)
-
-    AR := /usr/ccs/bin/ar
-    FC := /opt/SUNWspro/bin/f90 -moddir=../lib -I../lib
-    CPP := /opt/SUNWspro/bin/f90 -F
-    MAKE := /fs/local/bin/make
-
-endif
-
-ifeq ($(UNAMES),IRIX64)
-
-    AR := /usr/bin/ar
-    FC := f90 -I../lib
-    CPP := f90 -E
-    MAKE := /usr/local/bin/gmake
-
-endif
-
-ifeq ($(UNAMES),Darwin)
-
-    AR := /usr/local/bin/ar
-    FC := gfortran -O3 -Wall
-    CPP := gfortran -cpp
-    MAKE := /usr/local/bin/gmake
-
-endif
+CODE_GENERATION_OPTIONS = \
+-fcheck=all

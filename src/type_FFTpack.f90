@@ -1,9 +1,11 @@
 module type_FFTpack
 
     use, intrinsic :: iso_fortran_env, only: &
-        wp => REAL64, &
-        ip => INT32, &
         stderr => ERROR_UNIT
+
+    use fftpack_precision, only: &
+        wp, & ! working precision
+        ip ! integer precision
 
     ! Explicit typing only
     implicit none
@@ -141,6 +143,18 @@ module type_FFTpack
     end interface
 
 
+    !---------------------------------------------------------------------------------
+    ! Variables confined to the module
+    !---------------------------------------------------------------------------------
+    real (wp), parameter :: ZERO = 0.0_wp
+    real (wp), parameter :: HALF = 0.5_wp
+    real (wp), parameter :: ONE = 1.0_wp
+    real (wp), parameter :: TWO = 2.0_wp
+    real (wp), parameter :: THREE = 3.0_wp
+    real (wp), parameter :: FOUR = 4.0_wp
+    real (wp), parameter :: FIVE = 5.0_wp
+    !---------------------------------------------------------------------------------
+
 
 contains
 
@@ -156,7 +170,7 @@ contains
 
         associate( lensav => return_value )
 
-            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+            lensav = n+int(log(real(n, kind=wp))/log(TWO), kind=ip)+4
 
         end associate
 
@@ -192,7 +206,7 @@ contains
 
         associate( lensav => return_value )
 
-            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp), kind=ip)+4
+            lensav = 2*n+int(log(real(n, kind=wp))/log(TWO), kind=ip)+4
 
         end associate
 
@@ -228,7 +242,7 @@ contains
 
         associate( lensav => return_value )
 
-            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+            lensav = 2*n+int(log(real(n, kind=wp))/log(TWO))+4
 
         end associate
 
@@ -266,8 +280,8 @@ contains
         associate( lensav => return_value )
 
             lensav = l+3*m &
-                +int(log(real(l, kind=wp))/log(2.0_wp)) &
-                +2*int(log(real(m, kind=wp))/log(2.0_wp)) + 12
+                +int(log(real(l, kind=wp))/log(TWO)) &
+                +2*int(log(real(m, kind=wp))/log(TWO)) + 12
 
         end associate
 
@@ -304,8 +318,8 @@ contains
         associate( lensav => return_value )
 
             lensav = 2*(l+m) &
-                + int(log(real(l, kind=wp))/log(2.0_wp)) &
-                +int(log(real(m, kind=wp))/log(2.0_wp)) + 8
+                + int(log(real(l, kind=wp))/log(TWO)) &
+                +int(log(real(m, kind=wp))/log(TWO)) + 8
 
         end associate
 
@@ -342,7 +356,7 @@ contains
 
         associate( lensav => return_value )
 
-            lensav = n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+            lensav = n+int(log(real(n, kind=wp))/log(TWO))+4
 
         end associate
 
@@ -379,7 +393,7 @@ contains
 
         associate( lensav => return_value )
 
-            lensav = 2*n+int(log(real(n, kind=wp))/log(2.0_wp))+4
+            lensav = 2*n+int(log(real(n, kind=wp))/log(TWO))+4
 
         end associate
 
@@ -1567,7 +1581,7 @@ contains
 
         associate( lensav => return_value )
 
-            temp = log(real(n, kind=wp))/log(2.0_wp)
+            temp = log(real(n, kind=wp))/log(TWO)
             lensav = 2*n + int(temp, kind=ip) + 4
 
         end associate
@@ -1998,9 +2012,8 @@ contains
                 l1 = l2
                 iw = iw+(iip-1)*(2*ido)
 
-                if (iip <= 5) then
-                    na = 1-na
-                end if
+                if (iip <= 5) na = 1-na
+
             end do
 
         end subroutine c1fm1b
@@ -2094,8 +2107,8 @@ contains
             real (wp), allocatable :: ci2(:), ci3(:)
             real (wp), allocatable :: cr2(:), cr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
-            real (wp), parameter   :: TAUI = sqrt(3.0_wp)/2!0.866025403784439_wp
-            real (wp), parameter   :: TAUR = -0.5_wp
+            real (wp), parameter   :: TAUI = sqrt(THREE)/2!0.866025403784439_wp
+            real (wp), parameter   :: TAUR = -HALF
             !----------------------------------------------------------------------
 
             !
@@ -2307,12 +2320,12 @@ contains
             real (wp), allocatable :: dr2(:), dr3(:), dr4(:), dr5(:)
             real (wp), allocatable :: ti2(:), ti3(:), ti4(:), ti5(:)
             real (wp), allocatable :: tr2(:), tr3(:), tr4(:), tr5(:)
-            real (wp), parameter   :: SQRT5 = sqrt(5.0_wp)
-            real (wp), parameter   :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter   :: SQRT5 = sqrt(FIVE)
+            real (wp), parameter   :: SQRT5_PLUS_5 = SQRT5 + FIVE
             real (wp), parameter   :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
-            real (wp), parameter   :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
-            real (wp), parameter   :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-            real (wp), parameter   :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+            real (wp), parameter   :: TI12 = sqrt(FIVE/(TWO*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+            real (wp), parameter   :: TR11 =  (SQRT5 - ONE)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter   :: TR12 = -(ONE + SQRT5)/4                 !-0.8090169943749474_wp
             !------------------------------------------------------------------
 
             !
@@ -2762,7 +2775,7 @@ contains
             !----------------------------------------------------------------------
 
             if (1 >= ido) then
-                sn = 1.0_wp/(2 * l1)
+                sn = ONE/(2 * l1)
                 if (na /= 1) then
                     !
                     !==> Allocate memory
@@ -2837,8 +2850,8 @@ contains
             real (wp), allocatable :: di2(:), di3(:)
             real (wp), allocatable :: dr2(:), dr3(:)
             real (wp), allocatable :: ti2(:), tr2(:)
-            real (wp), parameter   :: TAUI = -sqrt(3.0)/2!-0.866025403784439_wp
-            real (wp), parameter   :: TAUR = -0.5_wp
+            real (wp), parameter   :: TAUI = -sqrt(THREE)/2!-0.866025403784439_wp
+            real (wp), parameter   :: TAUR = -HALF
             real (wp)              :: sn
             !----------------------------------------------------------------------
 
@@ -2850,7 +2863,7 @@ contains
             allocate( ti2(l1), tr2(l1) )
 
             if (1 >= ido) then
-                sn = 1.0_wp/(3 * l1)
+                sn = ONE/(3 * l1)
                 if (na /= 1) then
                     tr2 = cc(1,:,1,2)+cc(1,:,1,3)
                     cr2 = cc(1,:,1,1)+TAUR*tr2
@@ -2953,7 +2966,7 @@ contains
             !----------------------------------------------------------------------
 
             if (1 >= ido) then
-                sn = 1.0_wp/(4 * l1)
+                sn = ONE/(4 * l1)
                 if (na /= 1) then
                     associate(&
                         ti1 => cc(2,:,1,1)-cc(2,:,1,3), &
@@ -3075,16 +3088,16 @@ contains
             real (wp)            :: dr2, dr3, dr4, dr5
             real (wp)            :: ti2, ti3, ti4, ti5
             real (wp)            :: tr2, tr3, tr4, tr5
-            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: SQRT5 = sqrt(FIVE)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + FIVE
             real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
-            real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
-            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+            real (wp), parameter :: TI12 = -sqrt(FIVE/(TWO*SQRT5_PLUS_5)) !-0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - ONE)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(ONE + SQRT5)/4                 !-0.8090169943749474_wp
             !----------------------------------------------------------
 
             if (1 >= ido) then
-                sn = 1.0_wp/(5 * l1)
+                sn = ONE/(5 * l1)
                 if (na /= 1) then
                     do k=1,l1
                         ti5 = cc(2,k,1,2)-cc(2,k,1,5)
@@ -3295,7 +3308,7 @@ contains
             end do
 
             if (1 >= ido)then
-                sn = 1.0_wp/(iip * l1)
+                sn = ONE/(iip * l1)
                 if (na /= 1) then
                     do ki=1,lid
                         cc1(1,ki,1) = sn*cc1(1,ki,1)
@@ -3638,7 +3651,7 @@ contains
         !==> Transform x lines of real_copy
         !
         associate( &
-            iw =>  2*l+int(log(real(l, kind=wp) )/log(2.0_wp)) + 3, &
+            iw =>  2*l+int(log(real(l, kind=wp) )/log(TWO)) + 3, &
             iw1 => (l-1) + ldim*(m-1) +1, &
             iw2 => get_1d_saved_workspace_size(m), &
             iw3 => get_2d_workspace_size(l, m), &
@@ -4241,8 +4254,9 @@ contains
             integer (ip) m2
             integer (ip) m2s
             integer (ip) na
-            real (wp), parameter :: TAUI =  0.866025403784439_wp
-            real (wp), parameter :: TAUR = -0.5_wp
+            real (wp), parameter :: SQRT3 = sqrt(THREE)
+            real (wp), parameter :: TAUI =  SQRT3/2 !0.866025403784439_wp
+            real (wp), parameter :: TAUR = -HALF
             real (wp) ti2
             real (wp) tr2
             real (wp) wa(ido,2,2)
@@ -4476,12 +4490,12 @@ contains
             real (wp) tr3
             real (wp) tr4
             real (wp) tr5
-            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: SQRT5 = sqrt(FIVE)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + FIVE
             real (wp), parameter :: TI11 = sqrt(SQRT5_PLUS_5/2)/2             ! 0.9510565162951536_wp
-            real (wp), parameter :: TI12 = sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
-            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+            real (wp), parameter :: TI12 = sqrt(FIVE/(TWO*SQRT5_PLUS_5)) ! 0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - ONE)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(ONE + SQRT5)/4                 !-0.8090169943749474_wp
 
             real (wp) wa(ido,4,2)
 
@@ -4892,7 +4906,7 @@ contains
             m2s = 1-im2
 
             if (1 >= ido) then
-                sn = 1.0_wp/(2 * l1)
+                sn = ONE/(2 * l1)
                 if (na /= 1) then
                     do k=1,l1
                         do m1=1,m1d,im1
@@ -4977,7 +4991,7 @@ contains
             integer (ip) na
             real (wp) sn
             real (wp), parameter :: taui = -0.866025403784439_wp
-            real (wp), parameter :: taur = -0.5_wp
+            real (wp), parameter :: taur = -HALF
             real (wp) ti2
             real (wp) tr2
             real (wp) wa(ido,2,2)
@@ -4986,7 +5000,7 @@ contains
             m2s = 1-im2
 
             if (1 >= ido) then
-                sn = 1.0_wp/(3 * l1)
+                sn = ONE/(3 * l1)
                 if (na /= 1) then
                     do k=1,l1
                         do m1=1,m1d,im1
@@ -5113,7 +5127,7 @@ contains
             m2s = 1-im2
 
             if (1 >= ido) then
-                sn = 1.0_wp /(4 * l1)
+                sn = ONE /(4 * l1)
                 if (na /= 1) then
                     do k=1,l1
                         do m1=1,m1d,im1
@@ -5264,12 +5278,12 @@ contains
             real (wp) tr4
             real (wp) tr5
 
-            real (wp), parameter :: SQRT5 = sqrt(5.0_wp)
-            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + 5.0_wp
+            real (wp), parameter :: SQRT5 = sqrt(FIVE)
+            real (wp), parameter :: SQRT5_PLUS_5 = SQRT5 + FIVE
             real (wp), parameter :: TI11 = -sqrt(SQRT5_PLUS_5/2)/2             !-0.9510565162951536_wp
-            real (wp), parameter :: TI12 = -sqrt(5.0_wp/(2.0_wp*SQRT5_PLUS_5)) !-0.5877852522924731_wp
-            real (wp), parameter :: TR11 =  (SQRT5 - 1.0_wp)/4                 ! 0.3090169943749474_wp
-            real (wp), parameter :: TR12 = -(1.0_wp + SQRT5)/4                 !-0.8090169943749474_wp
+            real (wp), parameter :: TI12 = -sqrt(FIVE/(TWO*SQRT5_PLUS_5)) !-0.5877852522924731_wp
+            real (wp), parameter :: TR11 =  (SQRT5 - ONE)/4                 ! 0.3090169943749474_wp
+            real (wp), parameter :: TR12 = -(ONE + SQRT5)/4                 !-0.8090169943749474_wp
 
             real (wp) wa(ido,4,2)
 
@@ -5277,7 +5291,7 @@ contains
             m2s = 1-im2
 
             if (1 >= ido) then
-                sn = 1.0_wp/(5 * l1)
+                sn = ONE/(5 * l1)
                 if (na /= 1) then
                     do k=1,l1
                         do m1=1,m1d,im1
@@ -5534,7 +5548,7 @@ contains
             end do
 
             if (1 >= ido) then
-                sn = 1.0_wp /(iip * l1)
+                sn = ONE /(iip * l1)
                 if (na /= 1) then
                     do ki=1,lid
                         m2 = m2s
@@ -5732,7 +5746,7 @@ contains
         select case (n)
             case (2)
                 x1 = x(1,1)+x(1,2)
-                x(1,2) = (x(1,1)-x(1,2))/sqrt(2.0_wp)
+                x(1,2) = (x(1,1)-x(1,2))/sqrt(TWO)
                 x(1,1) = x1
             case default
 
@@ -5837,9 +5851,9 @@ contains
         if (n < 2) then
             return
         else if (n == 2) then
-            tsqx = x(1,2)/sqrt(2.0_wp)
-            x(1,2) = 0.5_wp *x(1,1)-tsqx
-            x(1,1) = 0.5_wp *x(1,1)+tsqx
+            tsqx = x(1,2)/sqrt(TWO)
+            x(1,2) = HALF *x(1,1)-tsqx
+            x(1,1) = HALF *x(1,1)+tsqx
         else
             ! Peform cosine transform
             call cosqf1(n,inc,x,wsave,work,local_error_flag)
@@ -5893,7 +5907,7 @@ contains
         integer (ip) local_error_flag
         integer (ip) k
         integer (ip) n
-        real (wp), parameter :: HALF_PI = acos(-1.0_wp)/2
+        real (wp), parameter :: HALF_PI = acos(-ONE)/2
         real (wp) wsave(lensav)
 
         !
@@ -5911,14 +5925,14 @@ contains
         !==> Perform transform
         !
         dt = HALF_PI /n
-        fk = 0.0_wp
+        fk = ZERO
 
         do k=1,n
-            fk = fk + 1.0_wp
+            fk = fk + ONE
             wsave(k) = cos(fk*dt)
         end do
 
-        associate( lnsv => n+int(log(real(n, kind=wp))/log(2.0_wp))+4 )
+        associate( lnsv => n+int(log(real(n, kind=wp))/log(TWO))+4 )
 
             call rfft1i(n, wsave(n+1), lnsv, local_error_flag)
 
@@ -5956,20 +5970,20 @@ contains
 
         do i=3,n,2
             xim1 = x(1,i-1)+x(1,i)
-            x(1,i) = 0.5_wp * (x(1,i-1)-x(1,i))
-            x(1,i-1) = 0.5_wp * xim1
+            x(1,i) = HALF * (x(1,i-1)-x(1,i))
+            x(1,i-1) = HALF * xim1
         end do
 
-        x(1,1) = 0.5_wp * x(1,1)
+        x(1,1) = HALF * x(1,1)
         modn = mod(n,2)
 
         if (modn == 0) then
-            x(1,n) = 0.5_wp * x(1,n)
+            x(1,n) = HALF * x(1,n)
         end if
 
         associate( &
             lenx => inc*(n-1)  + 1, &
-            lnsv => n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4, &
+            lnsv => n + int(log(real(n, kind=wp) )/log(TWO)) + 4, &
             lnwk => n &
             )
 
@@ -5990,7 +6004,7 @@ contains
         end do
 
         if (modn == 0) then
-            x(1,ns2+1) = 2.0_wp * wsave(ns2) * x(1,ns2+1)
+            x(1,ns2+1) = TWO * wsave(ns2) * x(1,ns2+1)
         end if
 
         do k=2,ns2
@@ -5999,7 +6013,7 @@ contains
             x(1,kc) = work(k)-work(kc)
         end do
 
-        x(1,1) = 2.0_wp * x(1,1)
+        x(1,1) = TWO * x(1,1)
 
     end subroutine cosqb1
 
@@ -6035,7 +6049,7 @@ contains
         modn = mod(n,2)
 
         if (modn == 0) then
-            work(ns2+1) = 2.0_wp * x(1,ns2+1)
+            work(ns2+1) = TWO * x(1,ns2+1)
         end if
 
         do k=2,ns2
@@ -6050,7 +6064,7 @@ contains
 
         associate( &
             lenx => inc*(n-1)  + 1, &
-            lnsv => n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4, &
+            lnsv => n + int(log(real(n, kind=wp) )/log(TWO)) + 4, &
             lnwk => n &
             )
 
@@ -6065,8 +6079,8 @@ contains
         end if
 
         do i=3,n,2
-            xim1 = 0.5_wp * (x(1,i-1)+x(1,i))
-            x(1,i) = 0.5_wp * (x(1,i-1)-x(1,i))
+            xim1 = HALF * (x(1,i-1)+x(1,i))
+            x(1,i) = HALF * (x(1,i-1)-x(1,i))
             x(1,i-1) = xim1
         end do
 
@@ -6185,7 +6199,7 @@ contains
         else if (n == 2) then
             do m=1,lj,jump
                 x1 = x(m,1)+x(m,2)
-                x(m,2) = (x(m,1)-x(m,2))/sqrt(2.0_wp)
+                x(m,2) = (x(m,1)-x(m,2))/sqrt(TWO)
                 x(m,1) = x1
             end do
         else
@@ -6314,9 +6328,9 @@ contains
             return
         else if (n == 2) then
             do m=1,lj,jump
-                tsqx = x(m,2)/sqrt(2.0_wp)
-                x(m,2) = 0.5_wp * x(m,1)-tsqx
-                x(m,1) = 0.5_wp * x(m,1)+tsqx
+                tsqx = x(m,2)/sqrt(TWO)
+                x(m,2) = HALF * x(m,1)-tsqx
+                x(m,1) = HALF * x(m,1)+tsqx
             end do
         else
             call mcsqf1(lot,jump,n,inc,x,wsave,work,local_error_flag)
@@ -6369,7 +6383,7 @@ contains
         integer (ip) k
         integer (ip) lnsv
         integer (ip) n
-        real (wp), parameter ::  HALF_PI = acos(-1.0_wp)/2
+        real (wp), parameter ::  HALF_PI = acos(-ONE)/2
         real (wp) wsave(lensav)
 
         if (lensav < get_1d_saved_workspace_size(n)) then
@@ -6381,10 +6395,10 @@ contains
         end if
 
         dt = HALF_PI/n
-        fk = 0.0_wp
+        fk = ZERO
 
         do k=1,n
-            fk = fk + 1.0_wp
+            fk = fk + ONE
             wsave(k) = cos(fk*dt)
         end do
 
@@ -6647,7 +6661,7 @@ contains
         integer (ip) nm1
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: PI = acos(-1.0_wp)
+        real (wp), parameter :: PI = acos(-ONE)
         real (wp) wsave(lensav)
 
 
@@ -6671,16 +6685,16 @@ contains
             np1 = n+1
             ns2 = n/2
             dt = pi/ nm1
-            fk = 0.0_wp
+            fk = ZERO
 
             do k=2,ns2
                 kc = np1-k
-                fk = fk + 1.0_wp
-                wsave(k) = 2.0_wp * sin(fk*dt)
-                wsave(kc) = 2.0_wp * cos(fk*dt)
+                fk = fk + ONE
+                wsave(k) = TWO * sin(fk*dt)
+                wsave(kc) = TWO * cos(fk*dt)
             end do
 
-            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) +4
+            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(TWO)) +4
 
             call rfft1i(nm1, wsave(n+1), lnsv, local_error_flag)
 
@@ -6761,11 +6775,11 @@ contains
                 modn = mod(n,2)
 
                 if (modn /= 0) then
-                    x(1,ns2+1) = 2.0_wp * x(1,ns2+1)
+                    x(1,ns2+1) = TWO * x(1,ns2+1)
                 end if
 
                 lenx = inc*(nm1-1) + 1
-                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp), kind=ip) + 4
+                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(TWO), kind=ip) + 4
                 lnwk = nm1
 
                 call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -6777,11 +6791,11 @@ contains
                 end if
 
                 fnm1s2 = real(nm1, kind=wp)/2
-                dsum = 0.5_wp * dsum
+                dsum = HALF * dsum
                 x(1,1) = fnm1s2*x(1,1)
 
                 if (mod(nm1,2) == 0) then
-                    x(1,nm1) = 2.0_wp * x(1,nm1)
+                    x(1,nm1) = TWO * x(1,nm1)
                 end if
 
                 fnm1s4 = real(nm1, kind=wp)/4
@@ -6839,13 +6853,13 @@ contains
             return
         else if (n == 2) then
             x1h = x(1,1)+x(1,2)
-            x(1,2) = 0.5_wp * (x(1,1)-x(1,2))
-            x(1,1) = 0.5_wp * x1h
+            x(1,2) = HALF * (x(1,1)-x(1,2))
+            x(1,1) = HALF * x1h
         else
             if (3 >= n) then
                 x1p3 = x(1,1)+x(1,3)
                 tx2 = x(1,2)+x(1,2)
-                x(1,2) = 0.5_wp * (x(1,1)-x(1,3))
+                x(1,2) = HALF * (x(1,1)-x(1,3))
                 x(1,1) = 0.25_wp *(x1p3+tx2)
                 x(1,3) = 0.25_wp *(x1p3-tx2)
             else
@@ -6869,7 +6883,7 @@ contains
 
                 ! Set workspace index pointers
                 lenx = inc*(nm1-1)  + 1
-                lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
+                lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(TWO)) + 4
                 lnwk = nm1
 
                 call rfft1f(nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -6880,7 +6894,7 @@ contains
                     return
                 end if
 
-                snm1 = 1.0_wp /nm1
+                snm1 = ONE /nm1
                 dsum = snm1*dsum
 
                 if (mod(nm1,2) == 0) then
@@ -6888,8 +6902,8 @@ contains
                 end if
 
                 do i=3,n,2
-                    xi = 0.5_wp * x(1,i)
-                    x(1,i) = 0.5_wp * x(1,i-1)
+                    xi = HALF * x(1,i)
+                    x(1,i) = HALF * x(1,i-1)
                     x(1,i-1) = dsum
                     dsum = dsum+xi
                 end do
@@ -6898,8 +6912,8 @@ contains
                     x(1,n) = dsum
                 end if
 
-                x(1,1) = 0.5_wp * x(1,1)
-                x(1,n) = 0.5_wp * x(1,n)
+                x(1,1) = HALF * x(1,1)
+                x(1,n) = HALF * x(1,n)
             end if
         end if
 
@@ -7180,7 +7194,7 @@ contains
         integer (ip) nm1
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: PI = acos(-1.0_wp)
+        real (wp), parameter :: PI = acos(-ONE)
         real (wp) wsave(lensav)
 
         !
@@ -7203,16 +7217,16 @@ contains
             np1 = n+1
             ns2 = n/2
             dt = PI/nm1
-            fk = 0.0_wp
+            fk = ZERO
 
             do k=2,ns2
                 kc = np1-k
-                fk = fk + 1.0_wp
-                wsave(k) = 2.0_wp * sin(fk*dt)
-                wsave(kc) = 2.0_wp * cos(fk*dt)
+                fk = fk + ONE
+                wsave(k) = TWO * sin(fk*dt)
+                wsave(kc) = TWO * cos(fk*dt)
             end do
 
-            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(2.0_wp)) + 4
+            lnsv = nm1 + int(log(real(nm1, kind=wp) )/log(TWO)) + 4
 
             call rfftmi(nm1, wsave(n+1), lnsv, local_error_flag)
 
@@ -7257,24 +7271,24 @@ contains
         do i=3,n,2
             do m=1,lj,jump
                 xim1 = x(m,i-1)+x(m,i)
-                x(m,i) = 0.5_wp * (x(m,i-1)-x(m,i))
-                x(m,i-1) = 0.5_wp * xim1
+                x(m,i) = HALF * (x(m,i-1)-x(m,i))
+                x(m,i-1) = HALF * xim1
             end do
         end do
 
         do m=1,lj,jump
-            x(m,1) = 0.5_wp * x(m,1)
+            x(m,1) = HALF * x(m,1)
         end do
 
         modn = mod(n,2)
         if (modn == 0) then
             do m=1,lj,jump
-                x(m,n) = 0.5_wp * x(m,n)
+                x(m,n) = HALF * x(m,n)
             end do
         end if
 
         lenx = (lot-1)*jump + inc*(n-1)  + 1
-        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
+        lnsv = n + int(log(real(n, kind=wp) )/log(TWO)) + 4
         lnwk = lot*n
 
         call rfftmb(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -7389,7 +7403,7 @@ contains
         end if
 
         lenx = (lot-1)*jump + inc*(n-1)  + 1
-        lnsv = n + int(log(real(n, kind=wp) )/log(2.0_wp)) + 4
+        lnsv = n + int(log(real(n, kind=wp) )/log(TWO)) + 4
         lnwk = lot*n
 
         call rfftmf(lot,jump,n,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -7402,8 +7416,8 @@ contains
 
         do i=3,n,2
             do m=1,lj,jump
-                xim1 = 0.5_wp * (x(m,i-1)+x(m,i))
-                x(m,i) = 0.5_wp * (x(m,i-1)-x(m,i))
+                xim1 = HALF * (x(m,i-1)+x(m,i))
+                x(m,i) = HALF * (x(m,i-1)-x(m,i))
                 x(m,i-1) = xim1
             end do
         end do
@@ -7507,7 +7521,7 @@ contains
                 end if
 
                 lenx = (lot-1)*jump + inc*(nm1-1)  + 1
-                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp)) + 4
+                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(TWO)) + 4
                 lnwk = lot*nm1
 
                 call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -7523,7 +7537,7 @@ contains
 
                 do m=1,lj,jump
                     m1 = m1+1
-                    dsum(m1) = 0.5_wp * dsum(m1)
+                    dsum(m1) = HALF * dsum(m1)
                     x(m,1) = fnm1s2 * x(m,1)
                 end do
 
@@ -7602,15 +7616,15 @@ contains
         else if (n == 2) then
             do m=1,lj,jump
                 x1h = x(m,1)+x(m,2)
-                x(m,2) = 0.5_wp * (x(m,1)-x(m,2))
-                x(m,1) = 0.5_wp * x1h
+                x(m,2) = HALF * (x(m,1)-x(m,2))
+                x(m,1) = HALF * x1h
             end do
         else
             if (3 >= n) then
                 do m=1,lj,jump
                     x1p3 = x(m,1)+x(m,3)
                     tx2 = x(m,2)+x(m,2)
-                    x(m,2) = 0.5_wp * (x(m,1)-x(m,3))
+                    x(m,2) = HALF * (x(m,1)-x(m,3))
                     x(m,1) = 0.25_wp * (x1p3+tx2)
                     x(m,3) = 0.25_wp * (x1p3-tx2)
                 end do
@@ -7644,7 +7658,7 @@ contains
                 end if
 
                 lenx = (lot-1)*jump + inc*(nm1-1)  + 1
-                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(2.0_wp)) + 4
+                lnsv = nm1 + int(log(real(nm1, kind=wp))/log(TWO)) + 4
                 lnwk = lot*nm1
 
                 call rfftmf(lot,jump,nm1,inc,x,lenx,wsave(n+1),lnsv,work,lnwk,local_error_flag)
@@ -7655,7 +7669,7 @@ contains
                     return
                 end if
 
-                snm1 = 1.0_wp/nm1
+                snm1 = ONE/nm1
 
                 do m=1,lot
                     dsum(m) = snm1*dsum(m)
@@ -7671,8 +7685,8 @@ contains
                     m1 = 0
                     do m=1,lj,jump
                         m1 = m1+1
-                        xi = 0.5_wp * x(m,i)
-                        x(m,i) = 0.5_wp * x(m,i-1)
+                        xi = HALF * x(m,i)
+                        x(m,i) = HALF * x(m,i-1)
                         x(m,i-1) = dsum(m1)
                         dsum(m1) = dsum(m1)+xi
                     end do
@@ -7687,8 +7701,8 @@ contains
                 end if
 
                 do m=1,lj,jump
-                    x(m,1) = 0.5_wp * x(m,1)
-                    x(m,n) = 0.5_wp * x(m,n)
+                    x(m,1) = HALF * x(m,1)
+                    x(m,n) = HALF * x(m,n)
                 end do
             end if
         end if
@@ -7705,8 +7719,7 @@ contains
         real (wp) c(in,*)
         real (wp) ch(m,*)
         real (wp) fac(15)
-        real (wp) half
-        real (wp) halfm
+        real (wp), parameter :: NEG_HALF = -HALF
         integer (ip) i
         integer (ip) idl1
         integer (ip) ido
@@ -7742,8 +7755,7 @@ contains
             na = 1-na
         end do
 
-        half = 0.5_wp
-        halfm = -0.5_wp
+
         modn = mod(n,2)
 
         if (modn /= 0) then
@@ -7763,8 +7775,8 @@ contains
                 m2 = 1-im
                 do i=1,m
                     m2 = m2+im
-                    ch(i,j) = half*c(m2,j)
-                    ch(i,j+1) = halfm*c(m2,j+1)
+                    ch(i,j) = HALF*c(m2,j)
+                    ch(i,j+1) = NEG_HALF*c(m2,j+1)
                 end do
             end do
         else
@@ -7772,8 +7784,8 @@ contains
                 m2 = 1-im
                 do i=1,m
                     m2 = m2+im
-                    c(m2,j) = half*c(m2,j)
-                    c(m2,j+1) = halfm*c(m2,j+1)
+                    c(m2,j) = HALF*c(m2,j)
+                    c(m2,j+1) = NEG_HALF*c(m2,j+1)
                 end do
             end do
         end if
@@ -7937,7 +7949,7 @@ contains
             integer (ip) m2s
             real (wp) wa1(ido)
             real (wp) wa2(ido)
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG= TWO_PI/3
             real (wp), parameter :: TAUI = cos(ARG)
             real (wp), parameter :: TAUR = sin(ARG)
@@ -7949,11 +7961,11 @@ contains
                 m2 = m2s
                 do m1=1,m1d,im1
                     m2 = m2+im2
-                    ch(m2,1,k,1) = cc(m1,1,1,k)+ 2.0_wp *cc(m1,ido,2,k)
-                    ch(m2,1,k,2) = cc(m1,1,1,k)+( 2.0_wp *TAUR)*cc(m1,ido,2,k) &
-                        -( 2.0_wp *TAUI)*cc(m1,1,3,k)
-                    ch(m2,1,k,3) = cc(m1,1,1,k)+( 2.0_wp *TAUR)*cc(m1,ido,2,k) &
-                        + 2.0_wp *TAUI*cc(m1,1,3,k)
+                    ch(m2,1,k,1) = cc(m1,1,1,k)+ TWO *cc(m1,ido,2,k)
+                    ch(m2,1,k,2) = cc(m1,1,1,k)+( TWO *TAUR)*cc(m1,ido,2,k) &
+                        -( TWO *TAUI)*cc(m1,1,3,k)
+                    ch(m2,1,k,3) = cc(m1,1,1,k)+( TWO *TAUR)*cc(m1,ido,2,k) &
+                        + TWO *TAUI*cc(m1,1,3,k)
                 end do
             end do
 
@@ -8022,7 +8034,7 @@ contains
             integer (ip) m1d
             integer (ip) m2
             integer (ip) m2s
-            real (wp), parameter :: SQRT2 = sqrt(2.0_wp)
+            real (wp), parameter :: SQRT2 = sqrt(TWO)
             real (wp) wa1(ido)
             real (wp) wa2(ido)
             real (wp) wa3(ido)
@@ -8141,12 +8153,12 @@ contains
             real (wp) wa3(ido)
             real (wp) wa4(ido)
 
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG = TWO_PI/5
             real (wp), parameter :: TR11=cos(ARG)
             real (wp), parameter :: TI11=sin(ARG)
-            real (wp), parameter :: TR12=cos(2.0_wp*ARG)
-            real (wp), parameter :: TI12=sin(2.0_wp*ARG)
+            real (wp), parameter :: TR12=cos(TWO*ARG)
+            real (wp), parameter :: TI12=sin(TWO*ARG)
 
             m1d = (m-1)*im1+1
             m2s = 1-im2
@@ -8155,20 +8167,20 @@ contains
                 m2 = m2s
                 do m1=1,m1d,im1
                     m2 = m2+im2
-                    ch(m2,1,k,1) = cc(m1,1,1,k)+ 2.0_wp *cc(m1,ido,2,k)&
-                        + 2.0_wp *cc(m1,ido,4,k)
-                    ch(m2,1,k,2) = (cc(m1,1,1,k)+TR11* 2.0_wp *cc(m1,ido,2,k) &
-                        +TR12* 2.0_wp *cc(m1,ido,4,k))-(TI11* 2.0_wp *cc(m1,1,3,k) &
-                        +TI12* 2.0_wp *cc(m1,1,5,k))
-                    ch(m2,1,k,3) = (cc(m1,1,1,k)+TR12* 2.0_wp *cc(m1,ido,2,k) &
-                        +TR11* 2.0_wp *cc(m1,ido,4,k))-(TI12* 2.0_wp *cc(m1,1,3,k) &
-                        -TI11* 2.0_wp *cc(m1,1,5,k))
-                    ch(m2,1,k,4) = (cc(m1,1,1,k)+TR12* 2.0_wp *cc(m1,ido,2,k) &
-                        +TR11* 2.0_wp *cc(m1,ido,4,k))+(TI12* 2.0_wp *cc(m1,1,3,k) &
-                        -TI11* 2.0_wp *cc(m1,1,5,k))
-                    ch(m2,1,k,5) = (cc(m1,1,1,k)+TR11* 2.0_wp *cc(m1,ido,2,k) &
-                        +TR12* 2.0_wp *cc(m1,ido,4,k))+(TI11* 2.0_wp *cc(m1,1,3,k) &
-                        +TI12* 2.0_wp *cc(m1,1,5,k))
+                    ch(m2,1,k,1) = cc(m1,1,1,k)+ TWO *cc(m1,ido,2,k)&
+                        + TWO *cc(m1,ido,4,k)
+                    ch(m2,1,k,2) = (cc(m1,1,1,k)+TR11* TWO *cc(m1,ido,2,k) &
+                        +TR12* TWO *cc(m1,ido,4,k))-(TI11* TWO *cc(m1,1,3,k) &
+                        +TI12* TWO *cc(m1,1,5,k))
+                    ch(m2,1,k,3) = (cc(m1,1,1,k)+TR12* TWO *cc(m1,ido,2,k) &
+                        +TR11* TWO *cc(m1,ido,4,k))-(TI12* TWO *cc(m1,1,3,k) &
+                        -TI11* TWO *cc(m1,1,5,k))
+                    ch(m2,1,k,4) = (cc(m1,1,1,k)+TR12* TWO *cc(m1,ido,2,k) &
+                        +TR11* TWO *cc(m1,ido,4,k))+(TI12* TWO *cc(m1,1,3,k) &
+                        -TI11* TWO *cc(m1,1,5,k))
+                    ch(m2,1,k,5) = (cc(m1,1,1,k)+TR11* TWO *cc(m1,ido,2,k) &
+                        +TR12* TWO *cc(m1,ido,4,k))+(TI11* TWO *cc(m1,1,3,k) &
+                        +TI12* TWO *cc(m1,1,5,k))
                 end do
             end do
 
@@ -8310,7 +8322,7 @@ contains
             integer (ip) nbd
             real (wp) wa(ido)
 
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
 
             arg = TWO_PI/iip
             dcp = cos(arg)
@@ -8397,8 +8409,8 @@ contains
                 end if
             end if
 
-            ar1 = 1.0_wp
-            ai1 = 0.0_wp
+            ar1 = ONE
+            ai1 = ZERO
             do l=2,iipph
                 lc = iipp2-l
                 ar1h = dcp*ar1-dsp*ai1
@@ -8649,8 +8661,8 @@ contains
             l2 = l1
         end do
 
-        sn = 1.0_wp/n
-        tsn =  2.0_wp/n
+        sn = ONE/n
+        tsn =  TWO/n
         tsnm = -tsn
         modn = mod(n,2)
 
@@ -8810,7 +8822,7 @@ contains
             integer (ip) m2s
             real (wp) wa1(ido)
             real (wp) wa2(ido)
-            real (wp), parameter :: TWO_PI =2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI =TWO * acos(-ONE)
             real (wp), parameter :: ARG = TWO_PI/3
             real (wp), parameter :: TAUR = cos(ARG)
             real (wp), parameter :: TAUI = sin(ARG)
@@ -8898,7 +8910,7 @@ contains
             real (wp) wa1(ido)
             real (wp) wa2(ido)
             real (wp) wa3(ido)
-            real (wp), parameter :: HALF_SQRT2 = sqrt(2.0_wp)/2
+            real (wp), parameter :: HALF_SQRT2 = sqrt(TWO)/2
 
             m1d = (m-1)*im1+1
             m2s = 1-im2
@@ -9027,12 +9039,12 @@ contains
             real (wp) wa2(ido)
             real (wp) wa3(ido)
             real (wp) wa4(ido)
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG = TWO_PI/5
             real (wp), parameter :: TR11 = cos(ARG)
             real (wp), parameter :: TI11 = sin(ARG)
-            real (wp), parameter :: TR12 = cos(2.0_wp*ARG)
-            real (wp), parameter :: TI12 = sin(2.0_wp*ARG)
+            real (wp), parameter :: TR12 = cos(TWO*ARG)
+            real (wp), parameter :: TI12 = sin(TWO*ARG)
 
             m1d = (m-1)*im1+1
             m2s = 1-im2
@@ -9208,7 +9220,7 @@ contains
             integer (ip) m2
             integer (ip) m2s
             integer (ip) nbd
-            real (wp), parameter :: TWO_PI= 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI= TWO * acos(-ONE)
             real (wp) wa(ido)
 
             m1d = (m-1)*im1+1
@@ -9331,8 +9343,8 @@ contains
                 end do
             end do
 
-            ar1 = 1.0_wp
-            ai1 = 0.0_wp
+            ar1 = ONE
+            ai1 = ZERO
             do l=2,iipph
                 lc = iipp2-l
                 ar1h = dcp*ar1-dsp*ai1
@@ -9481,7 +9493,7 @@ contains
         integer (ip)            :: j, k1, l1, l2, ld
         integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
         integer (ip), parameter :: ntryh(*) = [ 4, 2, 3, 5 ]
-        real (wp),    parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+        real (wp),    parameter :: TWO_PI = TWO * acos(-ONE)
         real (wp)               :: arg, argh, argld, fi
         !--------------------------------------------------------------
 
@@ -9552,10 +9564,10 @@ contains
                 ld = ld+l1
                 i = is
                 argld = real(ld, kind=wp) * argh
-                fi = 0.0_wp
+                fi = ZERO
                 do ii=3,ido,2
                     i = i+2
-                    fi = fi + 1.0_wp
+                    fi = fi + ONE
                     arg = fi*argld
                     wa(i-1) = cos(arg)
                     wa(i) = sin(arg)
@@ -9593,7 +9605,7 @@ contains
         integer (ip) n
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: HALF_SQRT3 = sqrt(3.0_wp)/2
+        real (wp), parameter :: HALF_SQRT3 = sqrt(THREE)/2
         real (wp) t1
         real (wp) t2
         real (wp) work(*)
@@ -9634,14 +9646,14 @@ contains
                 m1 = 0
                 do m=1,lj,jump
                     m1 = m1+1
-                    xh(m1,ns2+2) =  4.0_wp * x(m,ns2+1)
+                    xh(m1,ns2+2) =  FOUR * x(m,ns2+1)
                 end do
             end if
 
-            xh(:,1) = 0.0_wp
+            xh(:,1) = ZERO
 
             lnxh = lot-1 + lot*(np1-1) + 1
-            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(TWO)) + 4
             lnwk = lot*np1
 
             call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
@@ -9653,7 +9665,7 @@ contains
             end if
 
             if (mod(np1,2) == 0) then
-                xh(:,np1) = 2.0_wp * xh(:,np1)
+                xh(:,np1) = TWO * xh(:,np1)
             end if
 
             fnp1s4 = real(np1, kind=wp)/4
@@ -9725,7 +9737,7 @@ contains
             return
         else if (n == 2) then
             do m=1,lj,jump
-                associate( sqrt3 => sqrt(3.0_wp) )
+                associate( sqrt3 => sqrt(THREE) )
                     xhold = (x(m,1)+x(m,2))/sqrt3
                     x(m,2) = (x(m,1)-x(m,2))/sqrt3
                     x(m,1) = xhold
@@ -9752,14 +9764,14 @@ contains
                 m1 = 0
                 do m=1,lj,jump
                     m1 = m1 + 1
-                    xh(m1,ns2+2) =  4.0_wp * x(m,ns2+1)
+                    xh(m1,ns2+2) =  FOUR * x(m,ns2+1)
                 end do
             end if
 
-            xh(:,1) = 0.0_wp
+            xh(:,1) = ZERO
 
             lnxh = lot-1 + lot*(np1-1) + 1
-            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(TWO)) + 4
             lnwk = lot*np1
 
             call rfftmf(lot,1,np1,lot,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
@@ -9772,16 +9784,16 @@ contains
             end if
 
             if (mod(np1,2) == 0) then
-                xh(:,np1) = 2.0_wp * xh(:,np1)
+                xh(:,np1) = TWO * xh(:,np1)
             end if
 
 
-            sfnp1 = 1.0_wp/np1
+            sfnp1 = ONE/np1
             m1 = 0
 
             do m=1,lj,jump
                 m1 = m1+1
-                x(m,1) = 0.5_wp * xh(m1,1)
+                x(m,1) = HALF * xh(m1,1)
                 dsum(m1) = x(m,1)
             end do
 
@@ -9789,8 +9801,8 @@ contains
                 m1 = 0
                 do m=1,lj,jump
                     m1 = m1+1
-                    x(m,i-1) = 0.5_wp * xh(m1,i)
-                    dsum(m1) = dsum(m1)+ 0.5_wp * xh(m1,i-1)
+                    x(m,i-1) = HALF * xh(m1,i)
+                    dsum(m1) = dsum(m1)+ HALF * xh(m1,i-1)
                     x(m,i) = dsum(m1)
                 end do
             end do
@@ -9799,7 +9811,7 @@ contains
                 m1 = 0
                 do m=1,lj,jump
                     m1 = m1+1
-                    x(m,n) = 0.5_wp * xh(m1,n+1)
+                    x(m,n) = HALF * xh(m1,n+1)
                 end do
             end if
         end if
@@ -9943,7 +9955,7 @@ contains
             ! Dictionary: local variables
             !--------------------------------------------------
             integer (ip)         :: i, j !! Counters
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp)            :: argz, arg1, arg2, arg3, arg4
             !--------------------------------------------------
 
@@ -10033,7 +10045,7 @@ contains
             ier = 1
             call fft_error_handler('rfft1b ', 6)
         else if (lensav < &
-            n + int(log(real(n, kind=wp) )/log(2.0_wp))+4) then
+            n + int(log(real(n, kind=wp) )/log(TWO))+4) then
             ier = 2
             call fft_error_handler('rfft1b ', 8)
         else if (lenwrk < n) then
@@ -10098,13 +10110,13 @@ contains
                 ch(1) = c(1,1)
                 ch(n) = c(1,n)
                 do j=2,nl,2
-                    ch(j) = 0.5_wp*c(1,j)
-                    ch(j+1) = -0.5_wp*c(1,j+1)
+                    ch(j) = HALF*c(1,j)
+                    ch(j+1) = -HALF*c(1,j+1)
                 end do
             else
                 do j=2,nl,2
-                    c(1,j) = 0.5_wp*c(1,j)
-                    c(1,j+1) = -0.5_wp*c(1,j+1)
+                    c(1,j) = HALF*c(1,j)
+                    c(1,j+1) = -HALF*c(1,j+1)
                 end do
             end if
 
@@ -10246,17 +10258,17 @@ contains
             ! Dictionary: calling arguments
             !------------------------------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG =TWO_PI/3
             real (wp), parameter :: TAUR = cos(ARG)
             real (wp), parameter :: TAUI = sin(ARG)
             !------------------------------------------------------------------
 
-            ch(1,1,:,1) = cc(1,1,1,:) + 2.0_wp * cc(1,ido,2,:)
-            ch(1,1,:,2) = cc(1,1,1,:) + ( 2.0_wp * TAUR ) * cc(1,ido,2,:) &
-                - ( 2.0_wp *TAUI)*cc(1,1,3,:)
-            ch(1,1,:,3) = cc(1,1,1,:) + ( 2.0_wp *TAUR)*cc(1,ido,2,:) &
-                + 2.0_wp *TAUI*cc(1,1,3,:)
+            ch(1,1,:,1) = cc(1,1,1,:) + TWO * cc(1,ido,2,:)
+            ch(1,1,:,2) = cc(1,1,1,:) + ( TWO * TAUR ) * cc(1,ido,2,:) &
+                - ( TWO *TAUI)*cc(1,1,3,:)
+            ch(1,1,:,3) = cc(1,1,1,:) + ( TWO *TAUR)*cc(1,ido,2,:) &
+                + TWO *TAUI*cc(1,1,3,:)
 
             select case (ido)
                 case (1)
@@ -10317,7 +10329,7 @@ contains
             ! Dictionary: local variables
             !------------------------------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: SQRT2 = sqrt(2.0_wp)
+            real (wp), parameter :: SQRT2 = sqrt(TWO)
             !------------------------------------------------------------------
 
 
@@ -10406,27 +10418,27 @@ contains
             ! Dictionary: local variables
             !--------------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG= TWO_PI/5
             real (wp), parameter :: TR11=cos(ARG)
             real (wp), parameter :: TI11=sin(ARG)
-            real (wp), parameter :: TR12=cos(2.0_wp*ARG)
-            real (wp), parameter :: TI12=sin(2.0_wp*ARG)
+            real (wp), parameter :: TR12=cos(TWO*ARG)
+            real (wp), parameter :: TI12=sin(TWO*ARG)
             !--------------------------------------------------
 
-            ch(1,1,:,1) = cc(1,1,1,:)+ 2.0_wp *cc(1,ido,2,:)+ 2.0_wp *cc(1,ido,4,:)
-            ch(1,1,:,2) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
-                +TR12* 2.0_wp *cc(1,ido,4,:))-(TI11* 2.0_wp *cc(1,1,3,:) &
-                +TI12* 2.0_wp *cc(1,1,5,:))
-            ch(1,1,:,3) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
-                +TR11* 2.0_wp *cc(1,ido,4,:))-(TI12* 2.0_wp *cc(1,1,3,:) &
-                -TI11* 2.0_wp *cc(1,1,5,:))
-            ch(1,1,:,4) = (cc(1,1,1,:)+TR12* 2.0_wp *cc(1,ido,2,:) &
-                +TR11* 2.0_wp *cc(1,ido,4,:))+(TI12* 2.0_wp *cc(1,1,3,:) &
-                -TI11* 2.0_wp *cc(1,1,5,:))
-            ch(1,1,:,5) = (cc(1,1,1,:)+TR11* 2.0_wp *cc(1,ido,2,:) &
-                +TR12* 2.0_wp *cc(1,ido,4,:))+(TI11* 2.0_wp *cc(1,1,3,:) &
-                +TI12* 2.0_wp *cc(1,1,5,:))
+            ch(1,1,:,1) = cc(1,1,1,:)+ TWO *cc(1,ido,2,:)+ TWO *cc(1,ido,4,:)
+            ch(1,1,:,2) = (cc(1,1,1,:)+TR11* TWO *cc(1,ido,2,:) &
+                +TR12* TWO *cc(1,ido,4,:))-(TI11* TWO *cc(1,1,3,:) &
+                +TI12* TWO *cc(1,1,5,:))
+            ch(1,1,:,3) = (cc(1,1,1,:)+TR12* TWO *cc(1,ido,2,:) &
+                +TR11* TWO *cc(1,ido,4,:))-(TI12* TWO *cc(1,1,3,:) &
+                -TI11* TWO *cc(1,1,5,:))
+            ch(1,1,:,4) = (cc(1,1,1,:)+TR12* TWO *cc(1,ido,2,:) &
+                +TR11* TWO *cc(1,ido,4,:))+(TI12* TWO *cc(1,1,3,:) &
+                -TI11* TWO *cc(1,1,5,:))
+            ch(1,1,:,5) = (cc(1,1,1,:)+TR11* TWO *cc(1,ido,2,:) &
+                +TR12* TWO *cc(1,ido,4,:))+(TI11* TWO *cc(1,1,3,:) &
+                +TI12* TWO *cc(1,1,5,:))
 
             select case (ido)
                 case (1)
@@ -10542,7 +10554,7 @@ contains
             real (wp)            :: dc2, dcp, ds2, dsp
             integer (ip)         :: i, idij, idp2, ipp2, ipph
             integer (ip)         :: is, j, j2, jc, k, l, lc, nbd
-            real (wp), parameter :: TWO_PI = acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = acos(-ONE)
             !------------------------------------------------------------------
 
             arg = TWO_PI /iip
@@ -10558,8 +10570,8 @@ contains
             do j=2,ipph
                 jc = ipp2-j
                 j2 = j*2
-                ch(1,1,:,j) = 2.0_wp * cc(1,ido,j2-2,:)
-                ch(1,1,:,jc) = 2.0_wp * cc(1,1,j2-1,:)
+                ch(1,1,:,j) = TWO * cc(1,ido,j2-2,:)
+                ch(1,1,:,jc) = TWO * cc(1,1,j2-1,:)
             end do
 
             if (ido /= 1) then
@@ -10590,8 +10602,8 @@ contains
                 end if
             end if
 
-            ar1 = 1.0_wp
-            ai1 = 0.0_wp
+            ar1 = ONE
+            ai1 = ZERO
 
             do l=2,ipph
                 lc = ipp2-l
@@ -10758,7 +10770,7 @@ contains
         if (lenr < inc*(n-1) + 1) then
             ier = 1
             call fft_error_handler('rfft1f ', 6)
-        else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
             ier = 2
             call fft_error_handler('rfft1f ', 8)
         else if (lenwrk < n) then
@@ -10873,8 +10885,8 @@ contains
 
             end associate
 
-            sn = 1.0_wp/n
-            tsn =  2.0_wp/n
+            sn = ONE/n
+            tsn =  TWO/n
             tsnm = -tsn
             modn = mod(n,2)
 
@@ -10982,7 +10994,7 @@ contains
             ! Dictionary: local variables
             !-----------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG = TWO_PI/3
             real (wp), parameter :: TAUR = cos(ARG)
             real (wp), parameter :: TAUI = sin(ARG)
@@ -11053,7 +11065,7 @@ contains
             ! Dictionary: local variables
             !-----------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: HALF_SQRT2=sqrt(2.0_wp)/2
+            real (wp), parameter :: HALF_SQRT2=sqrt(TWO)/2
             !-----------------------------------------------
 
             ch(1,1,1,:) = (cc(1,1,:,2)+cc(1,1,:,4))+(cc(1,1,:,1)+cc(1,1,:,3))
@@ -11139,12 +11151,12 @@ contains
             ! Dictionary: local variables
             !-----------------------------------------------
             integer (ip)         :: i, ic, idp2
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             real (wp), parameter :: ARG= TWO_PI/5
             real (wp), parameter :: TR11=cos(ARG)
             real (wp), parameter :: TI11=sin(ARG)
-            real (wp), parameter :: TR12=cos(2.0_wp *ARG)
-            real (wp), parameter :: TI12=sin(2.0_wp *ARG)
+            real (wp), parameter :: TR12=cos(TWO *ARG)
+            real (wp), parameter :: TI12=sin(TWO *ARG)
             !-----------------------------------------------
 
             ch(1,1,1,:) = cc(1,1,:,1)+(cc(1,1,:,5)+cc(1,1,:,2))+ &
@@ -11288,7 +11300,7 @@ contains
             integer (ip)         :: ipp2, ipph, is
             integer (ip)         :: j, jc
             integer (ip)         :: k, l, lc, nbd
-            real (wp), parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+            real (wp), parameter :: TWO_PI = TWO * acos(-ONE)
             !-----------------------------------------------
 
             arg = TWO_PI/iip
@@ -11358,8 +11370,8 @@ contains
                 c1(1,1,:,jc) = ch(1,1,:,jc)-ch(1,1,:,j)
             end do
 
-            ar1 = 1.0_wp
-            ai1 = 0.0_wp
+            ar1 = ONE
+            ai1 = ZERO
             do l=2,ipph
                 lc = ipp2-l
                 ar1h = dcp*ar1-dsp*ai1
@@ -11490,7 +11502,7 @@ contains
 
         ier = 0
 
-        if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
             ier = 2
             call fft_error_handler('rfft1i ', 3)
         end if
@@ -11582,9 +11594,9 @@ contains
         !
         !==> verify lensav
         !
-        lwsav = l+int(log(real(l, kind=wp))/log(2.0_wp))+4
+        lwsav = l+int(log(real(l, kind=wp))/log(TWO))+4
         mwsav = get_1d_saved_workspace_size(m)
-        mmsav = m+int(log(real(m, kind=wp))/log(2.0_wp))+4
+        mmsav = m+int(log(real(m, kind=wp))/log(TWO))+4
         modl = mod(l,2)
         modm = mod(m,2)
 
@@ -11614,7 +11626,7 @@ contains
         !
         associate( mj => 2*((m+1)/2)-1 )
 
-            r(1,2:mj) = 2.0_wp * r(1,2:mj)
+            r(1,2:mj) = TWO * r(1,2:mj)
 
         end associate
 
@@ -11648,7 +11660,7 @@ contains
 
             associate( mj => 2*((m+1)/2)-1 )
 
-                r(l,2:mj) = 2.0_wp * r(l,2:mj)
+                r(l,2:mj) = TWO * r(l,2:mj)
 
             end associate
 
@@ -11662,12 +11674,12 @@ contains
         !
         ldx = 2*int((l+1)/2)-1
 
-        r(2:ldx,1:m) = 2.0_wp * r(2:ldx,1:m)
+        r(2:ldx,1:m) = TWO * r(2:ldx,1:m)
         r(3:ldx:2,1:m) = -r(3:ldx:2,1:m)
 
         associate( &
             arg_1 => m*ldim, &
-            arg_2 => l+int(log(real(l, kind=wp) )/log(2.0_wp))+4 &
+            arg_2 => l+int(log(real(l, kind=wp) )/log(TWO))+4 &
             )
 
             call rfftmb(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,lenwrk,local_error_flag)
@@ -11763,9 +11775,9 @@ contains
         !
         !==> verify lensav
         !
-        lwsav = l+int(log(real (l, kind=wp))/log(2.0_wp))+4
+        lwsav = l+int(log(real (l, kind=wp))/log(TWO))+4
         mwsav = get_1d_saved_workspace_size(m)
-        mmsav = m+int(log(real(m, kind=wp))/log(2.0_wp))+4
+        mmsav = m+int(log(real(m, kind=wp))/log(TWO))+4
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
@@ -11793,7 +11805,7 @@ contains
         !
         associate( &
             arg_1 => m*ldim, &
-            arg_2 => l+int(log(real(l, kind=wp))/log(2.0_wp))+4 &
+            arg_2 => l+int(log(real(l, kind=wp))/log(TWO))+4 &
             )
 
             call rfftmf(m,ldim,l,1,r,arg_1,wsave(1), arg_2,work,size(work),local_error_flag)
@@ -11808,7 +11820,7 @@ contains
 
         ldx = 2*int((l+1)/2)-1
 
-        r(2:ldx,1:m) = 0.5_wp * r(2:ldx,1:m)
+        r(2:ldx,1:m) = HALF * r(2:ldx,1:m)
 
         r(3:ldx:2,1:m) = -r(3:ldx:2,1:m)
 
@@ -11824,7 +11836,7 @@ contains
 
         associate( mj => 2*((m+1)/2)-1 )
 
-            r(1,2:mj) = 0.5_wp * r(1,2:mj)
+            r(1,2:mj) = HALF * r(1,2:mj)
 
         end associate
 
@@ -11858,7 +11870,7 @@ contains
 
             associate( mj => 2*((m+1)/2)-1 )
 
-                r(l,2:mj) = 0.5_wp * r(l,2:mj)
+                r(l,2:mj) = HALF * r(l,2:mj)
 
             end associate
 
@@ -11928,9 +11940,9 @@ contains
         !
         ! verify lensav
         !
-        lwsav = l+int(log(real(l, kind=wp) )/log(2.0_wp))+4
-        mwsav = 2*m+int(log(real(m, kind=wp) )/log(2.0_wp))+4
-        mmsav = m+int(log(real(m, kind=wp) )/log(2.0_wp))+4
+        lwsav = l+int(log(real(l, kind=wp) )/log(TWO))+4
+        mwsav = 2*m+int(log(real(m, kind=wp) )/log(TWO))+4
+        mmsav = m+int(log(real(m, kind=wp) )/log(TWO))+4
 
         if (lensav < lwsav+mwsav+mmsav) then
             ier = 2
@@ -11996,7 +12008,7 @@ contains
         integer (ip)            :: j, k1, l1, l2, ld
         integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
         integer (ip), parameter :: ntryh(*)=[ 4, 2, 3, 5]
-        real (wp),    parameter :: TWO_PI = 2.0_wp * acos(-1.0_wp)
+        real (wp),    parameter :: TWO_PI = TWO * acos(-ONE)
         real (wp)               :: arg,  argh, argld, fi
         !--------------------------------------------------------------
 
@@ -12063,10 +12075,10 @@ contains
                     ld = ld+l1
                     i = is
                     argld = real(ld, kind=wp) * argh
-                    fi = 0.0_wp
+                    fi = ZERO
                     do ii=3,ido,2
                         i = i+2
-                        fi = fi + 1.0_wp
+                        fi = fi + ONE
                         arg = fi*argld
                         wa(i-1) = cos(arg)
                         wa(i) = sin(arg)
@@ -12160,7 +12172,7 @@ contains
             ier = 1
             call fft_error_handler('rfftmb ', 6)
             return
-        else if (lensav < n+int(log(real(n, kind=wp))/log(2.0_wp))+4) then
+        else if (lensav < n+int(log(real(n, kind=wp))/log(TWO))+4) then
             ier = 2
             call fft_error_handler('rfftmb ', 8)
             return
@@ -12267,7 +12279,7 @@ contains
             ier = 1
             call fft_error_handler('rfftmf ', 6)
             return
-        else if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
+        else if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
             ier = 2
             call fft_error_handler('rfftmf ', 8)
             return
@@ -12333,7 +12345,7 @@ contains
         !
         !==> Check validity of input arguments
         !
-        if (lensav < n + int(log(real(n, kind=wp) )/log(2.0_wp)) +4) then
+        if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
             ier = 2
             call fft_error_handler('rfftmi ', 3)
             return
@@ -12721,7 +12733,7 @@ contains
         lj = (lot-1)*jump+1
 
         if (1 >= n ) then
-            x(1:lj:jump,1) =  4.0_wp * x(1:lj:jump,1)
+            x(1:lj:jump,1) =  FOUR * x(1:lj:jump,1)
         else
             ns2 = n/2
             x(2:n:2,1:lj:jump) = -x(1:lj:jump,2:n:2)
@@ -13012,7 +13024,7 @@ contains
             call fft_error_handler('sint1b', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
-            / log(2.0_wp ) ) + 4 ) then
+            / log(TWO ) ) + 4 ) then
             ier = 2
             call fft_error_handler('sint1b', 8)
             return
@@ -13110,7 +13122,7 @@ contains
             call fft_error_handler('sint1f', 6)
             return
         else if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+            /log(TWO)) +4) then
             ier = 2
             call fft_error_handler('sint1f', 8)
             return
@@ -13178,14 +13190,14 @@ contains
         integer (ip) n
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: pi = acos(-1.0_wp)
+        real (wp), parameter :: pi = acos(-ONE)
         real (wp) wsave(lensav)
 
         !
         !==> Check validity of input arguments
         !
         if (lensav < n/2 + n + int(log(real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+            /log(TWO)) +4) then
             ier = 2
             call fft_error_handler('sint1i', 3)
             return
@@ -13203,10 +13215,10 @@ contains
             dt = pi/np1
 
             do k=1,ns2
-                wsave(k) = 2.0_wp *sin(k*dt)
+                wsave(k) = TWO *sin(k*dt)
             end do
 
-            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) +4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(TWO)) +4
 
             call rfft1i(np1, wsave(ns2+1), lnsv, local_error_flag)
 
@@ -13238,7 +13250,7 @@ contains
         integer (ip) n
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: HALF_SQRT3 = sqrt(3.0_wp)/2
+        real (wp), parameter :: HALF_SQRT3 = sqrt(THREE)/2
         real (wp) t1
         real (wp) t2
         real (wp) work(*)
@@ -13269,12 +13281,12 @@ contains
             modn = mod(n,2)
 
             if (modn /= 0) then
-                xh(ns2+2) =  4.0_wp * x(1,ns2+1)
+                xh(ns2+2) =  FOUR * x(1,ns2+1)
             end if
 
-            xh(1) = 0.0_wp
+            xh(1) = ZERO
             lnxh = np1
-            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(TWO)) + 4
             lnwk = np1
 
             call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work,lnwk,local_error_flag)
@@ -13339,8 +13351,8 @@ contains
         if (n < 2) then
             return
         else if (n == 2) then
-            xhold = (x(1,1)+x(1,2))/sqrt(3.0_wp)
-            x(1,2) = (x(1,1)-x(1,2))/sqrt(3.0_wp)
+            xhold = (x(1,1)+x(1,2))/sqrt(THREE)
+            x(1,2) = (x(1,1)-x(1,2))/sqrt(THREE)
             x(1,1) = xhold
         else
             np1 = n+1
@@ -13356,12 +13368,12 @@ contains
             modn = mod(n,2)
 
             if (modn /= 0) then
-                xh(ns2+2) =  4.0_wp * x(1,ns2+1)
+                xh(ns2+2) =  FOUR * x(1,ns2+1)
             end if
 
-            xh(1) = 0.0_wp
+            xh(1) = ZERO
             lnxh = np1
-            lnsv = np1 + int(log(real(np1, kind=wp))/log(2.0_wp)) + 4
+            lnsv = np1 + int(log(real(np1, kind=wp))/log(TWO)) + 4
             lnwk = np1
 
             call rfft1f(np1,1,xh,lnxh,wsave(ns2+1),lnsv,work, lnwk,local_error_flag)
@@ -13376,18 +13388,18 @@ contains
                 xh(np1) = xh(np1)+xh(np1)
             end if
 
-            sfnp1 = 1.0_wp/np1
-            x(1,1) = 0.5_wp * xh(1)
+            sfnp1 = ONE/np1
+            x(1,1) = HALF * xh(1)
             dsum = x(1,1)
 
             do i=3,n,2
-                x(1,i-1) = 0.5_wp * xh(i)
-                dsum = dsum + 0.5_wp * xh(i-1)
+                x(1,i-1) = HALF * xh(i)
+                dsum = dsum + HALF * xh(i-1)
                 x(1,i) = dsum
             end do
 
             if (modn == 0) then
-                x(1,n) = 0.5_wp * xh(n+1)
+                x(1,n) = HALF * xh(n+1)
             end if
         end if
 
@@ -13477,7 +13489,7 @@ contains
             call fft_error_handler('sintmb', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
-            /log(2.0_wp)) +4) then
+            /log(TWO)) +4) then
             ier = 2
             call fft_error_handler('sintmb', 8)
             return
@@ -13594,7 +13606,7 @@ contains
             call fft_error_handler('sintmf', 6)
             return
         else if ( lensav < n / 2 + n + int(log(real(n, kind=wp) ) &
-            / log(2.0_wp ) ) + 4 ) then
+            / log(TWO ) ) + 4 ) then
             ier = 2
             call fft_error_handler('sintmf', 8)
             return
@@ -13669,14 +13681,14 @@ contains
         integer (ip) n
         integer (ip) np1
         integer (ip) ns2
-        real (wp), parameter :: PI = acos(-1.0_wp)
+        real (wp), parameter :: PI = acos(-ONE)
         real (wp) wsave(lensav)
 
         !
         !==> Check validity of input arguments
         !
         if (lensav < n / 2 + n + int(log(real(n, kind=wp)) &
-            / log(2.0_wp ) ) + 4 ) then
+            / log(TWO ) ) + 4 ) then
             ier = 2
             call fft_error_handler('sintmi', 3 )
             return
@@ -13694,10 +13706,10 @@ contains
             dt = PI/np1
 
             do k = 1, ns2
-                wsave(k) = 2.0_wp * sin(real(k, kind=wp) * dt)
+                wsave(k) = TWO * sin(real(k, kind=wp) * dt)
             end do
 
-            associate( nsv => np1+int(log(real(np1, kind=wp) )/log(2.0_wp))+4)
+            associate( nsv => np1+int(log(real(np1, kind=wp) )/log(TWO))+4)
 
                 call rfftmi(np1, wsave(ns2+1), lnsv, local_error_flag)
 
