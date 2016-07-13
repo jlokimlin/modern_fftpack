@@ -4,14 +4,11 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 
 * The original work, written in fixed-form FORTRAN 77, was extensively refactored to incorporate features of free-form modern Fortran (2008+).
 * The library is fully Fortran 2008 (ISO/IEC 1539-1:2010) compliant;
-* all instances of **go to**'s are replaced with modern control structures;
-* the instrinsic module *iso\_fortran\_env* is used to maintain 64-bit double precision. 
+* all instances of **go to**'s are replaced with modern control structures.
 * Numerous **do** loops are replaced with array operations to improve readability.
 * Potentially large automatic arrays are replaced with **allocatable** arrays for heap access. 
 * Test programs are provided for the transforms. Each serves two purposes: as a template to guide you in writing your own codes utilizing the fttpack library, and as a demonstration that you can correctly produce the executables. 
 * Ideally, **type**(FFTpack)'s functionality and usage will evolve into something similar to scipy.fftpack
-* For legacy support, all the original procedural solvers' signatures (calling arguments) remain unchanged. That is, call by keyword with older FFTPACK5.1 codes is safe. 
-
 
 -----------------------------------------------------------------------------
 
@@ -19,10 +16,9 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 
 ```fortran
 
-    use, intrinsic :: iso_fortran_env, only: &
-        wp => REAL64
     
-    use type_FFTpack, only: &
+    use fftpack_library, only: &
+        wp, & ! 64-bit double precision
         FFTpack
 
     ! Explicit typing only
