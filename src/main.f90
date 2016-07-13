@@ -1,9 +1,9 @@
 program main
 
-  use type_FFTpack
+    use fftpack_library
 
-  implicit none
+    implicit none
   
-  print '(a)', 'succesful build!'
+    print '(a)', 'succesful build!'
 
 end program main

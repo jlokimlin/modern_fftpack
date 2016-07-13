@@ -39,62 +39,58 @@ contains
 
 
     subroutine sint1b(n, inc, x, lenx, wsave, lensav, work, lenwrk, ier)
-
-
         !
-        !! SINT1B: 64-bit float precision backward sine transform, 1D.
+        !  sint1b: real backward sine transform, 1d.
         !
-        !  Purpose:
+        !  purpose:
         !
-        !  SINT1B computes the one-dimensional Fourier transform of an odd
-        !  sequence within a real array.  This transform is referred to as
-        !  the backward transform or Fourier synthesis, transforming the
+        !  sint1b computes the one-dimensional fourier transform of an odd
+        !  sequence within a real array.  this transform is referred to as
+        !  the backward transform or fourier synthesis, transforming the
         !  sequence from spectral to physical space.
         !
-        !  This transform is normalized since a call to SINT1B followed
-        !  by a call to SINT1F (or vice-versa) reproduces the original
+        !  this transform is normalized since a call to sint1b followed
+        !  by a call to sint1f (or vice-versa) reproduces the original
         !  array within roundoff error.
         !
-        !  Parameters:
+        !  parameters:
         !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N+1 is a product of
+        !  integer n, the length of the sequence to be
+        !  transformed.  the transform is most efficient when n+1 is a product of
         !  small primes.
         !
-        !  integer INC, the increment between the locations, in
-        !  array R, of two consecutive elements within the sequence.
+        !  integer inc, the increment between the locations, in
+        !  array r, of two consecutive elements within the sequence.
         !
-        !  Input/real R(LENR), on input, contains the sequence
+        !  input/real r(lenr), on input, contains the sequence
         !  to be transformed, and on output, the transformed sequence.
         !
-        !  integer LENR, the dimension of the R array.
-        !  LENR must be at least INC*(N-1)+ 1.
+        !  integer lenr, the dimension of the r array.
+        !  lenr must be at least inc*(n-1)+ 1.
         !
-        !  Input, real (wp) wsave(LENSAV).  wsave's contents must be
-        !  initialized with a call to SINT1I before the first call to routine SINT1F
-        !  or SINT1B for a given transform length N.  wsave's contents may be re-used
-        !  for subsequent calls to SINT1F and SINT1B with the same N.
+        !  input, real (wp) wsave(lensav).  wsave's contents must be
+        !  initialized with a call to sint1i before the first call to routine sint1f
+        !  or sint1b for a given transform length n.  wsave's contents may be re-used
+        !  for subsequent calls to sint1f and sint1b with the same n.
         !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least N/2 + N + INT(LOG(REAL(N))) + 4.
+        !  integer lensav, the dimension of the wsave array.
+        !  lensav must be at least n/2 + n + int(log(real(n))) + 4.
         !
-        !  Workspace, real (wp) WORK(LENWRK).
+        !  workspace, real (wp) work(lenwrk).
         !
-        !  integer LENWRK, the dimension of the WORK array.
-        !  LENWRK must be at least 2*N+2.
+        !  integer lenwrk, the dimension of the work array.
+        !  lenwrk must be at least 2*n+2.
         !
-        !  integer IER, error_flag.
+        !  integer ier, error_flag.
         !  0, successful exit;
-        !  1, input parameter LENR not big enough;
-        !  2, input parameter LENSAV not big enough;
-        !  3, input parameter LENWRK not big enough;
+        !  1, input parameter lenr not big enough;
+        !  2, input parameter lensav not big enough;
+        !  3, input parameter lenwrk not big enough;
         !  20, input error returned by lower level routine.
         !
-
         integer (ip) inc
         integer (ip) lensav
         integer (ip) lenwrk
-
         integer (ip) ier
         integer (ip) local_error_flag
         integer (ip) lenx

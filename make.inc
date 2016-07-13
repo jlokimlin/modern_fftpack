@@ -23,21 +23,4 @@ MOD_DIRECTORY = $(LIB_DIRECTORY)
 
 FC = gfortran-6
 
-FFLAGS = \
-$(ERROR_WARNING_OPTIONS)
-$(ENFORCE_64_BIT_PRECISION) \
-$(LANGUAGE_OPTIONS)\
-
-
-ENFORCE_64_BIT_PRECISION = \
--fdefault-real-8 \
--fdefault-double-8
-
-LANGUAGE_OPTIONS = \
--fimplicit-none
-
-ERROR_WARNING_OPTIONS = \
--Wall
-
-CODE_GENERATION_OPTIONS = \
--fcheck=all
+FFLAGS = -O3 -fimplicit-none -Wall
