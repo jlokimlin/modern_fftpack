@@ -7,12 +7,6 @@ LINKS = \
 
 EXECUTABLE = ./build_lib.exe
 
-type_FFTpack.o: \
-fftpack_library.o \
-type_FFTpack.f90
-	$(FC) $(FFLAGS) -c type_FFTpack.f90 $(LINKS) \
-	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
-
 fftpack_precision.o: \
 fftpack_precision.f90
 	$(FC) $(FFLAGS) -c fftpack_precision.f90 $(LINKS) \
@@ -156,7 +150,7 @@ quarter_sine_transform_routines.f90
 	$(FC) $(FFLAGS) -c quarter_sine_transform_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
-fftpack_library.o: \
+type_FFTpack.o: \
 auxiliary_routines.o \
 complex_transform_routines.o \
 real_transform_routines.o \
@@ -164,6 +158,12 @@ cosine_transform_routines.o \
 sine_transform_routines.o \
 quarter_cosine_transform_routines.o \
 quarter_sine_transform_routines.o \
+type_FFTpack.f90
+	$(FC) $(FFLAGS) -c type_FFTpack.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+fftpack_library.o: \
+type_FFTpack.o \
 fftpack_library.f90
 	$(FC) $(FFLAGS) -c fftpack_library.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
