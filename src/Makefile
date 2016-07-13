@@ -8,7 +8,7 @@ LINKS = \
 EXECUTABLE = ./build_lib.exe
 
 type_FFTpack.o: \
-fftpack_routines.o \
+fftpack_library.o \
 type_FFTpack.f90
 	$(FC) $(FFLAGS) -c type_FFTpack.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
@@ -127,16 +127,49 @@ real_backward_2d.f90
 	$(FC) $(FFLAGS) -c real_backward_2d.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
-fftpack_routines.o: \
+cosine_transform_routines.o: \
+auxiliary_routines.o \
+real_transform_routines.o \
+cosine_transform_routines.f90
+	$(FC) $(FFLAGS) -c cosine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+sine_transform_routines.o: \
+auxiliary_routines.o \
+real_transform_routines.o \
+sine_transform_routines.f90
+	$(FC) $(FFLAGS) -c sine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+quarter_cosine_transform_routines.o: \
+auxiliary_routines.o \
+real_transform_routines.o \
+quarter_cosine_transform_routines.f90
+	$(FC) $(FFLAGS) -c quarter_cosine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+quarter_sine_transform_routines.o: \
+auxiliary_routines.o \
+real_transform_routines.o \
+quarter_cosine_transform_routines.o \
+quarter_sine_transform_routines.f90
+	$(FC) $(FFLAGS) -c quarter_sine_transform_routines.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+fftpack_library.o: \
 auxiliary_routines.o \
 complex_transform_routines.o \
 real_transform_routines.o \
-fftpack_routines.f90
-	$(FC) $(FFLAGS) -c fftpack_routines.f90 $(LINKS) \
+cosine_transform_routines.o \
+sine_transform_routines.o \
+quarter_cosine_transform_routines.o \
+quarter_sine_transform_routines.o \
+fftpack_library.f90
+	$(FC) $(FFLAGS) -c fftpack_library.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 main.o: \
-type_FFTpack.o \
+fftpack_library.o \
 main.f90
 	$(FC) $(FFLAGS) -c main.f90 $(LINKS) \
 	-o $(OBJ_DIRECTORY)/$@

@@ -1,29 +1,34 @@
 module type_FFTpack
 
-    use, intrinsic :: iso_fortran_env, only: &
-        stderr => ERROR_UNIT
-
     use fftpack_precision, only: &
         wp, & ! working precision
         ip ! integer precision
 
     use auxiliary_routines
 
-    use fftpack_routines
+    use fftpack_precision, only: &
+        wp, & ! working precision
+        ip ! integer precision
+
+    use complex_transform_routines
+
+    use real_transform_routines
+
+    use cosine_transform_routines
+
+    use sine_transform_routines
+
+    use quarter_cosine_transform_routines
+
+    use quarter_sine_transform_routines
 
     ! Explicit typing only
     implicit none
 
     ! Everything is private unless stated otherwise
     private
-    public :: print_text
     public :: FFTpack
-    public :: cfft1i, cfft1b, cfft1f, cfft2i, cfft2b, cfft2f, cfftmi, cfftmb, cfftmf
-    public :: rfft1i, rfft1b, rfft1f, rfft2i, rfft2b, rfft2f, rfftmi, rfftmb, rfftmf
-    public :: cost1i, cost1b, cost1f, costmi, costmb, costmf
-    public :: sint1i, sint1b, sint1f, sintmi, sintmb, sintmf
-    public :: cosq1i, cosq1b, cosq1f, cosqmi, cosqmb, cosqmf
-    public :: sinq1i, sinq1b, sinq1f, sinqmi, sinqmb, sinqmf
+
 
     ! Declare derived data type
     type, public :: FFTpack
@@ -147,13 +152,6 @@ module type_FFTpack
         module procedure fftpack_1d_constructor
     end interface
 
-
-    interface
-        module subroutine print_text(text)
-            ! Dummy argument
-            character(len=*), intent(in) :: text
-        end subroutine print_text
-    end interface
 
     !---------------------------------------------------------------------------------
     ! Variables confined to the module
