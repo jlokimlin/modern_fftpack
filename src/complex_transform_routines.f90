@@ -13,11 +13,8 @@ module complex_transform_routines
     private
     public :: cfft1i, cfft1b, cfft1f, cfft2i, cfft2b, cfft2f, cfftmi, cfftmb, cfftmf
 
-    !
-    !==> complex_transform_routines
-    !
     interface
-            !
+        !
         !==> 1D complex initialization
         !
         module subroutine cfft1i(n, wsave, lensav, ierror)
