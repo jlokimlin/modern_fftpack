@@ -36,10 +36,10 @@ complex_transform_routines.f90
 	$(FC) $(FFLAGS) -c complex_transform_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
-initialize_complex_routines.o: \
+complex_initialization_routines.o: \
 complex_transform_routines.o \
-initialize_complex_routines.f90
-	$(FC) $(FFLAGS) -c initialize_complex_routines.f90 $(LINKS) \
+complex_initialization_routines.f90
+	$(FC) $(FFLAGS) -c complex_initialization_routines.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
 complex_backward_1d.o: \

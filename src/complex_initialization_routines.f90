@@ -1,4 +1,4 @@
-submodule (complex_transform_routines) initialize_complex_routines
+submodule (complex_transform_routines) complex_initialization_routines
 
 contains
 
@@ -379,4 +379,4 @@ contains
 
 
 
-end submodule initialize_complex_routines
+end submodule complex_initialization_routines
