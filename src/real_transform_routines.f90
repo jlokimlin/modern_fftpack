@@ -18,6 +18,47 @@ module real_transform_routines
 
     interface
         !
+        !==> 1D real initialization
+        !
+        module subroutine rfft1i(n, wsave, lensav, ierror)
+            !
+            !  rfft1i: initialization for rfft1b and rfft1f.
+            !
+            !  purpose:
+            !
+            !  rfft1i initializes array wsave for use in its companion routines
+            !  rfft1b and rfft1f.  the prime factorization of n together with a
+            !  tabulation of the trigonometric functions are computed and stored
+            !  in array wsave.  separate wsave arrays are required for different
+            !  values of n.
+            !
+            !  parameters:
+            !
+            !  integer n, the length of the sequence to be
+            !  transformed.  the transform is most efficient when n is a product of
+            !  small primes.
+            !
+            !  real wsave(lensav), containing the prime factors of
+            !  n and also containing certain trigonometric values which will be used in
+            !  routines rfft1b or rfft1f.
+            !
+            !  integer lensav, the dimension of the wsave array.
+            !  lensav must be at least n + int(log(real(n))) + 4.
+            !
+            !  integer ierror, error_flag.
+            !  0, successful exit;
+            !  2, input parameter lensav not big enough.
+            !
+            !--------------------------------------------------------------
+            ! Dummy arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in)  :: n
+            real (wp),    intent (out) :: wsave(lensav)
+            integer (ip), intent (in)  :: lensav
+            integer (ip), intent (out) :: ierror
+            !--------------------------------------------------------------
+        end subroutine rfft1i
+        !
         !==> 1D real backward
         !
         module subroutine rfft1b(n, inc, r, lenr, wsave, lensav, work, lenwrk, ierror)
@@ -142,7 +183,96 @@ module real_transform_routines
             integer (ip), intent (out)    :: ierror
             !--------------------------------------------------------------
         end subroutine rfft1f
-
+        !
+        !==> 2D real initialization
+        !
+        module subroutine rfft2i(l, m, wsave, lensav, ierror)
+            !
+            ! rfft2i: initialization for rfft2b and rfft2f.
+            !
+            !  purpose:
+            !  rfft2i initializes real array wsave for use in its companion routines
+            !  rfft2f and rfft2b for computing the two-dimensional fast fourier
+            !  transform of real data.  prime factorizations of l and m, together with
+            !  tabulations of the trigonometric functions, are computed and stored in
+            !  array wsave.  rfft2i must be called prior to the first call to rfft2f
+            !  or rfft2b.  separate wsave arrays are required for different values of
+            !  l or m.
+            !
+            !
+            !  integer l, the number of elements to be transformed
+            !  in the first dimension.  the transform is most efficient when l is a
+            !  product of small primes.
+            !
+            !  integer m, the number of elements to be transformed
+            !  in the second dimension.  the transform is most efficient when m is a
+            !  product of small primes.
+            !
+            !  integer lensav, the number of elements in the wsave
+            !  array.  lensav must be at least l + m + int(log(real(l)))
+            !  + int(log(real(m))) + 8.
+            !
+            !  real wsave(lensav), containing the prime factors
+            !  of l and m, and also containing certain trigonometric values which
+            !  will be used in routines rfft2b or rfft2f.
+            !
+            !  integer ier, error_flag.
+            !  0, successful exit;
+            !  2, input parameter lensav not big enough;
+            !  20, input error returned by lower level routine.
+            !
+            !--------------------------------------------------------------
+            ! Dummy arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in)  :: l
+            integer (ip), intent (in)  :: m
+            real (wp),    intent (out) :: wsave(lensav)
+            integer (ip), intent (in)  :: lensav
+            integer (ip), intent (out) :: ierror
+            !--------------------------------------------------------------
+        end subroutine rfft2i
+        !
+        !==> multiple real initialization
+        !
+        module subroutine rfftmi(n, wsave, lensav, ierror)
+            !
+            ! rfftmi: initialization for rfftmb and rfftmf.
+            !
+            !  purpose:
+            !
+            !  rfftmi initializes array wsave for use in its companion routines
+            !  rfftmb and rfftmf.  the prime factorization of n together with a
+            !  tabulation of the trigonometric functions are computed and stored
+            !  in array wsave.  separate wsave arrays are required for different
+            !  values of n.
+            !
+            !  input
+            !
+            !  integer n, the length of each sequence to be
+            !  transformed.  the transform is most efficient when n is a product of
+            !  small primes.
+            !
+            !  integer lensav, the dimension of the wsave array.
+            !  lensav must be at least n + int(log(real(n))) + 4.
+            !
+            !  output
+            !  real wsave(lensav), work array containing the prime
+            !  factors of n and also containing certain trigonometric
+            !  values which will be used in routines rfftmb or rfftmf.
+            !
+            !  integer ierror, error_flag.
+            !  0, successful exit;
+            !  2, input parameter lensav not big enough.
+            !
+            !--------------------------------------------------------------
+            ! Dummy arguments
+            !--------------------------------------------------------------
+            integer (ip), intent (in)  :: n
+            integer (ip), intent (in)  :: lensav
+            real (wp),    intent (out) :: wsave(lensav)
+            integer (ip), intent (out) :: ierror
+            !--------------------------------------------------------------
+        end subroutine rfftmi
     end interface
 
     !---------------------------------------------------------------------------------
@@ -1918,170 +2048,6 @@ contains
     end subroutine mrftf1
 
 
-    subroutine mrfti1(n,wa,fac)
-        !
-        !  input
-        !  n, the number for which factorization and
-        !  other information is needed.
-        !
-        !  output
-        !   wa(n), trigonometric information.
-        !
-        !  output
-        !  fac(15), factorization information. fac(1) is
-        !  n, fac(2) is nf, the number of factors, and fac(3:nf+2) are the factors.
-        !
-        !--------------------------------------------------------------
-        ! Dummy arguments
-        !--------------------------------------------------------------
-        integer (ip), intent (in)  :: n
-        real (wp),    intent (out) :: wa(n)
-        real (wp),    intent (out) :: fac(15)
-        !--------------------------------------------------------------
-        ! Local variables
-        !--------------------------------------------------------------
-        integer (ip)            :: i, ib, ido, ii, iip, ipm, is
-        integer (ip)            :: j, k1, l1, l2, ld
-        integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
-        integer (ip), parameter :: ntryh(*) = [ 4, 2, 3, 5 ]
-        real (wp),    parameter :: TWO_PI = TWO * acos(-ONE)
-        real (wp)               :: arg, argh, argld, fi
-        !--------------------------------------------------------------
-
-        ntry = 0
-        nl = n
-        nf = 0
-        j = 0
-
-        factorize_loop: do
-            ! Increment j
-            j = j+1
-
-            ! Choose ntry
-            if (j <= 4) then
-                ntry = ntryh(j)
-            else
-                ntry = ntry+2
-            end if
-
-            inner_loop: do
-                nq = nl/ntry
-                nr = nl-ntry*nq
-                if (nr < 0) then
-                    cycle factorize_loop
-                else if (nr == 0) then
-                    nf = nf+1
-                    fac(nf+2) = ntry
-                    nl = nq
-
-                    if (ntry == 2 .and. nf /= 1) then
-
-                        do i=2,nf
-                            ib = nf-i+2
-                            fac(ib+2) = fac(ib+1)
-                        end do
-
-                        fac(3) = 2
-
-                    end if
-
-                    if (nl /= 1) then
-                        cycle inner_loop
-                    end if
-                else
-                    cycle factorize_loop
-                end if
-                exit inner_loop
-            end do inner_loop
-            exit factorize_loop
-        end do factorize_loop
-
-        fac(1) = n
-        fac(2) = nf
-        argh = TWO_PI/n
-        is = 0
-        nfm1 = nf-1
-        l1 = 1
-
-        do k1=1,nfm1
-            iip = int(fac(k1+2), kind=ip)
-            ld = 0
-            l2 = l1*iip
-            ido = n/l2
-            ipm = iip-1
-
-            do j=1,ipm
-
-                ld = ld+l1
-                i = is
-                argld = real(ld, kind=wp) * argh
-                fi = ZERO
-                do ii=3,ido,2
-                    i = i+2
-                    fi = fi + ONE
-                    arg = fi*argld
-                    wa(i-1) = cos(arg)
-                    wa(i) = sin(arg)
-                end do
-                is = is+ido
-
-            end do
-            l1 = l2
-        end do
-
-    end subroutine mrfti1
-
-
-    subroutine rfft1i(n, wsave, lensav, ier)
-        !
-        !! RFFT1I: initialization for RFFT1B and RFFT1F.
-        !
-        !  Purpose:
-        !
-        !  RFFT1I initializes array wsave for use in its companion routines
-        !  RFFT1B and RFFT1F.  The prime factorization of N together with a
-        !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  Separate wsave arrays are required for different
-        !  values of N.
-        !
-        !  Parameters:
-        !
-        !  integer N, the length of the sequence to be
-        !  transformed.  The transform is most efficient when N is a product of
-        !  small primes.
-        !
-        !  real wsave(LENSAV), containing the prime factors of
-        !  N and also containing certain trigonometric values which will be used in
-        !  routines RFFT1B or RFFT1F.
-        !
-        !  integer LENSAV, the dimension of the wsave array.
-        !  LENSAV must be at least N + INT(LOG(REAL(N))) + 4.
-        !
-        !  integer IER, error_flag.
-        !  0, successful exit;
-        !  2, input parameter LENSAV not big enough.
-        !
-
-
-        integer (ip) lensav
-
-        integer (ip) ier
-        integer (ip) n
-        real (wp) wsave(lensav)
-
-        ier = 0
-
-        if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
-            ier = 2
-            call fft_error_handler('rfft1i ', 3)
-        end if
-
-        if (n /= 1) then
-            call rffti1(n,wsave(1),wsave(n+1))
-        end if
-
-    end subroutine rfft1i
-
 
     subroutine rfft2b ( ldim, l, m, r, wsave, lensav, work, lenwrk, ier)
         !
@@ -2455,213 +2421,6 @@ contains
     end subroutine rfft2f
 
 
-
-    subroutine rfft2i(l, m, wsave, lensav, ier)
-        ! RFFT2I: initialization for RFFT2B and RFFT2F.
-        !
-        !  Purpose:
-        !  RFFT2I initializes real array wsave for use in its companion routines
-        !  RFFT2F and RFFT2B for computing the two-dimensional fast Fourier
-        !  transform of real data.  Prime factorizations of L and M, together with
-        !  tabulations of the trigonometric functions, are computed and stored in
-        !  array wsave.  RFFT2I must be called prior to the first call to RFFT2F
-        !  or RFFT2B.  Separate wsave arrays are required for different values of
-        !  L or M.
-        !
-        !
-        !  integer L, the number of elements to be transformed
-        !  in the first dimension.  The transform is most efficient when L is a
-        !  product of small primes.
-        !
-        !  integer M, the number of elements to be transformed
-        !  in the second dimension.  The transform is most efficient when M is a
-        !  product of small primes.
-        !
-        !  integer LENSAV, the number of elements in the wsave
-        !  array.  LENSAV must be at least L + M + INT(LOG(REAL(L)))
-        !  + INT(LOG(REAL(M))) + 8.
-        !
-        !  real wsave(LENSAV), containing the prime factors
-        !  of L and M, and also containing certain trigonometric values which
-        !  will be used in routines RFFT2B or RFFT2F.
-        !
-        !  integer IER, error_flag.
-        !  0, successful exit;
-        !  2, input parameter LENSAV not big enough;
-        !  20, input error returned by lower level routine.
-        !
-
-
-        integer (ip) lensav
-
-        integer (ip) ier
-        integer (ip) local_error_flag
-        integer (ip) l
-        integer (ip) lwsav
-        integer (ip) m
-        integer (ip) mmsav
-        integer (ip) mwsav
-        real (wp) wsave(lensav)
-        !
-        ! initialize ier
-        !
-        ier = 0
-        !
-        ! verify lensav
-        !
-        lwsav = l+int(log(real(l, kind=wp) )/log(TWO))+4
-        mwsav = 2*m+int(log(real(m, kind=wp) )/log(TWO))+4
-        mmsav = m+int(log(real(m, kind=wp) )/log(TWO))+4
-
-        if (lensav < lwsav+mwsav+mmsav) then
-            ier = 2
-            call fft_error_handler('rfft2i', 4)
-            return
-        end if
-
-        call rfftmi(l, wsave(1), lwsav, local_error_flag)
-
-        if (local_error_flag /= 0) then
-            ier = 20
-            call fft_error_handler('rfft2i',-5)
-            return
-        end if
-
-        call cfftmi(m, wsave(lwsav+1),mwsav,local_error_flag)
-
-        if (local_error_flag /= 0) then
-            ier = 20
-            call fft_error_handler('rfft2i',-5)
-            return
-        end if
-
-        call rfftmi(m,wsave(lwsav+mwsav+1),mmsav, local_error_flag)
-
-        if (local_error_flag /= 0) then
-            ier = 20
-            call fft_error_handler('rfft2i',-5)
-            return
-        end if
-
-    end subroutine rfft2i
-
-
-    subroutine rffti1(n, wa, fac)
-        !
-        !  Parameters:
-        !
-        !  input
-        !
-        ! n, the number for which factorization
-        !  and other information is needed.
-        !
-        !  output
-        ! wa(n), trigonometric information.
-        !
-        !  output
-        !
-        !  fac(15), factorization information.
-        !  fac(1) is n, fac(2) is nf, the number of factors, and fac(3:nf+2) are the
-        !  factors.
-        !
-        !--------------------------------------------------------------
-        ! Dummy arguments
-        !--------------------------------------------------------------
-        integer (ip), intent (in)  :: n
-        real (wp),    intent (out) :: fac(15)
-        real (wp),    intent (out) :: wa(n)
-        !--------------------------------------------------------------
-        ! Local variables
-        !--------------------------------------------------------------
-        integer (ip)            :: i, ib, ido, ii, iip, ipm, is
-        integer (ip)            :: j, k1, l1, l2, ld
-        integer (ip)            :: nf, nfm1, nl, nq, nr, ntry
-        integer (ip), parameter :: ntryh(*)=[ 4, 2, 3, 5]
-        real (wp),    parameter :: TWO_PI = TWO * acos(-ONE)
-        real (wp)               :: arg,  argh, argld, fi
-        !--------------------------------------------------------------
-
-        ntry = 0
-        nl = n
-        nf = 0
-        j = 0
-
-        factorize_loop: do
-            ! Increment j
-            j = j+1
-
-            ! Choose ntry
-            if (j <= 4) then
-                ntry = ntryh(j)
-            else
-                ntry = ntry+2
-            end if
-
-            inner_loop: do
-                nq = nl/ntry
-                nr = nl-ntry*nq
-                if (nr < 0) then
-                    cycle factorize_loop
-                else if (nr == 0) then
-                    nf = nf+1
-                    fac(nf+2) = ntry
-                    nl = nq
-
-                    if (ntry == 2 .and. nf /= 1) then
-                        do i=2,nf
-                            ib = nf-i+2
-                            fac(ib+2) = fac(ib+1)
-                        end do
-                        fac(3) = 2
-                    end if
-
-                    if (nl /= 1) then
-                        cycle inner_loop
-                    end if
-                else
-                    cycle factorize_loop
-                end if
-                exit inner_loop
-            end do inner_loop
-            exit factorize_loop
-        end do factorize_loop
-
-        fac(1) = n
-        fac(2) = nf
-        argh = TWO_PI/n
-        is = 0
-        nfm1 = nf-1
-        l1 = 1
-
-        if (nfm1 /= 0) then
-            do k1=1,nfm1
-                iip = int(fac(k1+2), kind=ip)
-                ld = 0
-                l2 = l1*iip
-                ido = n/l2
-                ipm = iip-1
-                do j=1,ipm
-                    ld = ld+l1
-                    i = is
-                    argld = real(ld, kind=wp) * argh
-                    fi = ZERO
-                    do ii=3,ido,2
-                        i = i+2
-                        fi = fi + ONE
-                        arg = fi*argld
-                        wa(i-1) = cos(arg)
-                        wa(i) = sin(arg)
-                    end do
-                    is = is+ido
-                end do
-                l1 = l2
-            end do
-        end if
-
-    end subroutine rffti1
-
-
-
     subroutine rfftmb(lot, jump, n, inc, r, lenr, wsave, &
         lensav, work, lenwrk, ier)
         !
@@ -2873,63 +2632,6 @@ contains
 
     end subroutine rfftmf
 
-
-
-    subroutine rfftmi(n, wsave, lensav, ier)
-        !
-        ! rfftmi: initialization for rfftmb and rfftmf.
-        !
-        !  Purpose:
-        !
-        !  rfftmi initializes array wsave for use in its companion routines
-        !  rfftmb and rfftmf.  the prime factorization of n together with a
-        !  tabulation of the trigonometric functions are computed and stored
-        !  in array wsave.  separate wsave arrays are required for different
-        !  values of n.
-        !
-        !  INPUT
-        !
-        !  integer n, the length of each sequence to be
-        !  transformed.  the transform is most efficient when n is a product of
-        !  small primes.
-        !
-        !  integer lensav, the dimension of the wsave array.
-        !  lensav must be at least n + int(log(real(n))) + 4.
-        !
-        !  OUTPUT
-        !  real wsave(lensav), work array containing the prime
-        !  factors of n and also containing certain trigonometric
-        !  values which will be used in routines rfftmb or rfftmf.
-        !
-        !  integer ier, error_flag.
-        !  0, successful exit;
-        !  2, input parameter lensav not big enough.
-        !
-
-
-        integer (ip) lensav
-
-        integer (ip) ier
-        integer (ip) n
-        real (wp) wsave(lensav)
-
-        !
-        !==> Check validity of input arguments
-        !
-        if (lensav < n + int(log(real(n, kind=wp) )/log(TWO)) +4) then
-            ier = 2
-            call fft_error_handler('rfftmi ', 3)
-            return
-        else
-            ier = 0
-        end if
-
-        !
-        !==> Perform transform
-        !
-        if (n /= 1) call mrfti1(n,wsave(1),wsave(n+1))
-
-    end subroutine rfftmi
 
 
 
