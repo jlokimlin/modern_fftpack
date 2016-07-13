@@ -103,6 +103,30 @@ real_forward_1d.f90
 	$(FC) $(FFLAGS) -c real_forward_1d.f90 $(LINKS) \
 	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
 
+multiple_real_forward.o: \
+real_transform_routines.o \
+multiple_real_forward.f90
+	$(FC) $(FFLAGS) -c multiple_real_forward.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+real_forward_2d.o: \
+multiple_real_forward.o \
+real_forward_2d.f90
+	$(FC) $(FFLAGS) -c real_forward_2d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+multiple_real_backward.o: \
+real_transform_routines.o \
+multiple_real_backward.f90
+	$(FC) $(FFLAGS) -c multiple_real_backward.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
+real_backward_2d.o: \
+multiple_real_backward.o \
+real_backward_2d.f90
+	$(FC) $(FFLAGS) -c real_backward_2d.f90 $(LINKS) \
+	 -o $(OBJ_DIRECTORY)/$@ -J$(LIB_DIRECTORY)
+
 fftpack_routines.o: \
 auxiliary_routines.o \
 complex_transform_routines.o \
