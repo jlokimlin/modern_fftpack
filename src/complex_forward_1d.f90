@@ -3,8 +3,9 @@ submodule (complex_transform_routines) complex_forward_1d
 contains
 
     module subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+        use, intrinsic :: ISO_C_binding, only: c_f_pointer, c_loc
         !
-        ! cfft1f: complex 64-bit precision forward fast fourier transform, 1d.
+        ! cfft1f: complex forward fast fourier transform, 1d.
         !
         !  purpose:
         !
@@ -55,26 +56,69 @@ contains
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
-        integer (ip), intent (in)     :: n
-        integer (ip), intent (in)     :: inc
-        complex (wp), intent (in out) :: c(lenc)
-        integer (ip), intent (in)     :: lenc
-        real (wp),    intent (in)     :: wsave(lensav)
-        integer (ip), intent (in)     :: lensav
-        real (wp),    intent (out)    :: work(lenwrk)
-        integer (ip), intent (in)     :: lenwrk
-        integer (ip), intent (out)    :: ier
+        integer (ip), intent (in)             :: n
+        integer (ip), intent (in)             :: inc
+        complex (wp), intent (in out), target :: c(lenc)
+        integer (ip), intent (in)             :: lenc
+        real (wp),    intent (in)             :: wsave(lensav)
+        integer (ip), intent (in)             :: lensav
+        real (wp),    intent (out)            :: work(lenwrk)
+        integer (ip), intent (in)             :: lenwrk
+        integer (ip), intent (out)            :: ier
         !------------------------------------------------------------------
         ! Local variables
         !------------------------------------------------------------------
-        real (wp), allocatable :: real_copy(:,:)
-        integer (ip)           :: iw1
+        real (wp), pointer :: real_arg(:) => null()
+        integer (ip)       :: iw1, iw2
         !------------------------------------------------------------------
 
         !
         !==> Check validity of input arguments
         !
-        if (lenc < inc*(n-1) + 1) then
+        call check_calling_arguments(n, inc, c, wsave, work, ier)
+
+        !
+        !==> Perform transform
+        !
+        if (n == 1) return
+
+        !
+        !==> Perform a C-language style cast without copying
+        !
+        call c_f_pointer(c_loc(c), real_arg, shape=[2*size(c)])
+
+        ! Set workspace index pointer
+        iw1 = (2 * n) + 1
+        iw2 = iw1 + 1
+
+        call c1fm1f(n, inc, real_arg, work, wsave, wsave(iw1), wsave(iw2:))
+
+        !
+        !==> Terminate association
+        !
+        nullify( real_arg )
+
+
+    end subroutine cfft1f
+
+
+
+    subroutine check_calling_arguments(n, inc, c, wsave, work, ier)
+        !------------------------------------------------------------------
+        ! Dummy arguments
+        !------------------------------------------------------------------
+        integer (ip), intent (in)     :: n
+        integer (ip), intent (in)     :: inc
+        complex (wp), intent (in out) :: c(:)
+        real (wp),    intent (in)     :: wsave(:)
+        real (wp),    intent (out)    :: work(:)
+        integer (ip), intent (out)    :: ier
+        !------------------------------------------------------------------
+
+        !
+        !==> Check validity of input arguments
+        !
+        if (size(c) < inc*(n-1) + 1) then
             ier = 1
             call fft_error_handler('cfft1f ', 4)
         else if (size(wsave) < get_complex_1d_saved_workspace_length(n)) then
@@ -87,35 +131,7 @@ contains
             ier = 0
         end if
 
-        !
-        !==> Perform transform
-        !
-        if (n /= 1) then
-
-            !
-            !==> Allocate memory
-            !
-            allocate( real_copy(2,size(c)) )
-
-            ! Make copy
-            real_copy(1,:) = real(c)
-            real_copy(2,:) = aimag(c)
-
-            ! Set workspace index pointer
-            iw1 = 2 * n+1
-
-            call c1fm1f(n,inc,real_copy,work,wsave,wsave(iw1),wsave(iw1+1:))
-
-            ! Make copy
-            c =  cmplx(real_copy(1,:), real_copy(2,:), kind=wp)
-
-            !
-            !==> Release memory
-            !
-            deallocate( real_copy )
-        end if
-
-    end subroutine cfft1f
+    end subroutine check_calling_arguments
 
 
 
@@ -125,9 +141,9 @@ contains
         !----------------------------------------------------------
         integer (ip), intent (in)     :: n
         integer (ip), intent (in)     :: inc
-        real (wp),    intent (in out) :: c(:,:)
+        real (wp),    intent (in out) :: c(:)
         real (wp),    intent (out)    :: ch(:)
-        real (wp),    intent (in)     :: wa(*)
+        real (wp),    intent (in)     :: wa(:)
         real (wp),    intent (in)     :: fnf
         real (wp),    intent (in)     :: fac(:)
         !----------------------------------------------------------
@@ -145,42 +161,45 @@ contains
         iw = 1
 
         do k1=1,nf
+
             iip = int(fac(k1), kind=ip)
             l2 = iip*l1
             ido = n/l2
             lid = l1*ido
             nbr = 1+na+2*min(iip-2,4)
+
             select case (nbr)
                 case (1)
-                    call c1f2kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    call c1f2kf(ido,l1,na,c,inc2,ch,2,wa(iw:))
                 case (2)
-                    call c1f2kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    call c1f2kf(ido,l1,na,ch,2,c,inc2,wa(iw:))
                 case (3)
-                    call c1f3kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    call c1f3kf(ido,l1,na,c,inc2,ch,2,wa(iw:))
                 case (4)
-                    call c1f3kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    call c1f3kf(ido,l1,na,ch,2,c,inc2,wa(iw:))
                 case (5)
-                    call c1f4kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    call c1f4kf(ido,l1,na,c,inc2,ch,2,wa(iw:))
                 case (6)
-                    call c1f4kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    call c1f4kf(ido,l1,na,ch,2,c,inc2,wa(iw:))
                 case (7)
-                    call c1f5kf(ido,l1,na,c,inc2,ch,2,wa(iw))
+                    call c1f5kf(ido,l1,na,c,inc2,ch,2,wa(iw:))
                 case (8)
-                    call c1f5kf(ido,l1,na,ch,2,c,inc2,wa(iw))
+                    call c1f5kf(ido,l1,na,ch,2,c,inc2,wa(iw:))
                 case (9)
-                    call c1fgkf(ido,iip,l1,lid,na,c,c,inc2,ch,ch,2,wa(iw))
+                    call c1fgkf(ido,iip,l1,lid,na,c,c,inc2,ch,ch,2,wa(iw:))
                 case (10)
-                    call c1fgkf(ido,iip,l1,lid,na,ch,ch,2,c,c,inc2,wa(iw))
+                    call c1fgkf(ido,iip,l1,lid,na,ch,ch,2,c,c,inc2,wa(iw:))
             end select
 
             l1 = l2
             iw = iw+(iip-1)*(2*ido)
-            if (iip <= 5) then
-                na = 1-na
-            end if
+
+            if (iip <= 5) na = 1-na
+
         end do
 
     end subroutine c1fm1f
+
 
 
     subroutine c1f2kf(ido, l1, na, cc, in1, ch, in2, wa)
