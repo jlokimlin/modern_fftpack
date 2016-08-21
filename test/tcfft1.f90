@@ -31,9 +31,11 @@
 !
 program tcfft1
 
-    use, intrinsic :: iso_fortran_env, only: &
-        wp => REAL64, &
-        ip => INT32, &
+    use, intrinsic :: ISO_C_binding, only: &
+        wp => C_DOUBLE, &
+        ip => C_INT
+
+    use, intrinsic :: ISO_Fortran_env, only: &
         stdout => OUTPUT_UNIT, &
         stderr => ERROR_UNIT
 

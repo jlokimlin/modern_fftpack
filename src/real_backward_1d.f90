@@ -80,13 +80,13 @@ contains
         !
         !==> Perform transform
         !
-        if (n /= 1) call rfftb1(n,inc,r,work,wsave,wsave(n+1))
+        if (n /= 1) call real_pass_backward(n,inc,r,work,wsave,wsave(n+1))
 
     end subroutine rfft1b
 
 
 
-    subroutine rfftb1(n, in, c, ch, wa, fac)
+    subroutine real_pass_backward(n, in, c, ch, wa, fac)
         !-------------------------------------------------------------
         ! Dummy arguments
         !-------------------------------------------------------------
@@ -160,18 +160,18 @@ contains
                     case (2)
                         select case (na)
                             case (0)
-                                call r1f2kb(ido,l1,c,in,ch,1,wa(iw1))
+                                call real_pass_2_backward(ido,l1,c,in,ch,1,wa(iw1))
                             case default
-                                call r1f2kb(ido,l1,ch,1,c,in,wa(iw1))
+                                call real_pass_2_backward(ido,l1,ch,1,c,in,wa(iw1))
                         end select
                         na = 1-na
                     case (3)
                         iw2 = iw1+ido
                         select case (na)
                             case (0)
-                                call r1f3kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
+                                call real_pass_3_backward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
                             case default
-                                call r1f3kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
+                                call real_pass_3_backward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
                         end select
                         na = 1-na
                     case (4)
@@ -179,9 +179,9 @@ contains
                         iw3 = iw2+ido
                         select case (na)
                             case (0)
-                                call r1f4kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
+                                call real_pass_4_backward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
                             case default
-                                call r1f4kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
+                                call real_pass_4_backward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
                         end select
                         na = 1-na
                     case (5)
@@ -190,17 +190,17 @@ contains
                         iw4 = iw3+ido
                         select case (na)
                             case (0)
-                                call r1f5kb(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                call real_pass_5_backward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
                             case default
-                                call r1f5kb(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                call real_pass_5_backward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
                         end select
                         na = 1-na
                     case default
                         select case (na)
                             case (0)
-                                call r1fgkb(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
+                                call real_pass_n_backward(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
                             case default
-                                call r1fgkb(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
+                                call real_pass_n_backward(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
                         end select
                         if (ido == 1) then
                             na = 1-na
@@ -211,10 +211,10 @@ contains
             end do
         end associate
 
-    end subroutine rfftb1
+    end subroutine real_pass_backward
 
 
-    subroutine r1f2kb(ido,l1,cc,in1,ch,in2,wa1)
+    subroutine real_pass_2_backward(ido,l1,cc,in1,ch,in2,wa1)
         !--------------------------------------------------------------
         ! Dummy arguments
         !--------------------------------------------------------------
@@ -261,10 +261,10 @@ contains
             end select
         end if
 
-    end subroutine r1f2kb
+    end subroutine real_pass_2_backward
 
 
-    subroutine r1f3kb(ido,l1,cc,in1,ch,in2,wa1,wa2)
+    subroutine real_pass_3_backward(ido,l1,cc,in1,ch,in2,wa1,wa2)
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
@@ -332,9 +332,11 @@ contains
                 end do
         end select
 
-    end subroutine r1f3kb
+    end subroutine real_pass_3_backward
 
-    subroutine r1f4kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
+
+
+    subroutine real_pass_4_backward(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
@@ -419,10 +421,11 @@ contains
             end select
         end if
 
-    end subroutine r1f4kb
+    end subroutine real_pass_4_backward
 
 
-    subroutine r1f5kb(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
+
+    subroutine real_pass_5_backward(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
         !--------------------------------------------------
         ! Dummy arguments
         !--------------------------------------------------
@@ -550,10 +553,11 @@ contains
                 end do
         end select
 
-    end subroutine r1f5kb
+    end subroutine real_pass_5_backward
 
 
-    subroutine r1fgkb(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
+
+    subroutine real_pass_n_backward(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
@@ -597,7 +601,7 @@ contains
         end do
 
         if (ido /= 1) then
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,ipph
                     jc = ipp2-j
                     ch(1,2:ido-1:2,:, j) = cc(1,2:ido-1:2, 2*j-1,:) + cc(1,idp2-4: &
@@ -660,7 +664,7 @@ contains
         end do
 
         if (ido /= 1) then
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,ipph
                     jc = ipp2-j
                     ch(1,2:ido-1:2,:, j) = c1(1,2:ido-1:2,:, j) - c1(1,3:ido:2,:, jc)
@@ -687,7 +691,7 @@ contains
                 c2(1,:,1) = ch2(1,:,1)
                 c1(1,1,:,2:iip) = ch(1,1,:,2:iip)
 
-                if ( l1 >= nbd ) then
+                if (nbd <= l1) then
                     is = -ido
                     do j=2,iip
                         is = is+ido
@@ -719,7 +723,7 @@ contains
                 end if
         end select
 
-    end subroutine r1fgkb
+    end subroutine real_pass_n_backward
 
 
 

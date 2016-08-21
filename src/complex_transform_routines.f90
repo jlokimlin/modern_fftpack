@@ -61,7 +61,8 @@ module complex_transform_routines
         !
         !==> 1D complex backward
         !
-        module subroutine cfft1b(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+        module subroutine cfft1b(n, inc, c, lenc, wsave, lensav, work, lenwrk, ierror)
+
             use, intrinsic :: ISO_C_binding, only: c_f_pointer, c_loc
             !
             !  input
@@ -109,7 +110,7 @@ module complex_transform_routines
             integer (ip), intent (in)             :: lenc
             integer (ip), intent (in)             :: lensav
             integer (ip), intent (in)             :: lenwrk
-            integer (ip), intent (out)            :: ier
+            integer (ip), intent (out)            :: ierror
             real (wp),    intent (in out)         :: work(lenwrk)
             real (wp),    intent (in out)         :: wsave(lensav)
             !--------------------------------------------------------------
@@ -117,7 +118,7 @@ module complex_transform_routines
             !
             !==> 1D complex forward
             !
-        module subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+        module subroutine cfft1f(n, inc, c, lenc, wsave, lensav, work, lenwrk, ierror)
             use, intrinsic :: ISO_C_binding, only: c_f_pointer, c_loc
             !
             ! cfft1f: complex forward fast fourier transform, 1d.
@@ -179,7 +180,7 @@ module complex_transform_routines
             integer (ip), intent (in)             :: lensav
             real (wp),    intent (out)            :: work(lenwrk)
             integer (ip), intent (in)             :: lenwrk
-            integer (ip), intent (out)            :: ier
+            integer (ip), intent (out)            :: ierror
             !------------------------------------------------------------------
         end subroutine cfft1f
         !

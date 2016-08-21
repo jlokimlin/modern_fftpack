@@ -32,7 +32,7 @@
 !    .                         + int(log(real(m))/log(2.)) + 8)
 program tcfft2
 
-    use, intrinsic :: iso_fortran_env, only: &
+    use, intrinsic :: ISO_Fortran_env, only: &
         wp => REAL64, &
         ip => INT32, &
         stdout => OUTPUT_UNIT, &

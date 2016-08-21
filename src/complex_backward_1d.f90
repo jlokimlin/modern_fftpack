@@ -2,7 +2,8 @@ submodule (complex_transform_routines) complex_backward_1d
 
 contains
 
-    module subroutine cfft1b(n, inc, c, lenc, wsave, lensav, work, lenwrk, ier)
+    module subroutine cfft1b(n, inc, c, lenc, wsave, lensav, work, lenwrk, ierror)
+
         use, intrinsic :: ISO_C_binding, only: c_f_pointer, c_loc
         !
         !  input
@@ -34,7 +35,7 @@ contains
         !
         !  real workspace work(lenwrk).
         !
-        !  integer ier, error_flag.
+        !  integer ierror, error_flag.
         !  0, successful exit;
         !  1, input parameter lenc not big enough;
         !  2, input parameter lensav not big enough;
@@ -50,7 +51,7 @@ contains
         integer (ip), intent (in)             :: lenc
         integer (ip), intent (in)             :: lensav
         integer (ip), intent (in)             :: lenwrk
-        integer (ip), intent (out)            :: ier
+        integer (ip), intent (out)            :: ierror
         real (wp),    intent (in out)         :: work(lenwrk)
         real (wp),    intent (in out)         :: wsave(lensav)
         !--------------------------------------------------------------
@@ -60,38 +61,29 @@ contains
         integer (ip)       :: iw1, iw2
         !--------------------------------------------------------------
 
-        !
-        !==> Check validity of calling arguments
-        !
-        call check_calling_arguments(n, inc, c, wsave, work, ier)
+        ! Check validity of calling arguments
+        call check_calling_arguments(n, inc, c, wsave, work, ierror)
 
-        !
-        !==> Perform transform
-        !
+        ! Perform transform
         if (n == 1) return
 
-        !
-        !==> Perform a C-language style cast without copying
-        !
+        ! Perform a C-language style cast without copying
         call c_f_pointer(c_loc(c), real_arg, shape=[2*size(c)])
 
         ! Set workspace index pointer
         iw1 = (2 * n) + 1
         iw2 = iw1 + 1
 
-        call c1fm1b(n, inc, real_arg, work, wsave, wsave(iw1), wsave(iw2:))
+        call complex_pass_backward(n, inc, real_arg, work, wsave, wsave(iw1), wsave(iw2:))
 
-        !
-        !==> Terminate association
-        !
+        ! Terminate association
         nullify( real_arg )
-
 
     end subroutine cfft1b
 
 
 
-    subroutine check_calling_arguments(n, inc, c, wsave, work, ier)
+    subroutine check_calling_arguments(n, inc, c, wsave, work, ierror)
         !--------------------------------------------------------------
         ! Dummy arguments
         !--------------------------------------------------------------
@@ -100,30 +92,30 @@ contains
         complex (wp), intent (in)  :: c(:)
         real (wp),    intent (in)  :: work(:)
         real (wp),    intent (in)  :: wsave(:)
-        integer (ip), intent (out) :: ier
+        integer (ip), intent (out) :: ierror
         !--------------------------------------------------------------
 
         !
         !==> Check validity of calling arguments
         !
         if (size(c) < inc * (n - 1) + 1) then
-            ier = 1
+            ierror = 1
             call fft_error_handler('cfft1b ', 4)
         else if (size(wsave) < get_complex_1d_saved_workspace_length(n)) then
-            ier = 2
+            ierror = 2
             call fft_error_handler('cfft1b ', 6)
         else if (size(work) < get_complex_1d_workspace_length(n)) then
-            ier = 3
+            ierror = 3
             call fft_error_handler('cfft1b ', 8)
         else
-            ier = 0
+            ierror = 0
         end if
 
     end subroutine check_calling_arguments
 
 
 
-    subroutine c1fm1b(n, inc, c, ch, wa, fnf, fac)
+    subroutine complex_pass_backward(n, inc, c, ch, wa, fnf, fac)
         !----------------------------------------------------------------------
         ! Dummy arguments
         !----------------------------------------------------------------------
@@ -135,7 +127,7 @@ contains
         real (wp),    intent (in out) :: fnf
         real (wp),    intent (in out) :: fac(:)
         !----------------------------------------------------------------------
-        ! Dummy arguments
+        ! Local variables
         !----------------------------------------------------------------------
         integer (ip) :: ido, inc2, iip, iw
         integer (ip) :: k1, l1, l2, lid
@@ -158,25 +150,25 @@ contains
 
             select case (nbr)
                 case (1)
-                    call c1f2kb(ido, l1, na, c, inc2, ch, 2, wa(iw:))
+                    call complex_pass_2_backward(ido, l1, na, c, inc2, ch, 2, wa(iw:))
                 case (2)
-                    call c1f2kb(ido, l1, na, ch, 2, c, inc2, wa(iw:))
+                    call complex_pass_2_backward(ido, l1, na, ch, 2, c, inc2, wa(iw:))
                 case (3)
-                    call c1f3kb(ido, l1, na, c, inc2, ch, 2, wa(iw:))
+                    call complex_pass_3_backward(ido, l1, na, c, inc2, ch, 2, wa(iw:))
                 case (4)
-                    call c1f3kb(ido, l1, na, ch, 2, c, inc2, wa(iw:))
+                    call complex_pass_3_backward(ido, l1, na, ch, 2, c, inc2, wa(iw:))
                 case (5)
-                    call c1f4kb(ido, l1, na, c, inc2, ch, 2, wa(iw:))
+                    call complex_pass_4_backward(ido, l1, na, c, inc2, ch, 2, wa(iw:))
                 case (6)
-                    call c1f4kb(ido, l1, na, ch, 2, c, inc2, wa(iw:))
+                    call complex_pass_4_backward(ido, l1, na, ch, 2, c, inc2, wa(iw:))
                 case (7)
-                    call c1f5kb(ido, l1, na, c, inc2, ch, 2, wa(iw:))
+                    call complex_pass_5_backward(ido, l1, na, c, inc2, ch, 2, wa(iw:))
                 case (8)
-                    call c1f5kb(ido, l1, na, ch, 2, c, inc2, wa(iw:))
+                    call complex_pass_5_backward(ido, l1, na, ch, 2, c, inc2, wa(iw:))
                 case (9)
-                    call c1fgkb(ido, iip, l1, lid, na, c, c, inc2, ch, ch, 2, wa(iw:))
+                    call complex_pass_n_backward(ido, iip, l1, lid, na, c, c, inc2, ch, ch, 2, wa(iw:))
                 case (10)
-                    call c1fgkb(ido, iip, l1, lid, na, ch, ch, 2, c, c, inc2, wa(iw:))
+                    call complex_pass_n_backward(ido, iip, l1, lid, na, ch, ch, 2, c, c, inc2, wa(iw:))
             end select
 
             l1 = l2
@@ -186,11 +178,11 @@ contains
 
         end do
 
-    end subroutine c1fm1b
+    end subroutine complex_pass_backward
 
 
 
-    subroutine c1f2kb(ido, l1, na, cc, in1, ch, in2, wa)
+    subroutine complex_pass_2_backward(ido, l1, na, cc, in1, ch, in2, wa)
         !----------------------------------------------------------------------
         ! Dummy arguments
         !----------------------------------------------------------------------
@@ -254,11 +246,11 @@ contains
             deallocate( ti2 )
         end if
 
-    end subroutine c1f2kb
+    end subroutine complex_pass_2_backward
 
 
 
-    subroutine c1f3kb(ido, l1, na, cc, in1, ch, in2, wa)
+    subroutine complex_pass_3_backward(ido, l1, na, cc, in1, ch, in2, wa)
         !----------------------------------------------------------------------
         ! Dummy arguments
         !----------------------------------------------------------------------
@@ -271,7 +263,7 @@ contains
         integer (ip), intent (in)     :: in2
         real (wp),    intent (in)     :: wa(ido,2,2)
         !----------------------------------------------------------------------
-        ! Dummy arguments
+        ! Local variables
         !----------------------------------------------------------------------
         integer (ip)           :: i !! Counter
         real (wp), allocatable :: di2(:), di3(:)
@@ -358,10 +350,11 @@ contains
         deallocate( cr2, cr3 )
         deallocate( ti2, tr2 )
 
-    end subroutine c1f3kb
+    end subroutine complex_pass_3_backward
 
 
-    subroutine c1f4kb(ido, l1, na, cc, in1, ch, in2, wa)
+
+    subroutine complex_pass_4_backward(ido, l1, na, cc, in1, ch, in2, wa)
         !----------------------------------------------------------------------
         ! Dummy arguments
         !----------------------------------------------------------------------
@@ -374,7 +367,7 @@ contains
         integer (ip), intent (in)     :: in2
         real (wp),    intent (in)     :: wa(ido,3,2)
         !----------------------------------------------------------------------
-        ! Dummy arguments
+        ! Local variables
         !----------------------------------------------------------------------
         integer (ip)           :: i !! Counter
         real (wp), allocatable :: ci2(:), ci3(:), ci4(:)
@@ -467,11 +460,11 @@ contains
         deallocate( ti1, ti2, ti3, ti4 )
         deallocate( tr1, tr2, tr3, tr4 )
 
-    end subroutine c1f4kb
+    end subroutine complex_pass_4_backward
 
 
 
-    subroutine c1f5kb(ido, l1, na, cc, in1, ch, in2, wa)
+    subroutine complex_pass_5_backward(ido, l1, na, cc, in1, ch, in2, wa)
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
@@ -626,11 +619,11 @@ contains
         deallocate( cr2, cr3, cr4, cr5 )
         deallocate( ci2, ci3, ci4, ci5 )
 
-    end subroutine c1f5kb
+    end subroutine complex_pass_5_backward
 
 
 
-    subroutine c1fgkb(ido, iip, l1, lid, na, cc, cc1, in1, ch, ch1, in2, wa)
+    subroutine complex_pass_n_backward(ido, iip, l1, lid, na, cc, cc1, in1, ch, ch1, in2, wa)
         !------------------------------------------------------------------
         ! Dummy arguments
         !------------------------------------------------------------------
@@ -743,7 +736,7 @@ contains
             end if
         end if
 
-    end subroutine c1fgkb
+    end subroutine complex_pass_n_backward
 
 
 end submodule complex_backward_1d

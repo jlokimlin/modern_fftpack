@@ -81,14 +81,14 @@ contains
         !
         !==> Perform transform
         !
-        if (n /= 1) call rfftf1(n,inc,r,work,wsave,wsave(n+1))
+        if (n /= 1) call real_pass_forward(n,inc,r,work,wsave,wsave(n+1))
 
 
     end subroutine rfft1f
 
 
 
-    subroutine rfftf1(n, in, c, ch, wa, fac)
+    subroutine real_pass_forward(n, in, c, ch, wa, fac)
         !--------------------------------------------------------------
         ! Dummy arguments
         !--------------------------------------------------------------
@@ -122,6 +122,7 @@ contains
             iw1 = n
 
             do k1=1,nf
+
                 kh = nf-k1
                 iip = int(fac(kh+3), kind=ip)
                 l1 = l2/iip
@@ -129,30 +130,31 @@ contains
                 idl1 = ido*l1
                 iw1 = iw1-(iip-1)*ido
                 na = 1-na
+
                 select case (iip)
                     case (2)
                         select case (na)
                             case (0)
-                                call r1f2kf(ido,l1,c,in,ch,1,wa(iw1))
+                                call real_pass_2_forward(ido,l1,c,in,ch,1,wa(iw1))
                             case default
-                                call r1f2kf(ido,l1,ch,1,c,in,wa(iw1))
+                                call real_pass_2_forward(ido,l1,ch,1,c,in,wa(iw1))
                         end select
                     case (3)
                         iw2 = iw1+ido
                         select case (na)
                             case (0)
-                                call r1f3kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
+                                call real_pass_3_forward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2))
                             case default
-                                call r1f3kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
+                                call real_pass_3_forward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2))
                         end select
                     case (4)
                         iw2 = iw1+ido
                         iw3 = iw2+ido
                         select case (na)
                             case (0)
-                                call r1f4kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
+                                call real_pass_4_forward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3))
                             case default
-                                call r1f4kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
+                                call real_pass_4_forward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3))
                         end select
                     case (5)
                         iw2 = iw1+ido
@@ -160,20 +162,18 @@ contains
                         iw4 = iw3+ido
                         select case (na)
                             case (0)
-                                call r1f5kf(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                call real_pass_5_forward(ido,l1,c,in,ch,1,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
                             case default
-                                call r1f5kf(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
+                                call real_pass_5_forward(ido,l1,ch,1,c,in,wa(iw1),wa(iw2),wa(iw3),wa(iw4))
                         end select
                     case default
-                        if (ido == 1) then
-                            na = 1-na
-                        end if
+                        if (ido == 1) na = 1-na
                         select case (na)
                             case (0)
-                                call r1fgkf(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
+                                call real_pass_n_forward(ido,iip,l1,idl1,c,c,c,in,ch,ch,1,wa(iw1))
                                 na = 1
                             case default
-                                call r1fgkf(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
+                                call real_pass_n_forward(ido,iip,l1,idl1,ch,ch,ch,1,c,c,in,wa(iw1))
                                 na = 0
                         end select
                 end select
@@ -199,24 +199,20 @@ contains
                 c(1,j) = tsn*ch(j)
                 c(1,j+1) = tsnm*ch(j+1)
             end do
-            if (modn == 0) then
-                c(1,n) = sn*ch(n)
-            end if
+            if (modn == 0) c(1,n) = sn*ch(n)
         else
             c(1,1) = sn*c(1,1)
             do j=2,nl,2
                 c(1,j) = tsn*c(1,j)
                 c(1,j+1) = tsnm*c(1,j+1)
             end do
-            if (modn == 0) then
-                c(1,n) = sn*c(1,n)
-            end if
+            if (modn == 0) c(1,n) = sn*c(1,n)
         end if
 
-    end subroutine rfftf1
+    end subroutine real_pass_forward
 
 
-    subroutine r1f2kf(ido,l1,cc,in1,ch,in2,wa1)
+    subroutine real_pass_2_forward(ido,l1,cc,in1,ch,in2,wa1)
         !-----------------------------------------------
         ! Dummy arguments
         !-----------------------------------------------
@@ -228,7 +224,7 @@ contains
         integer (ip), intent (in)     :: in2
         real (wp),    intent (in)     :: wa1(ido)
         !-----------------------------------------------
-        ! Dummy arguments
+        ! Local variables
         !-----------------------------------------------
         integer (ip) :: i, ic, idp2
         !-----------------------------------------------
@@ -236,9 +232,7 @@ contains
         ch(1,1,1,:) = cc(1,1,:,1)+cc(1,1,:,2)
         ch(1,ido,2,:) = cc(1,1,:,1)-cc(1,1,:,2)
 
-        if (ido < 2) then
-            return
-        end if
+        if (ido < 2) return
 
         select case (ido)
             case (2)
@@ -272,10 +266,10 @@ contains
                 end if
         end select
 
-    end subroutine r1f2kf
+    end subroutine real_pass_2_forward
 
 
-    subroutine r1f3kf(ido,l1,cc,in1,ch,in2,wa1,wa2)
+    subroutine real_pass_3_forward(ido,l1,cc,in1,ch,in2,wa1,wa2)
         !-----------------------------------------------
         ! Dummy arguments
         !-----------------------------------------------
@@ -343,11 +337,11 @@ contains
                 end do
         end select
 
-    end subroutine r1f3kf
+    end subroutine real_pass_3_forward
 
 
 
-    subroutine r1f4kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
+    subroutine real_pass_4_forward(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3)
         !-----------------------------------------------
         ! Dummy arguments
         !-----------------------------------------------
@@ -428,11 +422,11 @@ contains
                 end if
         end select
 
-    end subroutine r1f4kf
+    end subroutine real_pass_4_forward
 
 
 
-    subroutine r1f5kf(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
+    subroutine real_pass_5_forward(ido,l1,cc,in1,ch,in2,wa1,wa2,wa3,wa4)
         !-----------------------------------------------
         ! Dummy arguments
         !-----------------------------------------------
@@ -570,11 +564,10 @@ contains
                 end do
         end select
 
-    end subroutine r1f5kf
+    end subroutine real_pass_5_forward
 
 
-
-    subroutine r1fgkf(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
+    subroutine real_pass_n_forward(ido,iip,l1,idl1,cc,c1,c2,in1,ch,ch2,in2,wa)
         !-----------------------------------------------
         ! Dummy arguments
         !-----------------------------------------------
@@ -645,7 +638,7 @@ contains
                     end do
                 end if
 
-                if (nbd >= l1) then
+                if (l1 <= nbd) then
                     do j=2,ipph
                         jc = ipp2-j
                         c1(1,2:ido-1:2,:, j)=ch(1,2:ido-1:2,:, j)+ch(1,2:ido-1:2,:, jc)
@@ -707,7 +700,7 @@ contains
             case (1)
                 return
             case default
-                if (nbd >= l1) then
+                if (l1 <= nbd) then
 
                     cc(1,2:ido-1:2, 3:ipph*2-1:2,:) = &
                         reshape(source = &
@@ -757,7 +750,7 @@ contains
                 end if
         end select
 
-    end subroutine r1fgkf
+    end subroutine real_pass_n_forward
 
 
 

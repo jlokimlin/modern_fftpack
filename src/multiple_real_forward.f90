@@ -797,7 +797,7 @@ contains
                 end do
             end do
 
-            if ( l1 >= nbd ) then
+            if (nbd <= l1) then
                 is = -ido
                 do j=2,iip
                     is = is+ido
@@ -833,7 +833,7 @@ contains
                 end do
             end if
 
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,iipph
                     jc = iipp2-j
                     do k=1,l1
@@ -966,7 +966,7 @@ contains
             end do
         end do
         if (ido /= 1) then
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,iipph
                     jc = iipp2-j
                     j2 = j+j

@@ -66,7 +66,7 @@ contains
         iw1 = 2*n+1
         iw2 = iw1 + 1
 
-        call mcfti1(n, wsave, wsave(iw1), wsave(iw2))
+        call initialize_factors_and_trig_tables(n, wsave, wsave(iw1), wsave(iw2))
 
     end subroutine cfft1i
 
@@ -227,18 +227,18 @@ contains
         iw1 = 2*n+1
         iw2 = iw1 + 1
 
-        call mcfti1(n, wsave, wsave(iw1), wsave(iw2:))
+        call initialize_factors_and_trig_tables(n, wsave, wsave(iw1), wsave(iw2:))
 
 
     end subroutine cfftmi
 
 
 
-    pure subroutine mcfti1(n, wa, fnf, fac)
+    pure subroutine initialize_factors_and_trig_tables(n, wa, fnf, fac)
         !
         ! Purpose:
         !
-        ! Sets up factors and tables
+        ! Sets up factors and trig tables
         !
         !--------------------------------------------------
         ! Dummy arguments
@@ -256,7 +256,7 @@ contains
         !
         !==> Get the factorization of n.
         !
-        call get_factorization(n, nf, fac)
+        call compute_factorization(n, nf, fac)
         fnf = real(nf, kind=wp)
         iw = 1
         l1 = 1
@@ -267,16 +267,16 @@ contains
             iip = int(fac(k1), kind=ip)
             l2 = l1 * iip
             ido = n / l2
-            call compute_trigonometic_tables(ido, iip, wa(iw))
+            call compute_trig_table(ido, iip, wa(iw))
             iw = iw + (iip - 1) * (2*ido)
             l1 = l2
         end do
 
-    end subroutine mcfti1
+    end subroutine initialize_factors_and_trig_tables
 
 
 
-    pure subroutine get_factorization(n, nf, fac)
+    pure subroutine compute_factorization(n, nf, fac)
         !
         ! Purpose:
         !
@@ -335,10 +335,10 @@ contains
             end do inner_loop
         end do
 
-    end subroutine get_factorization
+    end subroutine compute_factorization
 
 
-    pure subroutine compute_trigonometic_tables(ido, iip, wa)
+    pure subroutine compute_trig_table(ido, iip, wa)
         !
         ! Purpose:
         !
@@ -375,7 +375,7 @@ contains
             end if
         end do
 
-    end subroutine compute_trigonometic_tables
+    end subroutine compute_trig_table
 
 
 

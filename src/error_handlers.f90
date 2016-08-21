@@ -57,7 +57,7 @@ contains
 
     module procedure fft_error_handler
 
-        use, intrinsic :: iso_fortran_env, only: stderr => ERROR_UNIT
+        use, intrinsic :: ISO_Fortran_env, only: stderr => ERROR_UNIT
 
         write (stderr, '(/a)') ' fftpack routine:: '
         write (stderr, '(a)') ' FATAL ERROR '

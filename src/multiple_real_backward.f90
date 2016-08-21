@@ -772,7 +772,7 @@ contains
         end do
 
         if (ido /= 1) then
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,iipph
                     jc = iipp2-j
                     do k=1,l1
@@ -867,7 +867,7 @@ contains
         end do
 
         if (ido /= 1) then
-            if (nbd >= l1) then
+            if (l1 <= nbd) then
                 do j=2,iipph
                     jc = iipp2-j
                     do k=1,l1

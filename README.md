@@ -16,9 +16,10 @@ An object-oriented modernization of NCAR's FFTPACK5.1.
 
 ```fortran
 
-    
+    use, intrinsic :: ISO_C_binding, only: &
+        wp => C_DOUBLE
+        
     use fftpack_library, only: &
-        wp, & ! 64-bit double precision
         FFTpack
 
     ! Explicit typing only

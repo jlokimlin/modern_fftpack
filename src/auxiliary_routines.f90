@@ -1,6 +1,6 @@
 module auxiliary_routines
 
-    use, intrinsic :: iso_fortran_env, only: &
+    use, intrinsic :: ISO_Fortran_env, only: &
         stderr => ERROR_UNIT
 
     use fftpack_precision, only: &
